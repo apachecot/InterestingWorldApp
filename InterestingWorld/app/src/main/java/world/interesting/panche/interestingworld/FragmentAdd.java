@@ -17,14 +17,12 @@ import android.widget.TextView;
 /**
  * Created by neokree on 31/12/14.
  */
-public class FragmentButton extends Fragment{
+public class FragmentAdd extends Fragment{
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Button button = new Button(this.getActivity());
-        button.setText("Click Me");
-        button.setGravity(Gravity.CENTER);
-        return button;
+
+        return inflater.inflate(R.layout.activity_main, container, false);
 
     }
 }
