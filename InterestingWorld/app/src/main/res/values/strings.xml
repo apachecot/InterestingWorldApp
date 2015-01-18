@@ -11,6 +11,8 @@
     <string name="visitlocation">Puntos de interés visitados</string>
     <string name="email">Email</string>
     <string name="pass">Password</string>
+    <string name="name">Nombre</string>
+    <string name="lastname">Apellidos</string>
     <string name="accept">Aceptar</string>
     <string name="next">Siguiente</string>
     <string name="back">Atras</string>
