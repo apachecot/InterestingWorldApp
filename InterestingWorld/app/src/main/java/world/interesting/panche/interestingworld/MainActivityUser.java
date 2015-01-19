@@ -1,6 +1,8 @@
 package world.interesting.panche.interestingworld;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -14,12 +16,15 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
 
     MaterialAccount account;
     MaterialSection lastLocations, explore, photos, addlocation, last, settingsSection;
+    String[] datos= new String[5];
 
     @Override
     public void init(Bundle savedInstanceState) {
 
+        datos=loadPreferences();
+
         // add first account
-        account = new MaterialAccount("Alejandro","panche14@gmail.com",this.getResources().getDrawable(R.drawable.alex),this.getResources().getDrawable(R.drawable.back1));
+        account = new MaterialAccount(datos[1]+" "+datos[2],datos[3],this.getResources().getDrawable(R.drawable.defaultuser),this.getResources().getDrawable(R.drawable.back1));
 
         this.addAccount(account);
 
@@ -76,6 +81,22 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     @Override
     public void onChangeAccount(MaterialAccount newAccount) {
         // when another account is selected
+    }
+
+    //cargar configuración aplicación Android usando SharedPreferences
+    public String[] loadPreferences() {
+        String[] datos=new String[5];
+        SharedPreferences prefs = getSharedPreferences("preferences", Context.MODE_PRIVATE);
+        datos[0] = prefs.getString("id", "-1");
+        datos[1] = prefs.getString("name", "");
+        datos[2] = prefs.getString("lastname", "");
+        datos[3] = prefs.getString("email", "");
+        datos[4] = prefs.getString("photo_url", "");
+
+        for(int i=0; i < datos.length; i++) {
+            System.out.println(datos[i]);
+        }
+        return datos;
     }
 
 }
