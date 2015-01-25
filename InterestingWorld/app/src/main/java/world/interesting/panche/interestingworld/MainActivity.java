@@ -1,7 +1,10 @@
 package world.interesting.panche.interestingworld;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
 
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.MaterialSection;
@@ -16,12 +19,13 @@ public class MainActivity extends MaterialNavigationDrawer{
     @Override
     public void init(Bundle savedInstanceState) {
 
-        // night section with section color
-        lastLocations = this.newSection(this.getResources().getString(R.string.explore), new FragmentIndex());
 
-        explore = this.newSection(this.getResources().getString(R.string.explore), this.getResources().getDrawable(R.drawable.location), new FragmentIndex());
+        // night section with section color
+        lastLocations = this.newSection(this.getResources().getString(R.string.explore), new FragmentIndex()).setSectionColor(Color.parseColor("#CC0000"));
+
+        explore = this.newSection(this.getResources().getString(R.string.explore), this.getResources().getDrawable(R.drawable.location), new FragmentIndex()).setSectionColor(Color.parseColor("#9c27b0"));
                 // recorder section with icon and 10 notifications
-                photos = this.newSection(this.getResources().getString(R.string.photos), this.getResources().getDrawable(R.drawable.photo), new FragmentIndex()).setNotifications(10);
+        photos = this.newSection(this.getResources().getString(R.string.photos), this.getResources().getDrawable(R.drawable.photo), new FragmentIndex()).setSectionColor(Color.parseColor("#03a9f4"));
 
         Intent i = new Intent(this,Login.class);
         login = this.newSection(this.getResources().getString(R.string.login),this.getResources().getDrawable(R.drawable.user),i);
@@ -35,14 +39,11 @@ public class MainActivity extends MaterialNavigationDrawer{
         //this.addDivisor();
         this.addBottomSection(login);
 
+        this.closeContextMenu();
+
 
     }
 
-    @Override
-    protected MaterialSection backToSection(MaterialSection currentSection) {
-
-        return currentSection;
-    }
 
 }
 

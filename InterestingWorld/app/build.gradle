@@ -21,6 +21,7 @@ android {
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -31,4 +32,7 @@ dependencies {
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.daimajia.androidviewhover:library:1.0.3@aar'
     compile 'com.loopj.android:android-async-http:1.4.5'
+    compile 'jp.wasabeef:glide-transformations:1.0.1'
+    compile 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.2.3'
 }
+

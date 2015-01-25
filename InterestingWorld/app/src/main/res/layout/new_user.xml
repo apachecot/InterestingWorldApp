@@ -1,7 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<ScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="vertical"
+    xmlns:tools="http://schemas.android.com/tools">
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        tools:context=".NewUser"
+        android:gravity="center"
+        android:nestedScrollingEnabled="false">
+    <Button
+        android:layout_width="188dp"
+        android:layout_height="wrap_content"
+        android:text="Subir foto de perfil"
+        android:id="@+id/button2"
+        android:layout_gravity="center_horizontal"
+        android:onClick="selectImage"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ImageViewUser"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.09"
+        android:maxHeight="150dp"
+        android:maxWidth="150dp"
+        android:src="@drawable/defaultuser"
+        android:adjustViewBounds="true"
+        android:padding="10dp"
+        android:onClick="selectImage" />
 
     <EditText
         android:layout_width="300dp"
@@ -9,7 +44,7 @@
         android:id="@+id/editTextName"
         android:layout_gravity="center_horizontal"
         android:hint="@string/name"
-        android:layout_marginTop="100dp" />
+        android:layout_marginTop="25dp" />
 
     <EditText
         android:layout_width="300dp"
@@ -37,6 +72,8 @@
         android:id="@+id/editTextPassword"
         android:layout_gravity="center_horizontal"
         android:hint="@string/pass"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="25dp" />
 
     <Button
@@ -45,6 +82,9 @@
         android:text="Aceptar"
         android:id="@+id/buttonEnviar"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="40dp"
-        android:onClick="buttonAccept" />
-</LinearLayout>
+        android:onClick="buttonAccept"
+        android:layout_alignTop="@+id/editTextPassword"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="23dp" />
+    </TableLayout>
+</ScrollView>

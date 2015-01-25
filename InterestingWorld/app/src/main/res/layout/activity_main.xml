@@ -35,7 +35,7 @@
                 android:id="@+id/source2"
                 android:layout_centerInParent="true"
                 android:scaleType="fitXY"
-                android:src="@drawable/back1"
+                android:src="@drawable/back2"
                 android:layout_width="match_parent"
                 android:layout_height="125dp" />
         </com.daimajia.androidviewhover.BlurLayout>
@@ -67,6 +67,38 @@
             <ImageView
                 android:layout_below="@+id/source"
                 android:id="@+id/source4"
+                android:layout_centerInParent="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/back1"
+                android:layout_width="match_parent"
+                android:layout_height="140dp" />
+        </com.daimajia.androidviewhover.BlurLayout>
+        <com.daimajia.androidviewhover.BlurLayout
+            android:id="@+id/blur_layout5"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:layout_below="@+id/blur_layout3"
+            android:layout_width="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_below="@+id/source"
+                android:id="@+id/source5"
+                android:layout_centerInParent="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/back2"
+                android:layout_width="match_parent"
+                android:layout_height="140dp" />
+        </com.daimajia.androidviewhover.BlurLayout>
+        <com.daimajia.androidviewhover.BlurLayout
+            android:id="@+id/blur_layout6"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:layout_below="@+id/blur_layout3"
+            android:layout_width="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_below="@+id/source"
+                android:id="@+id/source6"
                 android:layout_centerInParent="true"
                 android:scaleType="fitXY"
                 android:src="@drawable/back1"

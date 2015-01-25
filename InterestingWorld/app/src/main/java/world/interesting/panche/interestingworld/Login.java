@@ -109,16 +109,9 @@ public class Login extends ActionBarActivity {
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                try {
-                    setResult(new String(responseBody));
-                    System.out.println(new String(responseBody));
-                    pDialog.hide();
-                    Toast.makeText(Login.this, "El usuario o contraseña, no son correctos", Toast.LENGTH_SHORT).show();
-                }catch(JSONException ignored)
-                {
-                    Toast.makeText(Login.this, "El usuario o contraseña, no son correctos", Toast.LENGTH_SHORT).show();
-                }
 
+                Toast.makeText(Login.this, "Parece que hay algún problema con la red", Toast.LENGTH_SHORT).show();
+                pDialog.hide();
 
             }
         });
