@@ -1,12 +1,8 @@
 package world.interesting.panche.interestingworld;
 
 /**
- * Created by Alex on 15/01/2015.
+ * Created by Alex on 29/01/2015.
  */
-
-
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -14,24 +10,18 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.view.Menu;
-import android.widget.TextView;
 
-import com.loopj.android.image.SmartImageView;
-
-public class Profile extends ActionBarActivity {
+public class Settings extends ActionBarActivity {
 
     /** Alpha Toolbar **/
     private world.interesting.panche.interestingworld.AlphaForeGroundColorSpan mAlphaForegroundColorSpan;
     private SpannableString mSpannableString;
 
-    String[] datos= new String[5];
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.profile);
+        setContentView(R.layout.fragment_layout);
 
-        datos=loadPreferences();
         String title = "Recipe";
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -79,38 +69,6 @@ public class Profile extends ActionBarActivity {
         mSpannableString.setSpan(mAlphaForegroundColorSpan, 0, mSpannableString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         getSupportActionBar().setTitle(mSpannableString);
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-    public String[] loadPreferences() {
-        String[] datos=new String[5];
-        SharedPreferences prefs = getSharedPreferences("preferences", Context.MODE_PRIVATE);
-        datos[0] = prefs.getString("id", "-1");
-        datos[1] = prefs.getString("name", "");
-        datos[2] = prefs.getString("lastname", "");
-        datos[3] = prefs.getString("email", "");
-        datos[4] = prefs.getString("photo_url", "");
 
-        for(int i=0; i < datos.length; i++) {
-            System.out.println(datos[i]);
-        }
-        SmartImageView myImage = (SmartImageView) this.findViewById(R.id.my_image);
-        myImage.setImageUrl("http://"+datos[4]);
-        TextView name = (TextView) findViewById(R.id.textViewName);
-        TextView email = (TextView) findViewById(R.id.textViewEmail);
-        name.setText(datos[1]+" "+datos[2]);
-        email.setText(datos[3]);
-        return datos;
-    }
-    public void setData ()
-    {
-        SmartImageView myImage = (SmartImageView) this.findViewById(R.id.my_image);
-        myImage.setImageUrl("http://"+datos[4]);
-        TextView name = (TextView) findViewById(R.id.textViewName);
-        TextView email = (TextView) findViewById(R.id.textViewEmail);
-        name.setText(datos[1]+" "+datos[2]);
-        email.setText(datos[3]);
-    }
+
 }

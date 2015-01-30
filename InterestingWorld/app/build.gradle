@@ -1,9 +1,16 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'panche'
+            keyPassword '011002'
+            storeFile file('G:/Android/Proyectos/claves.jks')
+            storePassword '011002'
+        }
+    }
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
-
     defaultConfig {
         applicationId "world.interesting.panche.interestingworld"
         minSdkVersion 14
@@ -25,14 +32,24 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.android.support:recyclerview-v7:21.0.0'
+    compile 'com.android.support:cardview-v7:21.0.0'
+    compile 'com.github.cmc00022:easyrecycleradapters:0.1.6'
     compile 'it.neokree:MaterialNavigationDrawer:1.2.9'
-    compile "com.android.support:support-v4:21.+"
+    compile 'com.android.support:support-v4:21.0.3'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.daimajia.androidviewhover:library:1.0.3@aar'
     compile 'com.loopj.android:android-async-http:1.4.5'
     compile 'jp.wasabeef:glide-transformations:1.0.1'
     compile 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.2.3'
+    //---------------------------------------------------------------
+    //Parallax Scroll image
+    compile 'com.github.nirhart:parallaxscroll:1.0'
+    //--------------------------------------------------------------
+    //Download images easy
+    compile files('G:/Android/Git/ProyectoDaw/InterestingWorld/libs/smart.jar')
+    compile 'com.google.android.gms:play-services:6.1.+'
 }
 

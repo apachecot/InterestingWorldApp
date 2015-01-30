@@ -51,17 +51,17 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         lastLocations = this.newSection(this.getResources().getString(R.string.explore), new FragmentIndex()).setSectionColor(Color.parseColor("#CC0000"));
 
         //Explorar el mapa cercano
-        explore = this.newSection(this.getResources().getString(R.string.explore), this.getResources().getDrawable(R.drawable.location), new FragmentIndex()).setSectionColor(Color.parseColor("#9c27b0"));
+        explore = this.newSection(this.getResources().getString(R.string.explore), this.getResources().getDrawable(R.drawable.location), new FragmentMap()).setSectionColor(Color.parseColor("#9c27b0"));
 
         // Explorar fotografías
-        photos = this.newSection(this.getResources().getString(R.string.photos), this.getResources().getDrawable(R.drawable.photo), new FragmentIndex()).setSectionColor(Color.parseColor("#03a9f4"));
+        photos = this.newSection(this.getResources().getString(R.string.photos), this.getResources().getDrawable(R.drawable.photo), new FragmentAdd()).setSectionColor(Color.parseColor("#03a9f4"));
 
         // Añadir una localización
         addlocation = this.newSection(this.getResources().getString(R.string.addlocation), this.getResources().getDrawable(R.drawable.addlocation), new FragmentAdd())
                 .setSectionColor(Color.parseColor("#2196f3"),Color.parseColor("#1565c0"));
 
         //Para cargar la configuración
-        Intent i = new Intent(this,Profile.class);
+        Intent i = new Intent(this,Settings.class);
         settingsSection = this.newSection(this.getResources().getString(R.string.settings),this.getResources().getDrawable(R.drawable.settings),i);
 
         // add your sections to the drawer
@@ -74,7 +74,9 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         this.addBottomSection(settingsSection);
 
         this.setBackPattern(MaterialNavigationDrawer.BACKPATTERN_BACK_TO_FIRST);
-        this.closeContextMenu();
+        this.closeOptionsMenu();
+        //this.addMultiPaneSupport();
+        this.allowArrowAnimation();
     }
 
 

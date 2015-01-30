@@ -56,6 +56,7 @@ public class NewUser extends ActionBarActivity {
         email=(EditText)findViewById(R.id.editTextEmail);
         password=(EditText)findViewById(R.id.editTextPassword);
         Button bAccept = (Button)findViewById(R.id.buttonAccept);
+
     }
     public void buttonAccept(View view) throws JSONException, FileNotFoundException {
         //Inicializamos dialog

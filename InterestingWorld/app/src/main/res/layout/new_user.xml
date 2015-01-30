@@ -14,18 +14,8 @@
         tools:context=".NewUser"
         android:gravity="center"
         android:nestedScrollingEnabled="false">
-    <Button
-        android:layout_width="188dp"
-        android:layout_height="wrap_content"
-        android:text="Subir foto de perfil"
-        android:id="@+id/button2"
-        android:layout_gravity="center_horizontal"
-        android:onClick="selectImage"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp" />
 
-    <ImageView
+        <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/ImageViewUser"
@@ -36,7 +26,8 @@
         android:src="@drawable/defaultuser"
         android:adjustViewBounds="true"
         android:padding="10dp"
-        android:onClick="selectImage" />
+        android:onClick="selectImage"
+            android:layout_marginTop="25dp" />
 
     <EditText
         android:layout_width="300dp"

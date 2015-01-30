@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-android:layout_width="match_parent"
-android:layout_height="match_parent">
-
-<world.interesting.panche.interestingworld.ScrollViewHelper
-    android:id="@+id/scrollViewHelper"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
+    android:layout_height="match_parent">
     <com.nirhart.parallaxscroll.views.ParallaxScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -24,31 +17,14 @@ android:layout_height="match_parent">
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
-            <com.loopj.android.image.SmartImageView
-                android:id="@+id/my_image"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:src="@drawable/defaultuser"
-                android:layout_margin="10dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Name"
-                android:id="@+id/textViewName"
-                android:textSize="26sp"
-                android:padding="5dp"
-                android:layout_gravity="center_horizontal"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Email"
-                android:id="@+id/textViewEmail"
-                android:textSize="26sp"
-                android:padding="5dp"
-                android:layout_gravity="center_horizontal" />
+                android:background="@drawable/back1"
+                android:gravity="center"
+                android:text="PARALLAXED"
+                android:textSize="50sp"
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -61,15 +37,4 @@ android:layout_height="match_parent">
         </LinearLayout>
 
     </com.nirhart.parallaxscroll.views.ParallaxScrollView>
-
-</world.interesting.panche.interestingworld.ScrollViewHelper>
-
-<android.support.v7.widget.Toolbar
-    android:id="@+id/toolbar"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-    android:minHeight="?attr/actionBarSize"
-    android:background="?attr/colorPrimary" />
-
 </FrameLayout>
