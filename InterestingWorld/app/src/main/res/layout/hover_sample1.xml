@@ -1,40 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <LinearLayout
-        android:id="@+id/animation_area"
-        android:layout_centerInParent="true"
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_height="match_parent">
-        <ImageView
-            android:layout_marginRight="20dp"
-            android:id="@+id/heart"
-            android:src="@drawable/photo"
-            android:layout_width="25dp"
-            android:layout_height="25dp" />
-        <ImageView
-            android:id="@+id/share"
-            android:layout_marginRight="20dp"
-            android:src="@drawable/location"
-            android:layout_width="25dp"
-            android:layout_height="25dp"/>
-        <ImageView
-            android:id="@+id/more"
-            android:src="@drawable/location"
-            android:layout_width="25dp"
-            android:layout_height="25dp"/>
-    </LinearLayout>
-    <TextView
-        android:id="@+id/description"
-        android:text="Parse PHP SDK"
-        android:layout_marginLeft="12dp"
-        android:textColor="#ffffff"
-        android:layout_marginBottom="12dp"
-        android:layout_alignParentBottom="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-</RelativeLayout>
+    android:layout_height="match_parent"
+
+    android:gravity="center_horizontal"
+>
+
+    <ImageButton
+        android:id="@+id/ic1"
+        android:scaleType="fitCenter"
+        android:src="@drawable/map"
+        android:background="?android:selectableItemBackground"
+        style="@style/card.native.actions.button"
+        android:layout_marginRight="8dp"
+        />
+
+
+    <ImageButton
+        android:scaleType="fitCenter"
+        android:id="@+id/ic2"
+        android:background="?android:selectableItemBackground"
+        android:src="@drawable/location"
+        style="@style/card.native.actions.button"
+        android:layout_marginRight="8dp"
+        />
+
+    <ImageButton
+        android:scaleType="fitCenter"
+        android:id="@+id/ic3"
+        android:background="?android:selectableItemBackground"
+        android:src="@drawable/photo"
+        style="@style/card.native.actions.button"
+        android:layout_marginRight="8dp"
+        />
+
+</LinearLayout>

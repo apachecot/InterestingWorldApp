@@ -15,16 +15,16 @@ import org.apache.http.Header;
 
 import java.io.File;
 
-import it.neokree.materialnavigationdrawer.MaterialAccount;
-import it.neokree.materialnavigationdrawer.MaterialAccountListener;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
-import it.neokree.materialnavigationdrawer.MaterialSection;
+import it.neokree.materialnavigationdrawer.elements.MaterialAccount;
+import it.neokree.materialnavigationdrawer.elements.MaterialSection;
+import it.neokree.materialnavigationdrawer.elements.listeners.MaterialAccountListener;
 
 
 public class MainActivityUser extends MaterialNavigationDrawer implements MaterialAccountListener {
 
     MaterialAccount account;
-    MaterialSection lastLocations, explore, photos, addlocation, last, settingsSection;
+    MaterialSection lastLocations, explore, photos, addlocation, visitlocation, settingsSection;
     String[] datos= new String[5];
     File file_image= new File("");
     String photo_url;
@@ -39,7 +39,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         loadImage("http://"+photo_url);
 
         //Creamos la cuenta, con la imagen por defecto, si existe una imagen en el servidor se cambiará
-        account = new MaterialAccount(datos[1]+" "+datos[2],datos[3],this.getResources().getDrawable(R.drawable.defaultuser),this.getResources().getDrawable(R.drawable.back1));
+        account = new MaterialAccount(this.getResources(),datos[1]+" "+datos[2],datos[3],R.drawable.defaultuser,R.drawable.back1);
 
         //Añadimos la cuenta al menú
         this.addAccount(account);
@@ -48,7 +48,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         this.setAccountListener(this);
 
         // Ultimas localizaciones
-        lastLocations = this.newSection(this.getResources().getString(R.string.explore), new FragmentIndex()).setSectionColor(Color.parseColor("#CC0000"));
+        lastLocations = this.newSection(this.getResources().getString(R.string.lastlocations),this.getResources().getDrawable(R.drawable.map), new FragmentIndex()).setSectionColor(Color.parseColor("#CC0000"));
 
         //Explorar el mapa cercano
         explore = this.newSection(this.getResources().getString(R.string.explore), this.getResources().getDrawable(R.drawable.location), new FragmentMap()).setSectionColor(Color.parseColor("#9c27b0"));
@@ -57,7 +57,10 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         photos = this.newSection(this.getResources().getString(R.string.photos), this.getResources().getDrawable(R.drawable.photo), new FragmentAdd()).setSectionColor(Color.parseColor("#03a9f4"));
 
         // Añadir una localización
-        addlocation = this.newSection(this.getResources().getString(R.string.addlocation), this.getResources().getDrawable(R.drawable.addlocation), new FragmentAdd())
+        addlocation = this.newSection(this.getResources().getString(R.string.addlocation), this.getResources().getDrawable(R.drawable.addlocation), new FragmentAddLocation())
+                .setSectionColor(Color.parseColor("#2196f3"),Color.parseColor("#1565c0"));
+
+        visitlocation = this.newSection(this.getResources().getString(R.string.visitlocation), this.getResources().getDrawable(R.drawable.visit), new FragmentAdd())
                 .setSectionColor(Color.parseColor("#2196f3"),Color.parseColor("#1565c0"));
 
         //Para cargar la configuración
@@ -69,6 +72,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         this.addSection(explore);
         this.addSection(photos);
         this.addSection(addlocation);
+        this.addSection(visitlocation);
         //this.addSubheader("Opciones");
         //this.addDivisor();
         this.addBottomSection(settingsSection);
@@ -77,6 +81,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         this.closeOptionsMenu();
         //this.addMultiPaneSupport();
         this.allowArrowAnimation();
+        this.disableLearningPattern();
     }
 
 

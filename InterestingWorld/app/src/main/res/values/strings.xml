@@ -5,7 +5,8 @@
     <string name="hello_world">Hello world!</string>
     <string name="login">Login</string>
     <string name="profile">Perfil</string>
-    <string name="explore">Sitios de interés</string>
+    <string name="lastlocations">Nuevos puntos</string>
+    <string name="explore">Puntos de interés</string>
     <string name="photos">Buscar fotografías</string>
     <string name="addlocation">Añadir punto de interés</string>
     <string name="visitlocation">Puntos de interés visitados</string>
@@ -13,6 +14,9 @@
     <string name="pass">Password</string>
     <string name="name">Nombre</string>
     <string name="lastname">Apellidos</string>
+    <string name="description">Descripción</string>
+    <string name="lat">Latitud</string>
+    <string name="lng">Longitud</string>
     <string name="accept">Aceptar</string>
     <string name="next">Siguiente</string>
     <string name="back">Atras</string>

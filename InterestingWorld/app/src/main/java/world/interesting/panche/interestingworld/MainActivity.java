@@ -5,7 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
-import it.neokree.materialnavigationdrawer.MaterialSection;
+import it.neokree.materialnavigationdrawer.elements.MaterialSection;
 
 
 
@@ -19,7 +19,7 @@ public class MainActivity extends MaterialNavigationDrawer{
 
 
         // night section with section color
-        lastLocations = this.newSection(this.getResources().getString(R.string.explore), new FragmentIndex()).setSectionColor(Color.parseColor("#CC0000"));
+        lastLocations = this.newSection(this.getResources().getString(R.string.lastlocations),this.getResources().getDrawable(R.drawable.map), new FragmentIndex()).setSectionColor(Color.parseColor("#CC0000"));
 
         explore = this.newSection(this.getResources().getString(R.string.explore), this.getResources().getDrawable(R.drawable.location), new FragmentMap()).setSectionColor(Color.parseColor("#9c27b0"));
                 // recorder section with icon and 10 notifications
@@ -40,6 +40,7 @@ public class MainActivity extends MaterialNavigationDrawer{
         this.closeOptionsMenu();
         //this.addMultiPaneSupport();
         this.allowArrowAnimation();
+        this.disableLearningPattern();
 
 
     }

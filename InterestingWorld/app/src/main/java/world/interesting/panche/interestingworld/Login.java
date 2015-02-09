@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -22,10 +21,6 @@ import org.apache.http.Header;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import world.interesting.panche.interestingworld.Preferences;
-
-import java.lang.reflect.Array;
 
 /**
  * Created by neokree on 12/12/14.
@@ -42,7 +37,7 @@ public class Login extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
         email=(EditText)findViewById(R.id.editTextEmail);
-        password=(EditText)findViewById(R.id.editTextPassword);
+        password=(EditText)findViewById(R.id.editTextLng);
 
 
     }

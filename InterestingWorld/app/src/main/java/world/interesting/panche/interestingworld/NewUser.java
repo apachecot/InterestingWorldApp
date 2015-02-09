@@ -54,7 +54,7 @@ public class NewUser extends ActionBarActivity {
         name=(EditText)findViewById(R.id.editTextName);
         lastname=(EditText)findViewById(R.id.editTextLastname);
         email=(EditText)findViewById(R.id.editTextEmail);
-        password=(EditText)findViewById(R.id.editTextPassword);
+        password=(EditText)findViewById(R.id.editTextLng);
         Button bAccept = (Button)findViewById(R.id.buttonAccept);
 
     }

@@ -6,81 +6,102 @@ package world.interesting.panche.interestingworld;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 public class FragmentMap extends Fragment {
 
-    MapView mapView;
-    static final LatLng HAMBURG = new LatLng(53.558, 9.927);
-    static final LatLng KIEL = new LatLng(53.551, 9.993);
-    private GoogleMap map;
-    private GoogleMap googleMap;
-    static final LatLng TutorialsPoint = new LatLng(21 , 57);
+    private MapView mMapView;
+    private GoogleMap mMap;
+    private Bundle mBundle;
 
 
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        View v=inflater.inflate(R.layout.map, container, false);
-        //mapView = (MapView)v.findViewById(R.id.map);
-//        mapView.onCreate(savedInstanceState);
-//
-//        googleMap = mapView.getMap();
-//        googleMap.setMyLocationEnabled(true);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View inflatedView = inflater.inflate(R.layout.map, container, false);
 
         try {
-            if (map == null) {
-                map = ((MapFragment)((MaterialNavigationDrawer)this.getActivity()).getFragmentManager().
-                        findFragmentById(R.id.map)).getMap();
-            }
-            map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-            Marker TP = map.addMarker(new MarkerOptions().
-                    position(TutorialsPoint).title("TutorialsPoint"));
-
+            MapsInitializer.initialize(getActivity());
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("error map");
+// TODO handle this situation
         }
-        return v;
+        System.out.println("OncreateView");
+        mMapView = (MapView) inflatedView.findViewById(R.id.map);
+        mMapView.onCreate(mBundle);
+        setUpMapIfNeeded(inflatedView);
+
+        return inflatedView;
     }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mBundle = savedInstanceState;
+        if (mMap != null) {setUpMap();}
+    }
+
+    private void setUpMapIfNeeded(View inflatedView) {
+        if (mMap == null) {
+            mMap = ((MapView) inflatedView.findViewById(R.id.map)).getMap();
+            if (mMap != null) {
+                setUpMap();
+            }
+        }
+    }
+
+    private void setUpMap() {
+
+        mMap.addMarker(new MarkerOptions().position(new LatLng(41.41775257865992,
+                2.2058293414581683)).title("Marker").draggable(true));
+        mMap.setMyLocationEnabled(true);
+        centerCity();
+        System.out.println("Mapa seteado");
+        //mMap.animateCamera(CameraUpdateFactory.zoomBy(15));
+    }
+
     @Override
     public void onResume() {
+        super.onResume();
+        mMapView.onResume();
+        System.out.println("onresume");
+        setUpMap();
+    }
 
-        try{
-            super.onResume();
-            mapView.onResume();
-        }catch(NullPointerException e){
-            Log.d("onResume", "NullPointerException: " + e);
-        }
+    @Override
+    public void onPause() {
+        super.onPause();
+        mMapView.onPause();
     }
 
     @Override
     public void onDestroy() {
-        try{
-            super.onDestroy();
-            mapView.onDestroy();
-        }catch(NullPointerException e){
-            Log.d("onDestroy", "NullPointerException: " + e);
-        }
+        mMapView.onDestroy();
+        super.onDestroy();
     }
+    public void centerCity()
+    {
+        LatLng madrid = new LatLng(41.41775257865992,
+                2.2058293414581683);
+        CameraPosition camPos = new CameraPosition.Builder()
+                .target(madrid)   //Centramos el mapa en Madrid
+                .zoom(10)         //Establecemos el zoom en 19
+                .build();
 
-    @Override
-    public void onLowMemory() {
-        try{
-            super.onLowMemory();
-            mapView.onLowMemory();
-        }catch(NullPointerException e){
-            Log.d("onLowMemory", "NullPointerException: " + e);
-        }
+        CameraUpdate camUpd3 =
+                CameraUpdateFactory.newCameraPosition(camPos);
+
+        mMap.animateCamera(camUpd3);
     }
 }

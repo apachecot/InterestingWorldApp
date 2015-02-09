@@ -11,14 +11,14 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
         android:paddingBottom="@dimen/activity_vertical_margin"
-        tools:context=".NewUser"
+        tools:context=".FragmentAddLocation"
         android:gravity="center"
         android:nestedScrollingEnabled="false">
 
         <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/ImageViewUser"
+        android:id="@+id/ImageViewLocation"
         android:layout_gravity="center_horizontal"
         android:layout_weight="0.09"
         android:maxHeight="150dp"
@@ -26,8 +26,8 @@
         android:src="@drawable/defaultuser"
         android:adjustViewBounds="true"
         android:padding="10dp"
-        android:onClick="selectImage"
-            android:layout_marginTop="25dp" />
+            android:layout_marginTop="25dp"
+            android:onClick="selectImage" />
 
     <EditText
         android:layout_width="300dp"
@@ -40,9 +40,9 @@
     <EditText
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:id="@+id/editTextLastname"
+        android:id="@+id/editTextDescription"
         android:layout_gravity="center_horizontal"
-        android:hint="@string/lastname"
+        android:hint="@string/description"
         android:layout_marginTop="25dp" />
 
     <EditText
@@ -50,9 +50,9 @@
         android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
         android:ems="10"
-        android:id="@+id/editTextEmail"
+        android:id="@+id/editTextLat"
         android:layout_gravity="center_horizontal"
-        android:hint="@string/email"
+        android:hint="@string/lat"
         android:layout_marginTop="25dp" />
 
     <EditText
@@ -62,7 +62,7 @@
         android:ems="10"
         android:id="@+id/editTextLng"
         android:layout_gravity="center_horizontal"
-        android:hint="@string/pass"
+        android:hint="@string/lng"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="25dp" />
@@ -73,7 +73,6 @@
         android:text="Aceptar"
         android:id="@+id/buttonEnviar"
         android:layout_gravity="center_horizontal"
-        android:onClick="buttonAccept"
         android:layout_alignTop="@+id/editTextLng"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="23dp" />

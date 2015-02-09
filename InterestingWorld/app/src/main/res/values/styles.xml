@@ -6,7 +6,7 @@
     </style>
 
     <!-- Base application theme. -->
-    <style name="NavigationDrawer" parent="MaterialNavigationDrawerTheme.Light.DarkActionBar">
+    <style name="NavigationDrawer" parent="MaterialNavigationDrawerTheme.Light.DarkActionBar.TranslucentKitKatStatusBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">#8bc34a</item>
         <item name="colorPrimaryDark">#558b2f</item>
@@ -15,7 +15,7 @@
     </style>
 
     <!-- No Drawer Header -->
-    <style name="NoHeader" parent="MaterialNavigationDrawerTheme.Light.DarkActionBar">
+    <style name="NoHeader" parent="MaterialNavigationDrawerTheme.Light.DarkActionBar.TranslucentKitKatStatusBar">
         <item name="colorPrimary">#8bc34a</item>
         <item name="colorPrimaryDark">#558b2f</item>
         <item name="colorAccent">#FFFFFF</item>
