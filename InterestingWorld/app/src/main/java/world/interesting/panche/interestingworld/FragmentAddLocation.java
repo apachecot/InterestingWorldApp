@@ -14,7 +14,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -31,13 +35,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+
+import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 public class FragmentAddLocation extends Fragment {
 
-    EditText name,description,lat,lng;
+    EditText name,description;
     ImageView image_button;
     Button bAccept;
     private ProgressDialog pDialog;
@@ -46,20 +54,26 @@ public class FragmentAddLocation extends Fragment {
     String[] datos= new String[5];
     Uri selectedImage;
     InputStream is;
-    File myPhoto;
+
+    FragmentManager fm;
+
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
+        fm= this.getActivity().getSupportFragmentManager();
+        View inflatedView = inflater.inflate(R.layout.new_location, container, false);
 
-        return inflater.inflate(R.layout.new_location, container, false);
+        return inflatedView;
     }
+
+
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        ((MaterialNavigationDrawer)this.getActivity()).getSupportActionBar().show();
         name=(EditText)this.getActivity().findViewById(R.id.editTextName);
         description=(EditText)this.getActivity().findViewById(R.id.editTextDescription);
-        lat=(EditText)this.getActivity().findViewById(R.id.editTextLat);
-        lng=(EditText)this.getActivity().findViewById(R.id.editTextLng);
         bAccept = (Button)this.getActivity().findViewById(R.id.buttonEnviar);
         bAccept.setOnClickListener(new View.OnClickListener() {
             // Start new list activity
@@ -96,59 +110,65 @@ public class FragmentAddLocation extends Fragment {
 
         AsyncHttpClient client = new AsyncHttpClient();
 
-        String url="http://interestingworld.webcindario.com/insert_location.php";
-        RequestParams params = new RequestParams();
-        params.put("id_user",datos[0]);
-        params.put("name", name.getText());
-        params.put("description", description.getText());
-        params.put("lat", lat.getText());
-        params.put("lng",  lng.getText());
-        //Cargar la imagen
-        int numero = (int) (Math.random() *99999999) + 1;
-        is = this.getActivity().getContentResolver().openInputStream(selectedImage);
-        params.put("photo_url", is, numero+"_upload.jpg");
+        Double lat=((MainActivityUser) getActivity()).getLatitude();
+        Double lng=((MainActivityUser) getActivity()).getLongitude();
 
 
-        client.post(url,params,new AsyncHttpResponseHandler() {
-            @Override
-            public void onStart()
-            {
-                pDialog.setProgress(0);
-                pDialog.show();
-            }
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                if(statusCode==200)
-                {
+        if(lat!=0.0) {
+            String url = "http://interestingworld.webcindario.com/insert_location.php";
+            RequestParams params = new RequestParams();
+            params.put("id_user", datos[0]);
+            params.put("name", name.getText());
+            params.put("description", description.getText());
+            params.put("lat", lat);
+            params.put("lng", lng);
+            //Cargar la imagen
+            int numero = (int) (Math.random() * 99999999) + 1;
+            //is = this.getActivity().getContentResolver().openInputStream(selectedImage);
+            params.put("photo_url", is, numero + "_upload.jpg");
 
-                    try {
-                        System.out.println(new String(responseBody));
-                        setResult(new String(responseBody));
-                        System.out.println(getResult());
-                        if(getResult().equals("bien"))
-                        {
-                            Toast.makeText(FragmentAddLocation.this.getActivity(), "Registro correcto", Toast.LENGTH_SHORT).show();
-                            entrar();
-                        }
-                        else
-                        {
-                            Toast.makeText(FragmentAddLocation.this.getActivity(), "Error en el registro, compruebe los campos", Toast.LENGTH_SHORT).show();
-                        }
 
-                    }catch(JSONException e)
-                    {
-                        System.out.println("Falla:"+e );
-                        Toast.makeText(FragmentAddLocation.this.getActivity(), "Error en el registro, compruebe los campos", Toast.LENGTH_SHORT).show();
-                    }
+            client.post(url, params, new AsyncHttpResponseHandler() {
+                @Override
+                public void onStart() {
+                    pDialog.setProgress(0);
+                    pDialog.show();
                 }
-                pDialog.hide();
-            }
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Toast.makeText(FragmentAddLocation.this.getActivity(), "Parece que hay algún problema con la red", Toast.LENGTH_SHORT).show();
-                pDialog.hide();
-            }
-        });
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    if (statusCode == 200) {
+
+                        try {
+                            System.out.println(new String(responseBody));
+                            setResult(new String(responseBody));
+                            System.out.println(getResult());
+                            if (getResult().equals("bien")) {
+                                Toast.makeText(FragmentAddLocation.this.getActivity(), "Punto de interés añadido correctamente", Toast.LENGTH_SHORT).show();
+                                entrar();
+                            } else {
+                                Toast.makeText(FragmentAddLocation.this.getActivity(), "Error al intentar subir los datos, comprueba que todo este correcto", Toast.LENGTH_SHORT).show();
+                            }
+
+                        } catch (JSONException e) {
+                            System.out.println("Falla:" + e);
+                            Toast.makeText(FragmentAddLocation.this.getActivity(), "Error al intentar subir los datos, comprueba que todo este correcto", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    pDialog.hide();
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    Toast.makeText(FragmentAddLocation.this.getActivity(), "Parece que hay algún problema con la red", Toast.LENGTH_SHORT).show();
+                    pDialog.hide();
+                }
+            });
+        }else
+        {
+            Toast.makeText(FragmentAddLocation.this.getActivity(), "Debes marcar el punto de interés antes de publicar", Toast.LENGTH_SHORT).show();
+            pDialog.hide();
+        }
     }
     public String getResult (){
 
@@ -207,11 +227,73 @@ public class FragmentAddLocation extends Fragment {
                 is = this.getActivity().getContentResolver().openInputStream(selectedImage);
                 BufferedInputStream bis = new BufferedInputStream(is);
                 Bitmap bitmap = BitmapFactory.decodeStream(bis);
-                ImageView iv = (ImageView) this.getActivity().findViewById(R.id.ImageViewLocation);
-                iv.setImageBitmap(bitmap);
+
+                // original measurements
+                int origWidth = bitmap.getWidth();
+                int origHeight = bitmap.getHeight();
+
+                final int destWidth = 600;//or the width you need
+
+                System.out.println("Original tamaño "+origWidth);
+
+                if(origWidth > destWidth){
+                    // picture is wider than we want it, we calculate its target height
+                    int destHeight = origHeight/( origWidth / destWidth ) ;
+                    // we create an scaled bitmap so it reduces the image, not just trim it
+                    Bitmap b2 = Bitmap.createScaledBitmap(bitmap, destWidth, destHeight, false);
+                    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+                    // compress to the format you want, JPEG, PNG...
+                    // 70 is the 0-100 quality percentage
+                    b2.compress(Bitmap.CompressFormat.JPEG,70 , outStream);
+                    System.out.println("Tamaño comprimido "+b2.getWidth());
+                    // we save the file, at least until we have made use of it
+                    ImageView iv = (ImageView) this.getActivity().findViewById(R.id.ImageViewLocation);
+                    iv.setImageBitmap(b2);
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    b2.compress(Bitmap.CompressFormat.JPEG, 75, stream);
+                    is = new ByteArrayInputStream(stream.toByteArray());
+                }else {
+
+                    ImageView iv = (ImageView) this.getActivity().findViewById(R.id.ImageViewLocation);
+                    iv.setImageBitmap(bitmap);
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
+                    is = new ByteArrayInputStream(stream.toByteArray());
+                }
             }
         } catch (FileNotFoundException e) {
             System.out.println("Error: "+e);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_add_location, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Take appropriate action for each action item click
+        switch (item.getItemId()) {
+            case R.id.add_location:
+                dialogMap();
+                // search action
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * Launching new activity
+     * */
+    private void dialogMap() {
+        // custom dialog
+        FragmentDialogMap dFragment = new FragmentDialogMap();
+        // Show DialogFragment
+        dFragment.show(fm, "Dialog Fragment");
+    }
+
 }

@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.FileAsyncHttpResponseHandler;
@@ -28,6 +29,8 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     String[] datos= new String[5];
     File file_image= new File("");
     String photo_url;
+    Double lat=0.0;
+    Double lng=0.0;
 
     @Override
     public void init(Bundle savedInstanceState) {
@@ -60,7 +63,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         addlocation = this.newSection(this.getResources().getString(R.string.addlocation), this.getResources().getDrawable(R.drawable.addlocation), new FragmentAddLocation())
                 .setSectionColor(Color.parseColor("#2196f3"),Color.parseColor("#1565c0"));
 
-        visitlocation = this.newSection(this.getResources().getString(R.string.visitlocation), this.getResources().getDrawable(R.drawable.visit), new FragmentAdd())
+        visitlocation = this.newSection(this.getResources().getString(R.string.visitlocation), this.getResources().getDrawable(R.drawable.visit), new FragmentLocationsUser())
                 .setSectionColor(Color.parseColor("#2196f3"),Color.parseColor("#1565c0"));
 
         //Para cargar la configuración
@@ -95,6 +98,11 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     @Override
     public void onChangeAccount(MaterialAccount newAccount) {
         // when another account is selected
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
     }
 
     //cargar configuración aplicación Android usando SharedPreferences
@@ -142,5 +150,23 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         //Notificamos que la información ha cambiado
         this.notifyAccountDataChanged();
     }
+    public void setPosition(double vlat, double vlng)
+    {
+        TextView latlng=(TextView)this.findViewById(R.id.textViewLatLng);
+
+        latlng.setText("Posición: "+vlat+"; "+vlng);
+        lat=vlat;
+        lng=vlng;
+
+    }
+    public Double getLatitude()
+    {
+        return lat;
+    }
+    public Double getLongitude()
+    {
+        return lng;
+    }
+
 }
 

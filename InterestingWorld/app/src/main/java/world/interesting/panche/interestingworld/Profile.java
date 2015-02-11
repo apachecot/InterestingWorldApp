@@ -81,7 +81,7 @@ public class Profile extends ActionBarActivity {
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_login, menu);
         return true;
     }
     public String[] loadPreferences() {

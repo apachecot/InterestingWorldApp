@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId "world.interesting.panche.interestingworld"
         minSdkVersion 14
-        targetSdkVersion 21
+        targetSdkVersion 18
         versionCode 1
         versionName "1.0"
     }
@@ -38,6 +38,11 @@ dependencies {
     compile 'com.android.support:cardview-v7:21.0.0'
     compile 'com.github.cmc00022:easyrecycleradapters:0.1.6'
     compile 'it.neokree:MaterialNavigationDrawer:1.3'
+    //-----------------------------------------------------------------
+    //dialog
+    compile 'me.drakeet.materialdialog:library:1.2.2'
+
+    //-----------------------------------------------------------------
     compile 'com.android.support:support-v4:21.0.3'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.daimajia.androidviewhover:library:1.0.3@aar'
@@ -50,10 +55,7 @@ dependencies {
     compile 'com.github.gabrielemariotti.cards:cardslib-core:2.0.1'
     compile 'com.github.gabrielemariotti.cards:cardslib-cards:2.0.1'
     compile 'com.github.gabrielemariotti.cards:cardslib-recyclerview:2.0.1'
-
     compile 'com.squareup.picasso:picasso:2.4.0'
-
-
     //---------------------------------------------------------------
     //Parallax Scroll image
     compile 'com.github.nirhart:parallaxscroll:1.0'

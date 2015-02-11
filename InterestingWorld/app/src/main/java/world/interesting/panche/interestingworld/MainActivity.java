@@ -3,6 +3,9 @@ package world.interesting.panche.interestingworld;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
@@ -42,8 +45,39 @@ public class MainActivity extends MaterialNavigationDrawer{
         this.allowArrowAnimation();
         this.disableLearningPattern();
 
+        //this.getActionBar().setHomeButtonEnabled(true);
+       // this.getToolbar().setLogo(R.drawable.location);
+
 
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_login, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Take appropriate action for each action item click
+        switch (item.getItemId()) {
+            case R.id.login:
+                intentLogin();
+                // search action
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * Launching new activity
+     * */
+    private void intentLogin() {
+        Intent i = new Intent(this, Login.class);
+        startActivity(i);
+    }
+
 
 }
 

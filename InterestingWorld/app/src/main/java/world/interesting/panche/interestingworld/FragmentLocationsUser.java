@@ -5,14 +5,14 @@ package world.interesting.panche.interestingworld;
  */
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
@@ -41,13 +42,14 @@ import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
 /**
  * Created by neokree on 24/11/14.
  */
-public class FragmentIndex extends Fragment {
+public class FragmentLocationsUser extends Fragment {
 
     CardRecyclerView mRecyclerView;
     View inflatedView;
     CardArrayRecyclerViewAdapter mCardArrayAdapter;
     private ProgressDialog pDialog;
     ArrayList<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
+    String[] datos=new String[5];
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -55,7 +57,7 @@ public class FragmentIndex extends Fragment {
         TextView text = new TextView(this.getActivity());
         text.setText(this.getResources().getString(R.string.profile));
         text.setGravity(Gravity.CENTER);
-        setHasOptionsMenu(false);
+
 
 
         return inflatedView;
@@ -73,56 +75,7 @@ public class FragmentIndex extends Fragment {
 
         // Set supplemental actions as text
         final ArrayList<Card> cards = new ArrayList<Card>();
-/*
-        for (int i = 0; i <5; i++) {
-            ArrayList<BaseSupplementalAction> actions = new ArrayList<BaseSupplementalAction>();
-            //final String url=list.get(0).get(5).toString();
 
-            // Set supplemental actions
-            IconSupplementalAction t1 = new IconSupplementalAction(getActivity(), R.id.ic1);
-            t1.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
-                @Override
-                public void onClick(Card card, View view) {
-                    Toast.makeText(getActivity(), "Click en " + card.getTitle(), Toast.LENGTH_SHORT).show();
-                }
-            });
-            actions.add(t1);
-
-            IconSupplementalAction t2 = new IconSupplementalAction(getActivity(), R.id.ic2);
-            t2.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
-                @Override
-                public void onClick(Card card, View view) {
-                    Toast.makeText(getActivity(), " Click en " + card.getTitle(), Toast.LENGTH_SHORT).show();
-                }
-            });
-            actions.add(t2);
-            MaterialLargeImageCard card =
-                    MaterialLargeImageCard.with(getActivity())
-                            .setTextOverImage("hola")
-                            //.setTitle("This is my favorite local beach ")
-                            //.setSubTitle("A wonderful place")
-                            .useDrawableExternal(new MaterialLargeImageCard.DrawableExternal() {
-                                @Override
-                                public void setupInnerViewElements(ViewGroup parent, View viewImage) {
-
-                                    //Picasso.with(getActivity()).setIndicatorsEnabled(true);  //only for debug tests
-                                    Picasso.with(getActivity())
-                                            .load("http://")
-                                            .error(R.drawable.ic_launcher)
-                                            .into((ImageView) viewImage);
-                                }
-                            })
-                            .setupSupplementalActions(R.layout.hover_sample1, actions)
-                            .build();
-            card.setOnClickListener(new Card.OnCardClickListener() {
-                @Override
-                public void onClick(Card card, View view) {
-                    Toast.makeText(getActivity(), " Click on ActionArea ", Toast.LENGTH_SHORT).show();
-                }
-            });
-            cards.add(card);
-        }
-*/
         mCardArrayAdapter = new CardArrayRecyclerViewAdapter(this.getActivity(), cards);
         mRecyclerView = (CardRecyclerView) this.getActivity().findViewById(R.id.cardList);
         mRecyclerView.setHasFixedSize(false);
@@ -142,12 +95,14 @@ public class FragmentIndex extends Fragment {
         pDialog.setCancelable(true);
         pDialog.setMax(100);
         AsyncHttpClient client = new AsyncHttpClient();
+        RequestParams params = new RequestParams();
+        datos=loadPreferences();
+        params.put("id_user", datos[0]);
+        String url="http://interestingworld.webcindario.com/consulta_locations_user.php";
 
-        String url="http://interestingworld.webcindario.com/consulta_locations.php";
 
 
-
-        client.post(url,new AsyncHttpResponseHandler() {
+        client.post(url,params,new AsyncHttpResponseHandler() {
             @Override
             public void onStart()
             {
@@ -284,12 +239,19 @@ public class FragmentIndex extends Fragment {
         }
 
     }
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
+    public String[] loadPreferences() {
+        String[] datos=new String[5];
+        SharedPreferences prefs = this.getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
+        datos[0] = prefs.getString("id", "-1");
+        datos[1] = prefs.getString("name", "");
+        datos[2] = prefs.getString("lastname", "");
+        datos[3] = prefs.getString("email", "");
+        datos[4] = prefs.getString("photo_url", "");
 
-        MenuItem item3  = menu.findItem(R.id.add_location);
-        item3.setVisible(false);
+        for(int i=0; i < datos.length; i++) {
+            System.out.println(datos[i]);
+        }
+        return datos;
     }
 
 }
