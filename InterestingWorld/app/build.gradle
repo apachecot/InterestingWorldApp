@@ -38,10 +38,18 @@ dependencies {
     compile 'com.android.support:cardview-v7:21.0.0'
     compile 'com.github.cmc00022:easyrecycleradapters:0.1.6'
     compile 'it.neokree:MaterialNavigationDrawer:1.3'
+    //********************************************************
+    //Buttons
+    compile 'com.beardedhen:androidbootstrap:+'
+    //Button progress
+    compile 'com.github.dmytrodanylyk.circular-progress-button:library:1.1.3'
     //-----------------------------------------------------------------
     //dialog
     compile 'me.drakeet.materialdialog:library:1.2.2'
-
+    //-----------------------------------------------------------------
+    //Toasts
+    //-----------------------------------------------------------------
+    compile 'com.github.johnkil.android-appmsg:appmsg:1.2.0'
     //-----------------------------------------------------------------
     compile 'com.android.support:support-v4:21.0.3'
     compile 'com.nineoldandroids:library:2.4.0'

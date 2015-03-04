@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:gravity="center_horizontal"
+    android:background="@color/colorDetail"
+    android:weightSum="1">
+
+    <ImageButton
+        android:id="@+id/ic1"
+        android:scaleType="fitCenter"
+        android:src="@drawable/map_path"
+        android:background="?android:selectableItemBackground"
+        style="@style/card.native.actions.button"
+        android:layout_marginRight="8dp"
+        android:layout_height="65dp"
+        android:layout_width="69dp" />
+
+
+    <ImageButton
+        android:scaleType="fitCenter"
+        android:id="@+id/ic2"
+        android:background="?android:selectableItemBackground"
+        android:src="@drawable/star"
+        style="@style/card.native.actions.button"
+        android:layout_marginRight="8dp"
+        android:layout_weight="0.08"
+        android:layout_height="65dp" />
+
+    <ImageButton
+        android:scaleType="fitCenter"
+        android:id="@+id/ic3"
+        android:background="?android:selectableItemBackground"
+        android:src="@drawable/abc_ic_menu_share_mtrl_alpha"
+        style="@style/card.native.actions.button"
+        android:layout_marginRight="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="65dp" />
+
+</LinearLayout>

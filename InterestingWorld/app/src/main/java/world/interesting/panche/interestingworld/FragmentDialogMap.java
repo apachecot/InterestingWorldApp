@@ -7,8 +7,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
+import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,7 +28,7 @@ public class FragmentDialogMap extends DialogFragment {
     private MapView mMapView;
     private GoogleMap mMap;
     private Bundle mBundle;
-    private Button bAccept,bCancel;
+    private BootstrapButton bAccept,bCancel;
     private MarkerOptions marker;
     public FragmentDialogMap() {
         fragment = new SupportMapFragment();
@@ -40,15 +40,15 @@ public class FragmentDialogMap extends DialogFragment {
         getDialog().requestWindowFeature(STYLE_NO_TITLE);
         final FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.add(R.id.map, fragment).commit();
-        bAccept = (Button)view.findViewById(R.id.dialogButtonOk);
+        bAccept = (BootstrapButton)view.findViewById(R.id.dialogButtonOk);
         bAccept.setOnClickListener(new View.OnClickListener() {
             // Start new list activity
             public void onClick(View v) {
-                ((MainActivityUser) getActivity()).setPosition(marker.getPosition().longitude, marker.getPosition().latitude);
+                ((MainActivityUser) getActivity()).setPosition(marker.getPosition().latitude,marker.getPosition().longitude);
                 getDialog().dismiss();
             }
         });
-        bCancel = (Button)view.findViewById(R.id.dialogButtonCancel);
+        bCancel = (BootstrapButton)view.findViewById(R.id.dialogButtonCancel);
         bCancel.setOnClickListener(new View.OnClickListener() {
             // Start new list activity
             public void onClick(View v) {

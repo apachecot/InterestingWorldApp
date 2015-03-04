@@ -31,6 +31,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     String photo_url;
     Double lat=0.0;
     Double lng=0.0;
+    String id_location="";
 
     @Override
     public void init(Bundle savedInstanceState) {
@@ -54,10 +55,10 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         lastLocations = this.newSection(this.getResources().getString(R.string.lastlocations),this.getResources().getDrawable(R.drawable.map), new FragmentIndex()).setSectionColor(Color.parseColor("#CC0000"));
 
         //Explorar el mapa cercano
-        explore = this.newSection(this.getResources().getString(R.string.explore), this.getResources().getDrawable(R.drawable.location), new FragmentMap()).setSectionColor(Color.parseColor("#9c27b0"));
+        explore = this.newSection(this.getResources().getString(R.string.explore), this.getResources().getDrawable(R.drawable.location), new FragmentMap()).setSectionColor(Color.parseColor("#03a9f4"));
 
         // Explorar fotografías
-        photos = this.newSection(this.getResources().getString(R.string.photos), this.getResources().getDrawable(R.drawable.photo), new FragmentAdd()).setSectionColor(Color.parseColor("#03a9f4"));
+        photos = this.newSection(this.getResources().getString(R.string.photos), this.getResources().getDrawable(R.drawable.photo), new FragmentLocationDetail()).setSectionColor(Color.parseColor("#03a9f4"));
 
         // Añadir una localización
         addlocation = this.newSection(this.getResources().getString(R.string.addlocation), this.getResources().getDrawable(R.drawable.addlocation), new FragmentAddLocation())
@@ -79,6 +80,8 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         //this.addSubheader("Opciones");
         //this.addDivisor();
         this.addBottomSection(settingsSection);
+
+
 
         this.setBackPattern(MaterialNavigationDrawer.BACKPATTERN_BACK_TO_FIRST);
         this.closeOptionsMenu();
@@ -167,6 +170,8 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     {
         return lng;
     }
+    public void setIdLocation(String id){ id_location=id; }
+    public String getIdLocation(){ return id_location; }
 
 }
 

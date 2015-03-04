@@ -3,16 +3,20 @@ package world.interesting.panche.interestingworld;
 /**
  * Created by Alex on 15/01/2015.
  */
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
+import com.dd.CircularProgressButton;
+import com.devspark.appmsg.AppMsg;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -31,6 +35,8 @@ public class Login extends ActionBarActivity {
     private ProgressDialog pDialog;
     private BD bd = new BD();
     String result;
+    Handler handler = new Handler();
+    CircularProgressButton circularProgressButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +44,7 @@ public class Login extends ActionBarActivity {
         setContentView(R.layout.login);
         email=(EditText)findViewById(R.id.editTextEmail);
         password=(EditText)findViewById(R.id.editTextLng);
+        circularProgressButton=(CircularProgressButton) findViewById(R.id.buttonAccept);
 
 
     }
@@ -49,6 +56,8 @@ public class Login extends ActionBarActivity {
     public void loginAccept(View view)
     {
         //Inicializamos dialog
+
+
         pDialog = new ProgressDialog(Login.this);
         pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         pDialog.setMessage("Procesando...");
@@ -68,8 +77,8 @@ public class Login extends ActionBarActivity {
             @Override
             public void onStart()
             {
-                pDialog.setProgress(0);
-                pDialog.show();
+                circularProgressButton.setProgress(50);
+                circularProgressButton.setIndeterminateProgressMode(true);
             }
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -84,19 +93,32 @@ public class Login extends ActionBarActivity {
                         }
                         else
                         {
-                            Toast.makeText(Login.this, "El usuario o contraseña, no son correctos", Toast.LENGTH_SHORT).show();
+                            AppMsg.makeText(Login.this, "El usuario o contraseña, no son correctos", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                            circularProgressButton.setProgress(-1);
+                            handler.postDelayed(new Runnable() {
+                                public void run() {
+                                    circularProgressButton.setProgress(0);
+                                }
+                            }, 1000);
                         }
 
                     }catch(JSONException ignored)
                     {
                         System.out.println("Falla:"+ignored );
                         try {
+                            circularProgressButton.setProgress(100);
                             entrar(setResultUser(new String(responseBody)));
-                            Toast.makeText(Login.this, "Comprobación correcta", Toast.LENGTH_SHORT).show();
+                            AppMsg.makeText(Login.this, "Comprobación correcta", AppMsg.STYLE_INFO).setLayoutGravity(Gravity.BOTTOM).show();
                         }catch(JSONException e)
                         {
                             System.out.println("Fallo en el 2:"+e);
-                            Toast.makeText(Login.this, "El usuario o contraseña, no son correctos", Toast.LENGTH_SHORT).show();
+                            AppMsg.makeText(Login.this, "El usuario o contraseña, no son correctos", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                            circularProgressButton.setProgress(-1);
+                            handler.postDelayed(new Runnable() {
+                                public void run() {
+                                    circularProgressButton.setProgress(0);
+                                }
+                            }, 1000);
                         }
                     }
                 }
@@ -104,8 +126,13 @@ public class Login extends ActionBarActivity {
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
-                Toast.makeText(Login.this, "Parece que hay algún problema con la red", Toast.LENGTH_SHORT).show();
+                AppMsg.makeText(Login.this, "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
+                circularProgressButton.setProgress(-1);
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        circularProgressButton.setProgress(0);
+                    }
+                }, 1000);
                 pDialog.hide();
 
             }
@@ -153,14 +180,20 @@ public class Login extends ActionBarActivity {
         loadPreferences();
         savePreferences(datos);
         loadPreferences();
-        try {
-            Thread.sleep(1000);
-            Intent intent = new Intent(this, MainActivityUser.class);
-            startActivity(intent);
-        } catch(InterruptedException e) {
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                circularProgressButton.setProgress(0);
+                changeActivity();
+            }
+        }, 1000);
 
-        }
 
+
+    }
+    public void changeActivity()
+    {
+        Intent intent = new Intent(this, MainActivityUser.class);
+        startActivity(intent);
     }
     //guardar configuración aplicación Android usando SharedPreferences
     public void savePreferences(String[] datos) {

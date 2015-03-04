@@ -2,7 +2,9 @@
 
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_vertical">
 
@@ -23,14 +25,20 @@
         android:layout_gravity="center_horizontal"
         android:hint="@string/pass" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/accept"
-        android:id="@+id/buttonAccept"
+
+    <com.dd.CircularProgressButton
         android:layout_gravity="center_horizontal"
+        android:id="@+id/buttonAccept"
+        android:layout_width="196dp"
+        android:layout_height="64dp"
         android:layout_marginTop="50dp"
-        android:onClick="loginAccept" />
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:onClick="loginAccept"
+        app:cpb_textComplete="Correcto"
+        app:cpb_textError="Error"
+        app:cpb_textIdle="Login"
+        />
 
     <TextView
         android:layout_width="wrap_content"
@@ -45,12 +53,17 @@
         android:linksClickable="true"
         android:onClick="newUser" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Dar de alta"
-        android:id="@+id/button"
+    <com.dd.CircularProgressButton
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="25dp"
-        android:onClick="newUser" />
+        android:id="@+id/buttonAlta"
+        android:layout_width="196dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="50dp"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:onClick="newUser"
+        app:cpb_textComplete="Correcto"
+        app:cpb_textError="Error"
+        app:cpb_textIdle="Dar de alta"
+        />
 </LinearLayout>

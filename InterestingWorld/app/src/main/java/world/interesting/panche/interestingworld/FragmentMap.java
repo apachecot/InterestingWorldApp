@@ -6,7 +6,6 @@ package world.interesting.panche.interestingworld;
 
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -27,25 +26,30 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+
+import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClickListener {
 
-    private MapView mMapView;
-    private GoogleMap mMap;
-    private Bundle mBundle;
+    public MapView mMapView;
+    public GoogleMap mMap;
+    public Bundle mBundle;
     private ProgressDialog pDialog;
+    Bundle bundle= new Bundle();
+
     ArrayList<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
     Bitmap bmImg;
+    boolean not_first_time_showing_info_window=false;
 
 
     @Override
@@ -66,6 +70,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
 
         return inflatedView;
     }
+
 
     @Override
     public void onStart() {
@@ -112,11 +117,17 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         super.onPause();
         mMapView.onPause();
     }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mMap=null;
+    }
 
     @Override
     public void onDestroy() {
-        mMapView.onDestroy();
-        super.onDestroy();
+        super.onPause();
+        mMapView.onPause();
+        System.out.println("OnDestroy");
     }
     public void centerCity()
     {
@@ -207,9 +218,10 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     }
     public void addLocation(String lat,String lng,String name,String url_photo)
     {
-
-        mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
-                Double.parseDouble(lng))).title(name).snippet(name));
+        if(!lat.equals("0")) {
+            mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
+                    Double.parseDouble(lng))).title(name).snippet(name));
+        }
 
     }
     class MyInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
@@ -221,7 +233,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         }
 
         @Override
-        public View getInfoContents(Marker marker) {
+        public View getInfoContents(final Marker marker) {
 
             TextView tvTitle = ((TextView) myContentsView.findViewById(R.id.title));
             tvTitle.setText(marker.getTitle());
@@ -229,28 +241,43 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
             tvSnippet.setText(marker.getSnippet());
             String url_photo="";
 
+            //Cargamos la imagen dinamicamente
             try {
                 int i=0;
                 while(i<list.size())
                 {
                     if(list.get(i).get(1).equals(marker.getTitle()))
                     {
+                        final Boolean[] finish = {false};
                         url_photo=list.get(i).get(5).toString();
                         i=list.size();
+                        //Si es la primera vez que llamamos a la función de cargar imagen debemos utilizar el callback para saber cuando ha finalizado la carga y recargar debidamente
+                        if (not_first_time_showing_info_window) {
+                            Picasso.with(getActivity())
+                                    .load("http://" + url_photo)
+                                    .error(R.drawable.ic_launcher)
+                                    .into((ImageView) myContentsView.findViewById(R.id.badge));
+                            not_first_time_showing_info_window=false;
+                        }
+                        else
+                        {
+                            not_first_time_showing_info_window=true;
+                            Picasso.with(getActivity())
+                                    .load("http://" + url_photo)
+                                    .error(R.drawable.ic_launcher)
+                                    .into((ImageView) myContentsView.findViewById(R.id.badge), new InfoWindowRefresher(marker));
+                        }
+
+                        System.out.println(url_photo);
+                        return myContentsView;
                     }
                     i++;
                 }
-                URL url = new URL("http://" + url_photo);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setDoInput(true);
-                conn.connect();
-                InputStream is = conn.getInputStream();
-                bmImg = BitmapFactory.decodeStream(is);
-                ImageView ivIcon = ((ImageView) myContentsView.findViewById(R.id.badge));
-                ivIcon.setImageBitmap(bmImg);
+
             }catch(Exception e)
             {
                 System.out.println("Error cargando imagen: "+e);
+                return myContentsView;
             }
 
             return myContentsView;
@@ -261,13 +288,54 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
             // TODO Auto-generated method stub
             return null;
         }
+
     }
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Toast.makeText(this.getActivity().getBaseContext(),
-                "Info Window clicked@" + marker.getTitle(),
-                Toast.LENGTH_SHORT).show();
+        int i=0;
+        while(i<list.size())
+        {
+            if(list.get(i).get(1).equals(marker.getTitle()))
+            {
+                String id_location=list.get(i).get(0);
+                System.out.println(id_location);
+
+                Fragment fragment = new FragmentLocationDetail();
+                List<String> info=list.get(i);
+                setInfoBundle(info);
+                fragment.setArguments(bundle);
+                ((MaterialNavigationDrawer)this.getActivity()).setFragmentChild(fragment,marker.getTitle());
+            }
+            i++;
+        }
 
     }
+    //Refresca la ventana de información
+    private class InfoWindowRefresher implements Callback {
+        private Marker markerToRefresh;
+
+        private InfoWindowRefresher(Marker markerToRefresh) {
+            this.markerToRefresh = markerToRefresh;
+        }
+
+        @Override
+        public void onSuccess() {
+            markerToRefresh.showInfoWindow();
+        }
+
+        @Override
+        public void onError() {}
+    }
+    public void setInfoBundle(List<String> info)
+    {
+        bundle.putString("id_location",info.get(0).toString());
+        bundle.putString("title",info.get(1).toString());
+        bundle.putString("description",info.get(2).toString());
+        bundle.putString("lat",info.get(3).toString());
+        bundle.putString("lng", info.get(4).toString());
+        bundle.putString("url_photo",info.get(5).toString());
+        bundle.putString("user_location",info.get(6).toString());
+    }
+
 
 }

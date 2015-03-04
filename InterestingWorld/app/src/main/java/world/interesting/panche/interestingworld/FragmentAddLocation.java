@@ -12,9 +12,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,8 +26,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
+import com.dd.CircularProgressButton;
+import com.devspark.appmsg.AppMsg;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -54,6 +57,8 @@ public class FragmentAddLocation extends Fragment {
     String[] datos= new String[5];
     Uri selectedImage;
     InputStream is;
+    Handler handler = new Handler();
+    CircularProgressButton circularProgressButton;
 
     FragmentManager fm;
 
@@ -61,7 +66,9 @@ public class FragmentAddLocation extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         fm= this.getActivity().getSupportFragmentManager();
+
         View inflatedView = inflater.inflate(R.layout.new_location, container, false);
+        circularProgressButton=(CircularProgressButton) inflatedView.findViewById(R.id.buttonEnviar);
 
         return inflatedView;
     }
@@ -74,8 +81,8 @@ public class FragmentAddLocation extends Fragment {
         ((MaterialNavigationDrawer)this.getActivity()).getSupportActionBar().show();
         name=(EditText)this.getActivity().findViewById(R.id.editTextName);
         description=(EditText)this.getActivity().findViewById(R.id.editTextDescription);
-        bAccept = (Button)this.getActivity().findViewById(R.id.buttonEnviar);
-        bAccept.setOnClickListener(new View.OnClickListener() {
+
+        circularProgressButton.setOnClickListener(new View.OnClickListener() {
             // Start new list activity
             public void onClick(View v) {
                 try {
@@ -131,8 +138,8 @@ public class FragmentAddLocation extends Fragment {
             client.post(url, params, new AsyncHttpResponseHandler() {
                 @Override
                 public void onStart() {
-                    pDialog.setProgress(0);
-                    pDialog.show();
+                    circularProgressButton.setProgress(50);
+                    circularProgressButton.setIndeterminateProgressMode(true);
                 }
 
                 @Override
@@ -144,15 +151,28 @@ public class FragmentAddLocation extends Fragment {
                             setResult(new String(responseBody));
                             System.out.println(getResult());
                             if (getResult().equals("bien")) {
-                                Toast.makeText(FragmentAddLocation.this.getActivity(), "Punto de interés añadido correctamente", Toast.LENGTH_SHORT).show();
+                                AppMsg.makeText(FragmentAddLocation.this.getActivity(), "Punto de interés añadido correctamente", AppMsg.STYLE_INFO).setLayoutGravity(Gravity.BOTTOM).show();
+                                circularProgressButton.setProgress(100);
                                 entrar();
                             } else {
-                                Toast.makeText(FragmentAddLocation.this.getActivity(), "Error al intentar subir los datos, comprueba que todo este correcto", Toast.LENGTH_SHORT).show();
+                                AppMsg.makeText(FragmentAddLocation.this.getActivity(), "Error al intentar subir los datos, comprueba que todo este correcto", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                                circularProgressButton.setProgress(-1);
+                                handler.postDelayed(new Runnable() {
+                                    public void run() {
+                                        circularProgressButton.setProgress(0);
+                                    }
+                                }, 1000);
                             }
 
                         } catch (JSONException e) {
                             System.out.println("Falla:" + e);
-                            Toast.makeText(FragmentAddLocation.this.getActivity(), "Error al intentar subir los datos, comprueba que todo este correcto", Toast.LENGTH_SHORT).show();
+                            AppMsg.makeText(FragmentAddLocation.this.getActivity(), "Error al intentar subir los datos, comprueba que todo este correcto", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                            circularProgressButton.setProgress(-1);
+                            handler.postDelayed(new Runnable() {
+                                public void run() {
+                                    circularProgressButton.setProgress(0);
+                                }
+                            }, 1000);
                         }
                     }
                     pDialog.hide();
@@ -160,13 +180,25 @@ public class FragmentAddLocation extends Fragment {
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    Toast.makeText(FragmentAddLocation.this.getActivity(), "Parece que hay algún problema con la red", Toast.LENGTH_SHORT).show();
+                    AppMsg.makeText(FragmentAddLocation.this.getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
+                    circularProgressButton.setProgress(-1);
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            circularProgressButton.setProgress(0);
+                        }
+                    }, 1000);
                     pDialog.hide();
                 }
             });
         }else
         {
-            Toast.makeText(FragmentAddLocation.this.getActivity(), "Debes marcar el punto de interés antes de publicar", Toast.LENGTH_SHORT).show();
+            AppMsg.makeText(FragmentAddLocation.this.getActivity(), "Debes marcar el punto de interés antes de publicar", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
+            circularProgressButton.setProgress(-1);
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    circularProgressButton.setProgress(0);
+                }
+            }, 1000);
             pDialog.hide();
         }
     }
@@ -189,13 +221,17 @@ public class FragmentAddLocation extends Fragment {
     }
     public void entrar()
     {
-        try {
-            Thread.sleep(1000);
-
-            Intent intent = new Intent(this.getActivity(), MainActivityUser.class);
-            startActivity(intent);
-        } catch(InterruptedException e) {}
-
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                circularProgressButton.setProgress(0);
+                changeActivity();
+            }
+        }, 1000);
+    }
+    public void changeActivity()
+    {
+        Intent intent = new Intent(this.getActivity(), MainActivityUser.class);
+        startActivity(intent);
     }
     //cargar configuración aplicación Android usando SharedPreferences
     public String[] loadPreferences() {

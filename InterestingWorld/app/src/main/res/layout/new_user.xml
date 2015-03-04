@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:scrollbars="vertical"
@@ -67,15 +68,19 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="25dp" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Aceptar"
-        android:id="@+id/buttonEnviar"
-        android:layout_gravity="center_horizontal"
-        android:onClick="buttonAccept"
-        android:layout_alignTop="@+id/editTextLng"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="23dp" />
+
+        <com.dd.CircularProgressButton
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/buttonEnviar"
+            android:layout_width="196dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="50dp"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:onClick="buttonAccept"
+            app:cpb_textComplete="Enviado"
+            app:cpb_textError="Error"
+            app:cpb_textIdle="Enviar"
+            />
     </TableLayout>
 </ScrollView>

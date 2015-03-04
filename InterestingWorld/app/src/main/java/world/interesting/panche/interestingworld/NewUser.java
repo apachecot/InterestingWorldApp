@@ -11,14 +11,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
+import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
+import com.dd.CircularProgressButton;
+import com.devspark.appmsg.AppMsg;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -28,7 +30,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
@@ -45,7 +46,8 @@ public class NewUser extends ActionBarActivity {
     String[] datos= new String[5];
     Uri selectedImage;
     InputStream is;
-    File myPhoto;
+    Handler handler = new Handler();
+    CircularProgressButton circularProgressButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +57,7 @@ public class NewUser extends ActionBarActivity {
         lastname=(EditText)findViewById(R.id.editTextLastname);
         email=(EditText)findViewById(R.id.editTextEmail);
         password=(EditText)findViewById(R.id.editTextLng);
-        Button bAccept = (Button)findViewById(R.id.buttonAccept);
+        circularProgressButton=(CircularProgressButton) findViewById(R.id.buttonEnviar);
 
     }
     public void buttonAccept(View view) throws JSONException, FileNotFoundException {
@@ -72,60 +74,85 @@ public class NewUser extends ActionBarActivity {
 
         result="";
 
-        AsyncHttpClient client = new AsyncHttpClient();
+        if(!name.getText().toString().equals("") && !lastname.getText().toString().equals("") && !email.getText().toString().equals("") && !password.getText().toString().equals("")) {
+            AsyncHttpClient client = new AsyncHttpClient();
 
-        String url="http://interestingworld.webcindario.com/insert_user.php";
-        RequestParams params = new RequestParams();
-        params.put("name", name.getText());
-        params.put("lastname", lastname.getText());
-        params.put("email", email.getText());
-        params.put("password",  password.getText());
-        //Cargar la imagen
-        int numero = (int) (Math.random() *99999999) + 1;
-        is = getContentResolver().openInputStream(selectedImage);
-        params.put("photo_url", is, numero+"_upload.jpg");
+            String url = "http://interestingworld.webcindario.com/insert_user.php";
+            RequestParams params = new RequestParams();
+            params.put("name", name.getText());
+            params.put("lastname", lastname.getText());
+            params.put("email", email.getText());
+            params.put("password", password.getText());
+            //Cargar la imagen
+            int numero = (int) (Math.random() * 99999999) + 1;
+            is = getContentResolver().openInputStream(selectedImage);
+            params.put("photo_url", is, numero + "_upload.jpg");
 
 
-        client.post(url,params,new AsyncHttpResponseHandler() {
-            @Override
-            public void onStart()
-            {
-                pDialog.setProgress(0);
-                pDialog.show();
-            }
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                if(statusCode==200)
-                {
-
-                   try {
-                       System.out.println(new String(responseBody));
-                       setResult(new String(responseBody));
-                       System.out.println(getResult());
-                       if(getResult().equals("bien"))
-                       {
-                          Toast.makeText(NewUser.this, "Registro correcto", Toast.LENGTH_SHORT).show();
-                          entrar();
-                       }
-                       else
-                       {
-                           Toast.makeText(NewUser.this, "Error en el registro, compruebe los campos", Toast.LENGTH_SHORT).show();
-                       }
-
-                   }catch(JSONException e)
-                   {
-                       System.out.println("Falla:"+e );
-                       Toast.makeText(NewUser.this, "Error en el registro, compruebe los campos", Toast.LENGTH_SHORT).show();
-                   }
+            client.post(url, params, new AsyncHttpResponseHandler() {
+                @Override
+                public void onStart() {
+                    circularProgressButton.setProgress(50);
+                    circularProgressButton.setIndeterminateProgressMode(true);
                 }
-                pDialog.hide();
-            }
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Toast.makeText(NewUser.this, "Parece que hay algún problema con la red", Toast.LENGTH_SHORT).show();
-                pDialog.hide();
-            }
-        });
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    if (statusCode == 200) {
+
+                        try {
+                            System.out.println(new String(responseBody));
+                            setResult(new String(responseBody));
+                            System.out.println(getResult());
+                            if (getResult().equals("bien")) {
+                                AppMsg.makeText(NewUser.this, "Registro correcto", AppMsg.STYLE_INFO).setLayoutGravity(Gravity.BOTTOM).show();
+                                circularProgressButton.setProgress(100);
+                                entrar();
+                            } else {
+                                AppMsg.makeText(NewUser.this, "Error en el registro, compruebe los campos", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                                circularProgressButton.setProgress(-1);
+                                handler.postDelayed(new Runnable() {
+                                    public void run() {
+                                        circularProgressButton.setProgress(0);
+                                    }
+                                }, 1000);
+                            }
+
+                        } catch (JSONException e) {
+                            System.out.println("Falla:" + e);
+                            AppMsg.makeText(NewUser.this, "Error en el registro, compruebe los campos", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                            circularProgressButton.setProgress(-1);
+                            handler.postDelayed(new Runnable() {
+                                public void run() {
+                                    circularProgressButton.setProgress(0);
+                                }
+                            }, 1000);
+                        }
+                    }
+                    pDialog.hide();
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    AppMsg.makeText(NewUser.this, "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
+                    circularProgressButton.setProgress(-1);
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            circularProgressButton.setProgress(0);
+                        }
+                    }, 1000);
+                    pDialog.hide();
+                }
+            });
+        }else{
+            AppMsg.makeText(NewUser.this, "Los campos no pueden estar vacios", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+            circularProgressButton.setProgress(-1);
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    circularProgressButton.setProgress(0);
+                }
+            }, 1000);
+        }
     }
     public String getResult (){
 
@@ -147,12 +174,20 @@ public class NewUser extends ActionBarActivity {
     public void entrar()
     {
         savePreferences(datos);
-        try {
-            Thread.sleep(1000);
-            Intent intent = new Intent(this, MainActivityUser.class);
-            startActivity(intent);
-        } catch(InterruptedException e) {}
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                circularProgressButton.setProgress(0);
+                changeActivity();
+            }
+        }, 1000);
 
+
+
+    }
+    public void changeActivity()
+    {
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
     }
     //guardar configuración aplicación Android usando SharedPreferences
     public void savePreferences(String[] datos) {
