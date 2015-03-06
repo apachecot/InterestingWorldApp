@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="world.interesting.panche.interestingworld" >
+    xmlns:tools="http://schemas.android.com/tools"
+    package="world.interesting.panche.interestingworld">
     <permission
         android:name="world.interesting.panche.interestingworld.locationapi.maps.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
@@ -22,9 +23,10 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/icon"
+        android:icon="@drawable/icono_aplicacion"
         android:label="@string/app_name"
-        android:theme="@style/Theme.AppCompat.Light.DarkActionBar" >
+        android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+        tools:replace="android:icon,android:theme">
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

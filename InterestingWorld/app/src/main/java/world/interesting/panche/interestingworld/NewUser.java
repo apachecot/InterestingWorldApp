@@ -13,9 +13,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -37,7 +42,7 @@ import java.io.InputStream;
 /**
  * Created by neokree on 12/12/14.
  */
-public class NewUser extends ActionBarActivity {
+public class NewUser extends Fragment {
 
     EditText name,lastname,email,password;
     private ProgressDialog pDialog;
@@ -48,21 +53,50 @@ public class NewUser extends ActionBarActivity {
     InputStream is;
     Handler handler = new Handler();
     CircularProgressButton circularProgressButton;
+    View inflatedView;
+    ImageView image_button;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.new_user);
-        name=(EditText)findViewById(R.id.editTextName);
-        lastname=(EditText)findViewById(R.id.editTextLastname);
-        email=(EditText)findViewById(R.id.editTextEmail);
-        password=(EditText)findViewById(R.id.editTextLng);
-        circularProgressButton=(CircularProgressButton) findViewById(R.id.buttonEnviar);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        inflatedView = inflater.inflate(R.layout.new_user, container, false);
+        name=(EditText)inflatedView.findViewById(R.id.editTextName);
+        lastname=(EditText)inflatedView.findViewById(R.id.editTextLastname);
+        email=(EditText)inflatedView.findViewById(R.id.editTextEmail);
+        password=(EditText)inflatedView.findViewById(R.id.editTextLng);
+        circularProgressButton=(CircularProgressButton) inflatedView.findViewById(R.id.buttonEnviar);
 
+        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
+        actionBar.setHomeAsUpIndicator(((MainActivity) this.getActivity()).getV7DrawerToggleDelegate().getThemeUpIndicator());
+
+        image_button = (ImageView) inflatedView.findViewById(R.id.ImageViewUser);
+        image_button.setOnClickListener(new View.OnClickListener() {
+            // Start new list activity
+            public void onClick(View v) {
+                selectImage(v);
+            }
+        });
+
+
+        circularProgressButton.setOnClickListener(new View.OnClickListener() {
+            // Start new list activity
+            public void onClick(View v) {
+                try {
+                    buttonAccept(v);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        return inflatedView;
     }
     public void buttonAccept(View view) throws JSONException, FileNotFoundException {
         //Inicializamos dialog
-        pDialog = new ProgressDialog(NewUser.this);
+        pDialog = new ProgressDialog(NewUser.this.getActivity());
         pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         pDialog.setMessage("Procesando...");
         pDialog.setCancelable(true);
@@ -85,7 +119,7 @@ public class NewUser extends ActionBarActivity {
             params.put("password", password.getText());
             //Cargar la imagen
             int numero = (int) (Math.random() * 99999999) + 1;
-            is = getContentResolver().openInputStream(selectedImage);
+            is = this.getActivity().getContentResolver().openInputStream(selectedImage);
             params.put("photo_url", is, numero + "_upload.jpg");
 
 
@@ -105,11 +139,11 @@ public class NewUser extends ActionBarActivity {
                             setResult(new String(responseBody));
                             System.out.println(getResult());
                             if (getResult().equals("bien")) {
-                                AppMsg.makeText(NewUser.this, "Registro correcto", AppMsg.STYLE_INFO).setLayoutGravity(Gravity.BOTTOM).show();
+                                AppMsg.makeText(NewUser.this.getActivity(), "Registro correcto", AppMsg.STYLE_INFO).setLayoutGravity(Gravity.BOTTOM).show();
                                 circularProgressButton.setProgress(100);
                                 entrar();
                             } else {
-                                AppMsg.makeText(NewUser.this, "Error en el registro, compruebe los campos", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                                AppMsg.makeText(NewUser.this.getActivity(), "Error en el registro, compruebe los campos", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
                                 circularProgressButton.setProgress(-1);
                                 handler.postDelayed(new Runnable() {
                                     public void run() {
@@ -120,7 +154,7 @@ public class NewUser extends ActionBarActivity {
 
                         } catch (JSONException e) {
                             System.out.println("Falla:" + e);
-                            AppMsg.makeText(NewUser.this, "Error en el registro, compruebe los campos", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                            AppMsg.makeText(NewUser.this.getActivity(), "Error en el registro, compruebe los campos", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
                             circularProgressButton.setProgress(-1);
                             handler.postDelayed(new Runnable() {
                                 public void run() {
@@ -134,7 +168,7 @@ public class NewUser extends ActionBarActivity {
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    AppMsg.makeText(NewUser.this, "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
+                    AppMsg.makeText(NewUser.this.getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
                     circularProgressButton.setProgress(-1);
                     handler.postDelayed(new Runnable() {
                         public void run() {
@@ -145,7 +179,7 @@ public class NewUser extends ActionBarActivity {
                 }
             });
         }else{
-            AppMsg.makeText(NewUser.this, "Los campos no pueden estar vacios", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+            AppMsg.makeText(NewUser.this.getActivity(), "Los campos no pueden estar vacios", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
             circularProgressButton.setProgress(-1);
             handler.postDelayed(new Runnable() {
                 public void run() {
@@ -186,12 +220,12 @@ public class NewUser extends ActionBarActivity {
     }
     public void changeActivity()
     {
-        Intent intent = new Intent(this, Login.class);
+        Intent intent = new Intent(this.getActivity(), Login.class);
         startActivity(intent);
     }
     //guardar configuración aplicación Android usando SharedPreferences
     public void savePreferences(String[] datos) {
-        SharedPreferences prefs = getSharedPreferences("preferences", Context.MODE_PRIVATE);
+        SharedPreferences prefs = this.getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("id", datos[0]);
         editor.putString("name", datos[1]);
@@ -208,15 +242,16 @@ public class NewUser extends ActionBarActivity {
         int  code = 2;
         startActivityForResult(intent, code);
     }
-    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         try {
             if(data!=null) {
                 selectedImage = data.getData();
-                is = getContentResolver().openInputStream(selectedImage);
+                is = this.getActivity().getContentResolver().openInputStream(selectedImage);
                 BufferedInputStream bis = new BufferedInputStream(is);
                 Bitmap bitmap = BitmapFactory.decodeStream(bis);
-                ImageView iv = (ImageView) findViewById(R.id.ImageViewUser);
+                ImageView iv = (ImageView) inflatedView.findViewById(R.id.ImageViewUser);
                 iv.setImageBitmap(bitmap);
             }
         } catch (FileNotFoundException e) {

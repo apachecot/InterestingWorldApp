@@ -1,8 +1,8 @@
 package world.interesting.panche.interestingworld;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,10 +26,8 @@ public class MainActivity extends MaterialNavigationDrawer{
 
         explore = this.newSection(this.getResources().getString(R.string.explore), this.getResources().getDrawable(R.drawable.location), new FragmentMap()).setSectionColor(Color.parseColor("#03a9f4"));
                 // recorder section with icon and 10 notifications
-        photos = this.newSection(this.getResources().getString(R.string.photos), this.getResources().getDrawable(R.drawable.photo), new FragmentLocationDetail()).setSectionColor(Color.parseColor("#03a9f4"));
+        photos = this.newSection(this.getResources().getString(R.string.photos), this.getResources().getDrawable(R.drawable.photo), new FragmentPhotos()).setSectionColor(Color.parseColor("#03a9f4"));
 
-        Intent i = new Intent(this,Login.class);
-        login = this.newSection(this.getResources().getString(R.string.login),this.getResources().getDrawable(R.drawable.user),i);
 
         // add your sections to the drawer
         this.addSection(lastLocations);
@@ -38,7 +36,7 @@ public class MainActivity extends MaterialNavigationDrawer{
         //this.addSection(addlocation);
         //this.addSubheader("Opciones");
         //this.addDivisor();
-        this.addBottomSection(login);
+
 
         this.closeOptionsMenu();
         //this.addMultiPaneSupport();
@@ -74,10 +72,10 @@ public class MainActivity extends MaterialNavigationDrawer{
      * Launching new activity
      * */
     private void intentLogin() {
-        Intent i = new Intent(this, Login.class);
-        startActivity(i);
+        if(!getCurrentSection().equals(new NewUser()) && !getCurrentSection().equals(new Login())) {
+            Fragment fragment = new Login();
+            ((MaterialNavigationDrawer) this).setFragmentChild(fragment, "Login");
+        }
     }
-
-
 }
 

@@ -27,7 +27,6 @@
         android:src="@drawable/defaultuser"
         android:adjustViewBounds="true"
         android:padding="10dp"
-        android:onClick="selectImage"
             android:layout_marginTop="25dp" />
 
     <EditText
@@ -77,10 +76,8 @@
             android:layout_marginTop="50dp"
             android:textColor="@color/white"
             android:textSize="18sp"
-            android:onClick="buttonAccept"
             app:cpb_textComplete="Enviado"
             app:cpb_textError="Error"
-            app:cpb_textIdle="Enviar"
-            />
+            app:cpb_textIdle="Enviar" />
     </TableLayout>
 </ScrollView>

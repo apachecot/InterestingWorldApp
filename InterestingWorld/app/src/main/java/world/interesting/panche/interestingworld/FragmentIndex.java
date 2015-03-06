@@ -4,7 +4,8 @@ package world.interesting.panche.interestingworld;
  * Created by Alex on 15/01/2015.
  */
 
-import android.app.ProgressDialog;
+import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -19,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cuneytayyildiz.widget.PullRefreshLayout;
 import com.devspark.appmsg.AppMsg;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -31,12 +33,13 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import it.gmariotti.cardslib.library.cards.actions.BaseSupplementalAction;
-import it.gmariotti.cardslib.library.cards.actions.IconSupplementalAction;
 import it.gmariotti.cardslib.library.cards.material.MaterialLargeImageCard;
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.recyclerview.internal.CardArrayRecyclerViewAdapter;
 import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
+
 
 
 /**
@@ -47,8 +50,10 @@ public class FragmentIndex extends Fragment {
     CardRecyclerView mRecyclerView;
     View inflatedView;
     CardArrayRecyclerViewAdapter mCardArrayAdapter;
-    private ProgressDialog pDialog;
+    private SweetAlertDialog pDialog;
+    private static Context mcontext;
     ArrayList<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
+    PullRefreshLayout layout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -57,6 +62,18 @@ public class FragmentIndex extends Fragment {
         text.setText(this.getResources().getString(R.string.profile));
         text.setGravity(Gravity.CENTER);
         setHasOptionsMenu(false);
+
+        layout = (PullRefreshLayout) inflatedView.findViewById(R.id.swipeRefreshLayout);
+
+        // listen refresh event
+        layout.setOnRefreshListener(new PullRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadData();
+                System.out.println("hola");
+            }
+        });
+
 
 
         return inflatedView;
@@ -137,11 +154,10 @@ public class FragmentIndex extends Fragment {
     public void loadData()
     {
 
-        pDialog = new ProgressDialog(this.getActivity());
-        pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        pDialog.setMessage("Procesando...");
-        pDialog.setCancelable(true);
-        pDialog.setMax(100);
+        pDialog = new SweetAlertDialog(this.getActivity(), SweetAlertDialog.PROGRESS_TYPE);
+        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+        pDialog.setTitleText("Cargando...");
+
         AsyncHttpClient client = new AsyncHttpClient();
 
         String url="http://interestingworld.webcindario.com/consulta_locations.php";
@@ -152,7 +168,7 @@ public class FragmentIndex extends Fragment {
             @Override
             public void onStart()
             {
-                pDialog.setProgress(0);
+                pDialog.setCancelable(true);
                 pDialog.show();
             }
             @Override
@@ -220,61 +236,64 @@ public class FragmentIndex extends Fragment {
             final String name = list.get(i).get(1).toString();
             final String url = list.get(i).get(5).toString();
             System.out.println(id);
-
-            // Set supplemental actions
-            IconSupplementalAction t1 = new IconSupplementalAction(getActivity(), R.id.ic1);
-            t1.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
-                @Override
-                public void onClick(Card card, View view) {
-                    Toast.makeText(getActivity(), "Click en " + name, Toast.LENGTH_SHORT).show();
-                }
-            });
-            actions.add(t1);
-
-            IconSupplementalAction t2 = new IconSupplementalAction(getActivity(), R.id.ic2);
-            t2.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
-                @Override
-                public void onClick(Card card, View view) {
-                    Toast.makeText(getActivity(), " Click en " + url, Toast.LENGTH_SHORT).show();
-                }
-            });
-            actions.add(t2);
-            IconSupplementalAction t3 = new IconSupplementalAction(getActivity(), R.id.ic3);
-            t3.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
-                @Override
-                public void onClick(Card card, View view) {
-                    Toast.makeText(getActivity(), " Click en " + card.getId(), Toast.LENGTH_SHORT).show();
-                }
-            });
-            actions.add(t3);
-            MaterialLargeImageCard card =
-                    MaterialLargeImageCard.with(getActivity())
+//
+//            // Set supplemental actions
+//            IconSupplementalAction t1 = new IconSupplementalAction(getActivity(), R.id.ic1);
+//            t1.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
+//                @Override
+//                public void onClick(Card card, View view) {
+//                    Toast.makeText(getActivity(), "Click en " + name, Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//            actions.add(t1);
+//
+//            IconSupplementalAction t2 = new IconSupplementalAction(getActivity(), R.id.ic2);
+//            t2.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
+//                @Override
+//                public void onClick(Card card, View view) {
+//                    Toast.makeText(getActivity(), " Click en " + url, Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//            actions.add(t2);
+//            IconSupplementalAction t3 = new IconSupplementalAction(getActivity(), R.id.ic3);
+//            t3.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
+//                @Override
+//                public void onClick(Card card, View view) {
+//                    Toast.makeText(getActivity(), " Click en " + card.getId(), Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//            actions.add(t3);
+            MaterialLargeImageCard card = MaterialLargeImageCard.with(this.getActivity().getApplicationContext())
                             .setTextOverImage(name)
-                                    //.setTitle("This is my favorite local beach ")
-                                    //.setSubTitle("A wonderful place")
                             .useDrawableExternal(new MaterialLargeImageCard.DrawableExternal() {
                                 @Override
                                 public void setupInnerViewElements(ViewGroup parent, View viewImage) {
-
-                                    //Picasso.with(getActivity()).setIndicatorsEnabled(true);  //only for debug tests
                                     Picasso.with(getActivity())
                                             .load("http://"+url)
                                             .error(R.drawable.ic_launcher)
                                             .into((ImageView) viewImage);
                                 }
                             })
-                            .setupSupplementalActions(R.layout.hover_sample1, actions)
                             .build();
             card.setId(id);
             card.setClickable(true);
 
-            cards.add(card);
             card.setOnClickListener(new Card.OnCardClickListener() {
                 @Override
                 public void onClick(Card card, View view) {
-                    AppMsg.makeText(FragmentIndex.this.getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
+                    Toast.makeText(getActivity()," Click on ActionArea ", Toast.LENGTH_SHORT).show();
                 }
             });
+//            card.setOnLongClickListener(new Card.OnLongCardClickListener() {
+//                @Override
+//                public boolean onLongClick(Card card, View view) {
+//                    AppMsg.makeText(FragmentIndex.this.getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
+//                    return false;
+//                }
+//            });
+
+            cards.add(card);
+
         }
         mCardArrayAdapter.clear();
         mCardArrayAdapter.addAll(cards);
@@ -283,6 +302,8 @@ public class FragmentIndex extends Fragment {
         if (mRecyclerView != null) {
             mRecyclerView.setAdapter(mCardArrayAdapter);
         }
+        // refresh complete
+        layout.setRefreshing(false);
 
     }
     @Override
@@ -292,5 +313,7 @@ public class FragmentIndex extends Fragment {
         MenuItem item3  = menu.findItem(R.id.add_location);
         item3.setVisible(false);
     }
+
+
 
 }
