@@ -13,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import com.cuneytayyildiz.widget.PullRefreshLayout;
 import com.devspark.appmsg.AppMsg;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
@@ -54,6 +56,8 @@ public class FragmentIndex extends Fragment {
     private static Context mcontext;
     ArrayList<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
     PullRefreshLayout layout;
+    int category=0;
+    MenuItem selected;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -61,7 +65,7 @@ public class FragmentIndex extends Fragment {
         TextView text = new TextView(this.getActivity());
         text.setText(this.getResources().getString(R.string.profile));
         text.setGravity(Gravity.CENTER);
-        setHasOptionsMenu(false);
+        setHasOptionsMenu(true);
 
         layout = (PullRefreshLayout) inflatedView.findViewById(R.id.swipeRefreshLayout);
 
@@ -70,7 +74,6 @@ public class FragmentIndex extends Fragment {
             @Override
             public void onRefresh() {
                 loadData();
-                System.out.println("hola");
             }
         });
 
@@ -89,58 +92,8 @@ public class FragmentIndex extends Fragment {
     public void materialCard ()
     {
 
-        // Set supplemental actions as text
         final ArrayList<Card> cards = new ArrayList<Card>();
-/*
-        for (int i = 0; i <5; i++) {
-            ArrayList<BaseSupplementalAction> actions = new ArrayList<BaseSupplementalAction>();
-            //final String url=list.get(0).get(5).toString();
 
-            // Set supplemental actions
-            IconSupplementalAction t1 = new IconSupplementalAction(getActivity(), R.id.ic1);
-            t1.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
-                @Override
-                public void onClick(Card card, View view) {
-                    Toast.makeText(getActivity(), "Click en " + card.getTitle(), Toast.LENGTH_SHORT).show();
-                }
-            });
-            actions.add(t1);
-
-            IconSupplementalAction t2 = new IconSupplementalAction(getActivity(), R.id.ic2);
-            t2.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
-                @Override
-                public void onClick(Card card, View view) {
-                    Toast.makeText(getActivity(), " Click en " + card.getTitle(), Toast.LENGTH_SHORT).show();
-                }
-            });
-            actions.add(t2);
-            MaterialLargeImageCard card =
-                    MaterialLargeImageCard.with(getActivity())
-                            .setTextOverImage("hola")
-                            //.setTitle("This is my favorite local beach ")
-                            //.setSubTitle("A wonderful place")
-                            .useDrawableExternal(new MaterialLargeImageCard.DrawableExternal() {
-                                @Override
-                                public void setupInnerViewElements(ViewGroup parent, View viewImage) {
-
-                                    //Picasso.with(getActivity()).setIndicatorsEnabled(true);  //only for debug tests
-                                    Picasso.with(getActivity())
-                                            .load("http://")
-                                            .error(R.drawable.ic_launcher)
-                                            .into((ImageView) viewImage);
-                                }
-                            })
-                            .setupSupplementalActions(R.layout.hover_sample1, actions)
-                            .build();
-            card.setOnClickListener(new Card.OnCardClickListener() {
-                @Override
-                public void onClick(Card card, View view) {
-                    Toast.makeText(getActivity(), " Click on ActionArea ", Toast.LENGTH_SHORT).show();
-                }
-            });
-            cards.add(card);
-        }
-*/
         mCardArrayAdapter = new CardArrayRecyclerViewAdapter(this.getActivity(), cards);
         mRecyclerView = (CardRecyclerView) this.getActivity().findViewById(R.id.cardList);
         mRecyclerView.setHasFixedSize(false);
@@ -159,12 +112,14 @@ public class FragmentIndex extends Fragment {
         pDialog.setTitleText("Cargando...");
 
         AsyncHttpClient client = new AsyncHttpClient();
+        RequestParams params = new RequestParams();
+        params.put("category", category);
 
         String url="http://interestingworld.webcindario.com/consulta_locations.php";
 
 
 
-        client.post(url,new AsyncHttpResponseHandler() {
+        client.post(url,params,new AsyncHttpResponseHandler() {
             @Override
             public void onStart()
             {
@@ -236,33 +191,7 @@ public class FragmentIndex extends Fragment {
             final String name = list.get(i).get(1).toString();
             final String url = list.get(i).get(5).toString();
             System.out.println(id);
-//
-//            // Set supplemental actions
-//            IconSupplementalAction t1 = new IconSupplementalAction(getActivity(), R.id.ic1);
-//            t1.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
-//                @Override
-//                public void onClick(Card card, View view) {
-//                    Toast.makeText(getActivity(), "Click en " + name, Toast.LENGTH_SHORT).show();
-//                }
-//            });
-//            actions.add(t1);
-//
-//            IconSupplementalAction t2 = new IconSupplementalAction(getActivity(), R.id.ic2);
-//            t2.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
-//                @Override
-//                public void onClick(Card card, View view) {
-//                    Toast.makeText(getActivity(), " Click en " + url, Toast.LENGTH_SHORT).show();
-//                }
-//            });
-//            actions.add(t2);
-//            IconSupplementalAction t3 = new IconSupplementalAction(getActivity(), R.id.ic3);
-//            t3.setOnActionClickListener(new BaseSupplementalAction.OnActionClickListener() {
-//                @Override
-//                public void onClick(Card card, View view) {
-//                    Toast.makeText(getActivity(), " Click en " + card.getId(), Toast.LENGTH_SHORT).show();
-//                }
-//            });
-//            actions.add(t3);
+
             MaterialLargeImageCard card = MaterialLargeImageCard.with(this.getActivity().getApplicationContext())
                             .setTextOverImage(name)
                             .useDrawableExternal(new MaterialLargeImageCard.DrawableExternal() {
@@ -284,13 +213,7 @@ public class FragmentIndex extends Fragment {
                     Toast.makeText(getActivity()," Click on ActionArea ", Toast.LENGTH_SHORT).show();
                 }
             });
-//            card.setOnLongClickListener(new Card.OnLongCardClickListener() {
-//                @Override
-//                public boolean onLongClick(Card card, View view) {
-//                    AppMsg.makeText(FragmentIndex.this.getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
-//                    return false;
-//                }
-//            });
+
 
             cards.add(card);
 
@@ -306,12 +229,66 @@ public class FragmentIndex extends Fragment {
         layout.setRefreshing(false);
 
     }
+    /*
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
         MenuItem item3  = menu.findItem(R.id.add_location);
         item3.setVisible(false);
+    }*/
+
+    //Buscador por categorias
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_search, menu);
+        selected= menu.findItem(R.id.list);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Take appropriate action for each action item click
+
+        switch (item.getItemId()) {
+            //All
+            case R.id.category0:
+                category=0;
+                loadData();
+                selected.setIcon(R.drawable.location_white);
+                return true;
+            //Monuments
+            case R.id.category1:
+                category=1;
+                loadData();
+                selected.setIcon(R.drawable.museum_bar);
+                return true;
+            //Museums
+            case R.id.category2:
+                category=2;
+                loadData();
+                selected.setIcon(R.drawable.art_bar);
+                return true;
+            //Beachs
+            case R.id.category3:
+                category=3;
+                loadData();
+                selected.setIcon(R.drawable.beach_bar);
+                return true;
+            //Bar
+            case R.id.category4:
+                category=4;
+                loadData();
+                selected.setIcon(R.drawable.beer_bar);
+                return true;
+            //Restaurant
+            case R.id.category5:
+                category=5;
+                loadData();
+                selected.setIcon(R.drawable.restaurant_bar);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 

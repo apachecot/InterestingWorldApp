@@ -71,7 +71,7 @@ public class MainActivity extends MaterialNavigationDrawer{
     /**
      * Launching new activity
      * */
-    private void intentLogin() {
+    public void intentLogin() {
         if(!getCurrentSection().equals(new NewUser()) && !getCurrentSection().equals(new Login())) {
             Fragment fragment = new Login();
             ((MaterialNavigationDrawer) this).setFragmentChild(fragment, "Login");

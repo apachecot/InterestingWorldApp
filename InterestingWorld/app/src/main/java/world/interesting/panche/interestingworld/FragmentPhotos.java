@@ -10,6 +10,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -19,6 +22,7 @@ import android.widget.TextView;
 import com.cuneytayyildiz.widget.PullRefreshLayout;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 import org.apache.http.Header;
 import org.json.JSONArray;
@@ -39,6 +43,8 @@ public class FragmentPhotos extends Fragment {
     public List<String> select_image = new ArrayList<String>();
     FragmentManager fm;
     PullRefreshLayout layout;
+    int category=0;
+    MenuItem selected;
 
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -47,7 +53,7 @@ public class FragmentPhotos extends Fragment {
         TextView text = new TextView(this.getActivity());
         text.setText(this.getResources().getString(R.string.photos));
         text.setGravity(Gravity.CENTER);
-        setHasOptionsMenu(false);
+        setHasOptionsMenu(true);
         fm= this.getActivity().getSupportFragmentManager();
 
         gridAdapter=new GridViewAdapter(this.getActivity());
@@ -88,10 +94,12 @@ public class FragmentPhotos extends Fragment {
         pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
         pDialog.setTitleText("Cargando...");
         AsyncHttpClient client = new AsyncHttpClient();
+        RequestParams params = new RequestParams();
+        params.put("category", category);
 
         String url="http://interestingworld.webcindario.com/consulta_locations.php";
 
-        client.post(url,new AsyncHttpResponseHandler() {
+        client.post(url,params,new AsyncHttpResponseHandler() {
             @Override
             public void onStart()
             {
@@ -170,5 +178,64 @@ public class FragmentPhotos extends Fragment {
     public List<String> getInfoPhoto()
     {
         return select_image;
+    }
+
+    //Buscador por categorias
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_search, menu);
+        selected= menu.findItem(R.id.list);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Take appropriate action for each action item click
+
+        switch (item.getItemId()) {
+            //All
+            case R.id.category0:
+                category = 0;
+                urls.clear();
+                loadData();
+                selected.setIcon(R.drawable.location_white);
+                return true;
+            //Monuments
+            case R.id.category1:
+                category = 1;
+                urls.clear();
+                loadData();
+                selected.setIcon(R.drawable.museum_bar);
+                return true;
+            //Museums
+            case R.id.category2:
+                category = 2;
+                urls.clear();
+                loadData();
+                selected.setIcon(R.drawable.art_bar);
+                return true;
+            //Beachs
+            case R.id.category3:
+                category = 3;
+                urls.clear();
+                loadData();
+                selected.setIcon(R.drawable.beach_bar);
+                return true;
+            //Bar
+            case R.id.category4:
+                category = 4;
+                urls.clear();
+                loadData();
+                selected.setIcon(R.drawable.beer_bar);
+                return true;
+            //Restaurant
+            case R.id.category5:
+                category = 5;
+                urls.clear();
+                loadData();
+                selected.setIcon(R.drawable.restaurant_bar);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

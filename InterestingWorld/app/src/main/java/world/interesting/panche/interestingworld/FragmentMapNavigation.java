@@ -13,9 +13,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -33,7 +30,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -47,7 +43,7 @@ import java.util.List;
 
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
-public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClickListener, LocationListener {
+public class FragmentMapNavigation extends Fragment implements GoogleMap.OnInfoWindowClickListener, LocationListener {
 
     public MapView mMapView;
     public GoogleMap mMap;
@@ -58,8 +54,6 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     private LocationManager locationManager;
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 1000;
-    int category=0;
-    MenuItem selected;
 
     ArrayList<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
     Bitmap bmImg;
@@ -83,7 +77,6 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         locationManager = (LocationManager) this.getActivity().getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
         setUpMapIfNeeded(inflatedView);
-        setHasOptionsMenu(true);
 
         return inflatedView;
     }
@@ -169,14 +162,12 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         pDialog.setCancelable(true);
         pDialog.setMax(100);
         AsyncHttpClient client = new AsyncHttpClient();
-        RequestParams params = new RequestParams();
-        params.put("category", category);
 
         String url="http://interestingworld.webcindario.com/consulta_locations.php";
 
 
 
-        client.post(url,params,new AsyncHttpResponseHandler() {
+        client.post(url,new AsyncHttpResponseHandler() {
             @Override
             public void onStart()
             {
@@ -218,7 +209,6 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         String posts = jsonObject.getString("posts");
 
         JSONArray array = new JSONArray(posts);
-        mMap.clear();
         for(int i=0; i < array.length(); i++) {
             JSONObject jsonChildNode = array.getJSONObject(i);
             jsonChildNode = new JSONObject(jsonChildNode.optString("post").toString());
@@ -381,59 +371,6 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         bundle.putString("url_photo",info.get(5).toString());
         bundle.putString("user_location",info.get(6).toString());
     }
-    //Buscador por categorias
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_search, menu);
-        selected= menu.findItem(R.id.list);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Take appropriate action for each action item click
-
-        switch (item.getItemId()) {
-            //All
-            case R.id.category0:
-                category = 0;
-                loadData();
-                selected.setIcon(R.drawable.location_white);
-                return true;
-            //Monuments
-            case R.id.category1:
-                category = 1;
-                loadData();
-                selected.setIcon(R.drawable.museum_bar);
-                return true;
-            //Museums
-            case R.id.category2:
-                category = 2;
-                loadData();
-                selected.setIcon(R.drawable.art_bar);
-                return true;
-            //Beachs
-            case R.id.category3:
-                category = 3;
-                loadData();
-                selected.setIcon(R.drawable.beach_bar);
-                return true;
-            //Bar
-            case R.id.category4:
-                category = 4;
-                loadData();
-                selected.setIcon(R.drawable.beer_bar);
-                return true;
-            //Restaurant
-            case R.id.category5:
-                category = 5;
-                loadData();
-                selected.setIcon(R.drawable.restaurant_bar);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
 
 
 }

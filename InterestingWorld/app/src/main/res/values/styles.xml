@@ -13,6 +13,9 @@
         <item name="colorAccent">#FFFFFF</item>
         <item name="rippleBackport">true</item>
     </style>
+    <style name="NoHeader.PopupMenu" parent="android:Widget.Holo.Light.ListPopupWindow">
+        <item name="android:popupBackground">#8bc34a</item>
+    </style>
 
     <!-- No Drawer Header -->
     <style name="NoHeader" parent="MaterialNavigationDrawerTheme.Light.DarkActionBar.TranslucentKitKatStatusBar">
