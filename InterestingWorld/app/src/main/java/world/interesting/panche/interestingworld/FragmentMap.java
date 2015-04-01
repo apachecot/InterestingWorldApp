@@ -334,7 +334,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                         if (not_first_time_showing_info_window) {
                             Picasso.with(getActivity())
                                     .load("http://" + url_photo)
-                                    .error(R.drawable.ic_launcher)
+                                    .error(R.drawable.ic_launcher).resize(128,128).centerCrop()
                                     .into((ImageView) myContentsView.findViewById(R.id.badge));
                             not_first_time_showing_info_window=false;
                         }
@@ -343,7 +343,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                             not_first_time_showing_info_window=true;
                             Picasso.with(getActivity())
                                     .load("http://" + url_photo)
-                                    .error(R.drawable.ic_launcher)
+                                    .error(R.drawable.ic_launcher).resize(128,128).centerCrop()
                                     .into((ImageView) myContentsView.findViewById(R.id.badge), new InfoWindowRefresher(marker));
                         }
 

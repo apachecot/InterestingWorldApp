@@ -9,7 +9,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,16 +19,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cuneytayyildiz.widget.PullRefreshLayout;
 import com.devspark.appmsg.AppMsg;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-import com.squareup.picasso.Picasso;
+
 
 import org.apache.http.Header;
 import org.json.JSONArray;
@@ -36,9 +36,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
-import it.gmariotti.cardslib.library.cards.actions.BaseSupplementalAction;
-import it.gmariotti.cardslib.library.cards.material.MaterialLargeImageCard;
-import it.gmariotti.cardslib.library.internal.Card;
+
 import it.gmariotti.cardslib.library.recyclerview.internal.CardArrayRecyclerViewAdapter;
 import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
 
@@ -54,7 +52,7 @@ public class FragmentIndex extends Fragment {
     CardArrayRecyclerViewAdapter mCardArrayAdapter;
     private SweetAlertDialog pDialog;
     private static Context mcontext;
-    ArrayList<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
+    ArrayList<Location> list = new ArrayList<Location>();
     PullRefreshLayout layout;
     int category=0;
     MenuItem selected;
@@ -86,24 +84,10 @@ public class FragmentIndex extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        materialCard();
+        materialCardLoad();
         loadData();
     }
-    public void materialCard ()
-    {
 
-        final ArrayList<Card> cards = new ArrayList<Card>();
-
-        mCardArrayAdapter = new CardArrayRecyclerViewAdapter(this.getActivity(), cards);
-        mRecyclerView = (CardRecyclerView) this.getActivity().findViewById(R.id.cardList);
-        mRecyclerView.setHasFixedSize(false);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
-
-        if (mRecyclerView != null) {
-            mRecyclerView.setAdapter(mCardArrayAdapter);
-        }
-
-    }
     public void loadData()
     {
 
@@ -167,15 +151,9 @@ public class FragmentIndex extends Fragment {
             JSONObject jsonChildNode = array.getJSONObject(i);
             jsonChildNode = new JSONObject(jsonChildNode.optString("post").toString());
 
-            ArrayList<String> datos = new ArrayList<String>();
-            datos.add(jsonChildNode.getString("id"));
-            datos.add(jsonChildNode.getString("name"));
-            datos.add(jsonChildNode.getString("description"));
-            datos.add(jsonChildNode.getString("lat"));
-            datos.add(jsonChildNode.getString("lng"));
-            datos.add(jsonChildNode.getString("photo_url"));
-            datos.add(jsonChildNode.getString("email"));
-            list.add(datos);
+            Location loc= new Location(jsonChildNode.getString("id"),jsonChildNode.getString("name"),jsonChildNode.getString("description"),
+                    jsonChildNode.getString("photo_url"),jsonChildNode.getString("email"),"",jsonChildNode.getString("lat"),jsonChildNode.getString("lng"));
+            list.add(loc);
         }
         materialCardLoad();
         return  list;
@@ -183,49 +161,11 @@ public class FragmentIndex extends Fragment {
     public void materialCardLoad ()
     {
 
-        // Set supplemental actions as text
-        final ArrayList<Card> cards = new ArrayList<Card>();
-
-        for (int i = 0; i <list.size(); i++) {
-            ArrayList<BaseSupplementalAction> actions = new ArrayList<BaseSupplementalAction>();
-            final String id = list.get(i).get(0).toString();
-            final String name = list.get(i).get(1).toString();
-            final String url = list.get(i).get(5).toString();
-            System.out.println(id);
-
-            MaterialLargeImageCard card = MaterialLargeImageCard.with(this.getActivity().getApplicationContext())
-                            .setTextOverImage(name)
-                            .useDrawableExternal(new MaterialLargeImageCard.DrawableExternal() {
-                                @Override
-                                public void setupInnerViewElements(ViewGroup parent, View viewImage) {
-                                    Picasso.with(getActivity())
-                                            .load("http://"+url)
-                                            .error(R.drawable.ic_launcher)
-                                            .into((ImageView) viewImage);
-                                }
-                            })
-                            .build();
-            card.setId(id);
-            card.setClickable(true);
-
-            card.setOnClickListener(new Card.OnCardClickListener() {
-                @Override
-                public void onClick(Card card, View view) {
-                    Toast.makeText(getActivity()," Click on ActionArea ", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-
-            cards.add(card);
-
-        }
-        mCardArrayAdapter.clear();
-        mCardArrayAdapter.addAll(cards);
-        mCardArrayAdapter.notifyDataSetChanged();
-
-        if (mRecyclerView != null) {
-            mRecyclerView.setAdapter(mCardArrayAdapter);
-        }
+        RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.my_recycler_view);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(new LocationsAdapter(list, R.layout.card,this.getActivity()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
         // refresh complete
         layout.setRefreshing(false);
 

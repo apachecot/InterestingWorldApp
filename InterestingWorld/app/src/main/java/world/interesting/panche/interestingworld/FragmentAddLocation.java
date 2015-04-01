@@ -242,8 +242,7 @@ public class FragmentAddLocation extends Fragment {
     }
     public void changeActivity()
     {
-        Intent intent = new Intent(this.getActivity(), MainActivityUser.class);
-        startActivity(intent);
+        ((MaterialNavigationDrawer)this.getActivity()).setSection(((MainActivityUser) getActivity()).lastLocations);
     }
     //cargar configuración aplicación Android usando SharedPreferences
     public String[] loadPreferences() {

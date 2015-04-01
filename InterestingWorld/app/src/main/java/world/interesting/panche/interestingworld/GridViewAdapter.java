@@ -42,8 +42,8 @@ final class GridViewAdapter extends BaseAdapter {
                 .load("http://"+url) //
                 .placeholder(R.drawable.back1) //
                 .error(R.drawable.back2) //
-                .centerCrop().fit() //
-                .tag(context) //
+                .resize(256,256).centerCrop()//
+                .tag(context).skipMemoryCache() //
                 .into(view);
 
         return view;

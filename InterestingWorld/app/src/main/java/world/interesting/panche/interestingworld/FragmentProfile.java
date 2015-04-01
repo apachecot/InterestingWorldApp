@@ -37,6 +37,7 @@ public class FragmentProfile extends Fragment implements MaterialTabListener {
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+
         tabHost = (MaterialTabHost) view.findViewById(R.id.tabHost);
         tabHost.setPrimaryColor(getResources().getColor(R.color.colorPrimary));
         pager = (ViewPager) view.findViewById(R.id.pager );

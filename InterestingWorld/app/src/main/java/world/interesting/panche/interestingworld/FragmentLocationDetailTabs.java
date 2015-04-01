@@ -81,7 +81,7 @@ public class FragmentLocationDetailTabs extends Fragment implements MaterialTabL
     }
 
 
-    private class ViewPagerAdapter extends FragmentStatePagerAdapter {
+    public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
         public ViewPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -135,5 +135,27 @@ public class FragmentLocationDetailTabs extends Fragment implements MaterialTabL
             return option;
         }
 
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        System.out.println("RESUME TAB");
+
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        System.out.println("OnDestroy");
     }
 }

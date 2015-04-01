@@ -67,12 +67,12 @@ public class FragmentPhotosUser extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 select_image=gridAdapter.getInfoSelectedPhoto(position);
-                dialogPhoto();
+                ViewFull();
             }
         });
 
 
-
+        urls.clear();
         loadData();
         return inflatedView;
     }
@@ -140,6 +140,7 @@ public class FragmentPhotosUser extends Fragment {
         }
         gridAdapter.changeModelList(urls,list);
 
+
         return  list;
     }
 
@@ -176,6 +177,21 @@ public class FragmentPhotosUser extends Fragment {
             System.out.println(datos[i]);
         }
         return datos;
+    }
+    public void ViewFull()
+    {
+
+        FragmentImageViewer dFragment = new FragmentImageViewer();
+        // Supply num input as an argument.
+        // Show DialogFragment
+        Class cl=this.getActivity().getClass();
+        if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
+            ((MainActivity) getActivity()).SetImageUrlFull(select_image.get(0));
+        }else {
+            ((MainActivityUser) getActivity()).SetImageUrlFull(select_image.get(0));
+        }
+        dFragment.show(fm, "Dialog Photo");
+
     }
 
 }

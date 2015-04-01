@@ -10,8 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
+
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
+import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 public class FragmentPhotosDetail extends Fragment {
     View inflatedView;
@@ -47,6 +47,7 @@ public class FragmentPhotosDetail extends Fragment {
     PullRefreshLayout layout;
 
 
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         inflatedView = inflater.inflate(R.layout.photos_list_detail, container, false);
@@ -55,6 +56,7 @@ public class FragmentPhotosDetail extends Fragment {
         text.setGravity(Gravity.CENTER);
         setHasOptionsMenu(true);
         fm= this.getActivity().getSupportFragmentManager();
+
 
         gridAdapter=new GridViewAdapter(this.getActivity());
 
@@ -69,7 +71,7 @@ public class FragmentPhotosDetail extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 select_image=gridAdapter.getInfoSelectedPhoto(position);
-                dialogPhoto();
+                ViewFull();
             }
         });
 
@@ -85,10 +87,10 @@ public class FragmentPhotosDetail extends Fragment {
             }
         });
         urls.clear();
-
         loadData();
         return inflatedView;
     }
+
     public void loadData()
     {
         pDialog = new SweetAlertDialog(this.getActivity(), SweetAlertDialog.PROGRESS_TYPE);
@@ -164,21 +166,23 @@ public class FragmentPhotosDetail extends Fragment {
         return  list;
     }
 
-    private void dialogPhoto() {
-        // custom dialog
-        FragmentDialogPhoto dFragment = new FragmentDialogPhoto();
+
+    public void ViewFull()
+    {
+
+        FragmentImageViewer dFragment = new FragmentImageViewer();
         // Supply num input as an argument.
-        Bundle args = new Bundle();
-        args.putString("id", select_image.get(0));
-        args.putString("url", select_image.get(5));
-        args.putString("lat", select_image.get(3));
-        args.putString("lng", select_image.get(4));
-        args.putString("name", select_image.get(1));
-        args.putString("description", select_image.get(2));
-        dFragment.setArguments(args);
         // Show DialogFragment
+        Class cl=this.getActivity().getClass();
+        if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
+            ((MainActivity) getActivity()).SetImageUrlFull(select_image.get(0));
+        }else {
+            ((MainActivityUser) getActivity()).SetImageUrlFull(select_image.get(0));
+        }
         dFragment.show(fm, "Dialog Photo");
+
     }
+
     public List<String> getInfoPhoto()
     {
         return select_image;

@@ -17,13 +17,14 @@ public class MainActivity extends MaterialNavigationDrawer{
 
     MaterialSection login, explore, photos, lastLocations;
     Location locationSelected;
+    String url_full="";
 
     @Override
     public void init(Bundle savedInstanceState) {
 
 
         // night section with section color
-        lastLocations = this.newSection(this.getResources().getString(R.string.lastlocations),this.getResources().getDrawable(R.drawable.map), new FragmentIndex()).setSectionColor(Color.parseColor("#CC0000"));
+        lastLocations = this.newSection(this.getResources().getString(R.string.lastlocations),this.getResources().getDrawable(R.drawable.map), new FragmentIndex()).setSectionColor(Color.parseColor("#03a9f4"));
 
         explore = this.newSection(this.getResources().getString(R.string.explore), this.getResources().getDrawable(R.drawable.location), new FragmentMap()).setSectionColor(Color.parseColor("#03a9f4"));
                 // recorder section with icon and 10 notifications
@@ -39,7 +40,7 @@ public class MainActivity extends MaterialNavigationDrawer{
         //this.addDivisor();
 
 
-        this.closeOptionsMenu();
+        //this.closeOptionsMenu();
         //this.addMultiPaneSupport();
         this.allowArrowAnimation();
         this.disableLearningPattern();
@@ -85,6 +86,14 @@ public class MainActivity extends MaterialNavigationDrawer{
     public Location GetLocationSelected()
     {
         return locationSelected;
+    }
+    public void SetImageUrlFull(String url)
+    {
+        url_full=url;
+    }
+    public String GetImageUrlFull()
+    {
+        return url_full;
     }
 }
 

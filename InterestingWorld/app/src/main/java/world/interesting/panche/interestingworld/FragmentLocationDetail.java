@@ -58,91 +58,16 @@ public class FragmentLocationDetail extends Fragment {
     ImageButton bNavigate,bShare,bPhoto;
     Uri selectedImage;
     InputStream is;
-    FragmentManager fm;
-    Handler handler = new Handler();
-    CircularProgressButton circularProgressButton;
-    Spinner categoryList;
     private ProgressDialog pDialog;
     String result;
     String[] datos= new String[5];
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Bundle bundle = this.getArguments();
 
         //Seteamos la estructura del fragment
         inflatedView = inflater.inflate(R.layout.location_detail, container, false);
-        fm= this.getActivity().getSupportFragmentManager();
-        //Cambiamos el icono del menu por el de volver atras
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        if(this.getActivity().getLocalClassName().equals("MainActivity"))
-        {
-            actionBar.setHomeAsUpIndicator(((MainActivity) this.getActivity()).getV7DrawerToggleDelegate().getThemeUpIndicator());
-        }else{
-            actionBar.setHomeAsUpIndicator(((MainActivityUser) this.getActivity()).getV7DrawerToggleDelegate().getThemeUpIndicator());
-        }
 
-
-
-        //TextView title = (TextView) inflatedView.findViewById(R.id.TextViewTitle);
-        TextView description = (TextView) inflatedView.findViewById(R.id.TextViewDescription);
-        ImageView photoDetail = (ImageView) inflatedView.findViewById(R.id.ImageDetail);
-        ImageView imageMap = (ImageView) inflatedView.findViewById(R.id.ImageMapStatic);
-        Location loc;
-        if(this.getActivity().getLocalClassName().equals("MainActivity")) {
-          loc = ((MainActivity) getActivity()).GetLocationSelected();
-        }else{
-           loc = ((MainActivityUser) getActivity()).GetLocationSelected();
-        }
-             title_txt = loc.getName();
-             description_txt = loc.getDescription();
-             lat=loc.getLat();
-             lng=loc.getLng();
-             url_photo=loc.getUrl();
-             user_location=loc.getUser();
-             id= loc.getId();
-
-            //title.setText(title_txt);
-            description.setText(description_txt);
-            Picasso.with(getActivity())
-                    .load("http://" + url_photo)
-                    .error(R.drawable.ic_launcher)
-                    .fit().centerCrop()
-                    .into(photoDetail);
-
-            Picasso.with(getActivity())
-                .load("http://maps.googleapis.com/maps/api/staticmap?center="+lat+","+lng+"&zoom=16&size=400x400&" +
-                        "&markers=color:blue%7Clabel:"+title_txt.charAt(0)+"%7C"+lat+","+lng)
-                .error(R.drawable.ic_launcher)
-                .fit().centerCrop()
-                .into(imageMap);
-
-
-
-        bShare = (ImageButton)inflatedView.findViewById(R.id.ic3);
-        bShare.setOnClickListener(new View.OnClickListener() {
-            // Start new list activity
-            public void onClick(View v) {
-                onShareItem(v);
-            }
-        });
-        bPhoto = (ImageButton)inflatedView.findViewById(R.id.ic4);
-        bPhoto.setOnClickListener(new View.OnClickListener() {
-            // Start new list activity
-            public void onClick(View v) {
-                selectImage(v);
-            }
-        });
-        bNavigate = (ImageButton)inflatedView.findViewById(R.id.ic1);
-        bNavigate.setOnClickListener(new View.OnClickListener() {
-            // Start new list activity
-            public void onClick(View v) {
-                Uri gmmIntentUri = Uri.parse("google.navigation:q="+lat+","+lng+"&mode=w");
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);
-            }
-        });
+        loadInformation();
 
         return inflatedView;
     }
@@ -381,5 +306,103 @@ public class FragmentLocationDetail extends Fragment {
             System.out.println(datos[i]);
         }
         return datos;
+    }
+
+    public void loadInformation()
+    {
+        //Cambiamos el icono del menu por el de volver atras
+        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        if(this.getActivity().getLocalClassName().equals("MainActivity"))
+        {
+            actionBar.setHomeAsUpIndicator(((MainActivity) this.getActivity()).getV7DrawerToggleDelegate().getThemeUpIndicator());
+        }else{
+            actionBar.setHomeAsUpIndicator(((MainActivityUser) this.getActivity()).getV7DrawerToggleDelegate().getThemeUpIndicator());
+        }
+
+
+
+        //TextView title = (TextView) inflatedView.findViewById(R.id.TextViewTitle);
+        TextView description = (TextView) inflatedView.findViewById(R.id.TextViewDescription);
+        ImageView photoDetail = (ImageView) inflatedView.findViewById(R.id.ImageDetail);
+        ImageView imageMap = (ImageView) inflatedView.findViewById(R.id.ImageMapStatic);
+        Location loc;
+        if(this.getActivity().getLocalClassName().equals("MainActivity")) {
+            loc = ((MainActivity) getActivity()).GetLocationSelected();
+        }else{
+            loc = ((MainActivityUser) getActivity()).GetLocationSelected();
+        }
+        title_txt = loc.getName();
+        description_txt = loc.getDescription();
+        lat=loc.getLat();
+        lng=loc.getLng();
+        url_photo=loc.getUrl();
+        user_location=loc.getUser();
+        id= loc.getId();
+
+        //title.setText(title_txt);
+        description.setText(description_txt);
+        Picasso.with(getActivity())
+                .load("http://" + url_photo)
+                .error(R.drawable.ic_launcher).skipMemoryCache()
+                .fit().centerCrop()
+                .into(photoDetail);
+
+        Picasso.with(getActivity())
+                .load("http://maps.googleapis.com/maps/api/staticmap?center="+lat+","+lng+"&zoom=16&size=400x400&" +
+                        "&markers=color:blue%7Clabel:"+title_txt.charAt(0)+"%7C"+lat+","+lng)
+                .error(R.drawable.ic_launcher).skipMemoryCache()
+                .fit().centerCrop()
+                .into(imageMap);
+
+
+
+        bShare = (ImageButton)inflatedView.findViewById(R.id.ic3);
+        bShare.setOnClickListener(new View.OnClickListener() {
+            // Start new list activity
+            public void onClick(View v) {
+                onShareItem(v);
+            }
+        });
+        bPhoto = (ImageButton)inflatedView.findViewById(R.id.ic4);
+        bPhoto.setOnClickListener(new View.OnClickListener() {
+            // Start new list activity
+            public void onClick(View v) {
+                selectImage(v);
+            }
+        });
+        bNavigate = (ImageButton)inflatedView.findViewById(R.id.ic1);
+        bNavigate.setOnClickListener(new View.OnClickListener() {
+            // Start new list activity
+            public void onClick(View v) {
+                Uri gmmIntentUri = Uri.parse("google.navigation:q="+lat+","+lng+"&mode=w");
+                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                mapIntent.setPackage("com.google.android.apps.maps");
+                startActivity(mapIntent);
+            }
+        });
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadInformation();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onPause();
+        getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+        System.out.println("OnDestroy");
     }
 }

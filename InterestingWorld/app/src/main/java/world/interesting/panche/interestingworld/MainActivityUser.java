@@ -34,6 +34,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     Double lng=0.0;
     String id_location="";
     Location locationSelected;
+    String url_full="";
 
     @Override
     public void init(Bundle savedInstanceState) {
@@ -54,7 +55,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         this.setAccountListener(this);
 
         // Ultimas localizaciones
-        lastLocations = this.newSection(this.getResources().getString(R.string.lastlocations),this.getResources().getDrawable(R.drawable.map), new FragmentIndex()).setSectionColor(Color.parseColor("#CC0000"));
+        lastLocations = this.newSection(this.getResources().getString(R.string.lastlocations),this.getResources().getDrawable(R.drawable.map), new FragmentIndex()).setSectionColor(Color.parseColor("#03a9f4"));
 
         //Explorar el mapa cercano
         explore = this.newSection(this.getResources().getString(R.string.explore), this.getResources().getDrawable(R.drawable.location), new FragmentMap()).setSectionColor(Color.parseColor("#03a9f4"));
@@ -86,10 +87,11 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
 
 
         this.setBackPattern(MaterialNavigationDrawer.BACKPATTERN_BACK_TO_FIRST);
-        this.closeOptionsMenu();
+        //this.closeOptionsMenu();
         //this.addMultiPaneSupport();
         this.allowArrowAnimation();
         this.disableLearningPattern();
+
     }
 
 
@@ -188,6 +190,14 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     public Location GetLocationSelected()
     {
         return locationSelected;
+    }
+    public void SetImageUrlFull(String url)
+    {
+        url_full=url;
+    }
+    public String GetImageUrlFull()
+    {
+        return url_full;
     }
 
 }
