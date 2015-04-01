@@ -223,6 +223,7 @@ public class Login extends Fragment {
     {
         Intent intent = new Intent(this.getActivity(), MainActivityUser.class);
         startActivity(intent);
+        this.getActivity().finish();
     }
     //guardar configuración aplicación Android usando SharedPreferences
     public void savePreferences(String[] datos) {

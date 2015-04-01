@@ -3,10 +3,13 @@ package world.interesting.panche.interestingworld;
 /**
  * Created by Panche on 31/03/2015.
  */
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -43,7 +46,8 @@ public class FragmentProfile extends Fragment implements MaterialTabListener {
         pager = (ViewPager) view.findViewById(R.id.pager );
 
         // init view pager
-        adapter = new ViewPagerAdapter(this.getFragmentManager());
+        adapter = new ViewPagerAdapter(getChildFragmentManager());
+        new SetAdapterTask().execute();
         pager.setAdapter(adapter);
         pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
@@ -85,11 +89,15 @@ public class FragmentProfile extends Fragment implements MaterialTabListener {
     }
 
 
-    private class ViewPagerAdapter extends FragmentStatePagerAdapter {
+    private class ViewPagerAdapter extends FragmentPagerAdapter {
 
         public ViewPagerAdapter(FragmentManager fm) {
             super(fm);
 
+        }
+        @Override
+        public void restoreState(Parcelable state, ClassLoader loader) {
+            // do nothing here! no call to super.restoreState(state, loader);
         }
 
         public Fragment getItem(int num) {
@@ -139,5 +147,15 @@ public class FragmentProfile extends Fragment implements MaterialTabListener {
             return option;
         }
 
+    }
+    private class SetAdapterTask extends AsyncTask<Void, Void, Void> {
+        protected Void doInBackground(Void... params) {
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            if(adapter != null) pager.setAdapter(adapter);
+        }
     }
 }

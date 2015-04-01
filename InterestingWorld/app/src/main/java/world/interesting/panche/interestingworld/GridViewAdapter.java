@@ -41,7 +41,7 @@ final class GridViewAdapter extends BaseAdapter {
         Picasso.with(context) //
                 .load("http://"+url) //
                 .placeholder(R.drawable.back1) //
-                .error(R.drawable.back2) //
+                .error(R.drawable.not_found) //
                 .resize(256,256).centerCrop()//
                 .tag(context).skipMemoryCache() //
                 .into(view);

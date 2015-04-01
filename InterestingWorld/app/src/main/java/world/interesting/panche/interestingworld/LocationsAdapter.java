@@ -50,7 +50,7 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
         Picasso.with(context) //
                 .load("http://"+loc.getUrl()) //
                 .placeholder(R.drawable.back1) //
-                .error(R.drawable.back2) //
+                .error(R.drawable.not_found) //
                 .fit().centerCrop()//
                 .tag(context).skipMemoryCache() //
                 .into(holder.image);

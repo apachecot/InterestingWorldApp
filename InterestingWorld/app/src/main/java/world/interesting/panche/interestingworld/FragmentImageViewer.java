@@ -67,6 +67,7 @@ public class FragmentImageViewer extends DialogFragment {
         }
         Picasso.with(getActivity())
                 .load("http://"+url)
+                .error(R.drawable.not_found)
                 .into(mImageView,imageLoadedCallback);
 
         return inflatedView;

@@ -110,7 +110,7 @@ public class FragmentDialogPhoto extends DialogFragment {
         ImageView photoDetail = (ImageView) view.findViewById(R.id.ImagePhoto);
         Picasso.with(getActivity())
                 .load("http://" + url)
-                .error(R.drawable.ic_launcher).skipMemoryCache()
+                .error(R.drawable.not_found).skipMemoryCache()
                 .into(photoDetail);
     }
     public void MoreInfo()

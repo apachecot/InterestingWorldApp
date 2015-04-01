@@ -289,7 +289,7 @@ public class FragmentMapNavigation extends Fragment implements GoogleMap.OnInfoW
                         if (not_first_time_showing_info_window) {
                             Picasso.with(getActivity())
                                     .load("http://" + url_photo)
-                                    .error(R.drawable.ic_launcher).skipMemoryCache()
+                                    .error(R.drawable.not_found).skipMemoryCache()
                                     .into((ImageView) myContentsView.findViewById(R.id.badge));
                             not_first_time_showing_info_window=false;
                         }
@@ -298,7 +298,7 @@ public class FragmentMapNavigation extends Fragment implements GoogleMap.OnInfoW
                             not_first_time_showing_info_window=true;
                             Picasso.with(getActivity())
                                     .load("http://" + url_photo)
-                                    .error(R.drawable.ic_launcher).skipMemoryCache()
+                                    .error(R.drawable.not_found).skipMemoryCache()
                                     .into((ImageView) myContentsView.findViewById(R.id.badge), new InfoWindowRefresher(marker));
                         }
 

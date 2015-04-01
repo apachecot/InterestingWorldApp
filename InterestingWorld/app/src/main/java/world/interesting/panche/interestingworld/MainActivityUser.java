@@ -46,7 +46,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         loadImage("http://"+photo_url);
 
         //Creamos la cuenta, con la imagen por defecto, si existe una imagen en el servidor se cambiará
-        account = new MaterialAccount(this.getResources(),datos[1]+" "+datos[2],datos[3],R.drawable.defaultuser,R.drawable.back1);
+        account = new MaterialAccount(this.getResources(),datos[1]+" "+datos[2],datos[3],R.drawable.defaultuser,R.drawable.back3);
 
         //Añadimos la cuenta al menú
         this.addAccount(account);
