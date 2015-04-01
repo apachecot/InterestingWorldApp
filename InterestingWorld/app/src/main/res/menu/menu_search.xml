@@ -43,6 +43,18 @@
                 app:showAsAction="ifRoom"
                 android:title="@string/restaurant"
                 android:icon="@drawable/restaurant_bar"/>
+            <item
+                android:id="@+id/category6"
+                android:showAsAction="ifRoom"
+                app:showAsAction="ifRoom"
+                android:title="@string/photograph"
+                android:icon="@drawable/photograph_white"/>
+            <item
+                android:id="@+id/category7"
+                android:showAsAction="ifRoom"
+                app:showAsAction="ifRoom"
+                android:title="@string/leisure"
+                android:icon="@drawable/leisure_white"/>
         </menu>
     </item>
 </menu>

@@ -23,10 +23,20 @@
         android:scaleType="fitCenter"
         android:id="@+id/ic2"
         android:background="?android:selectableItemBackground"
-        android:src="@drawable/star"
+        android:src="@drawable/visit_white"
         style="@style/card.native.actions.button"
         android:layout_marginRight="8dp"
         android:layout_weight="0.08"
+        android:layout_height="65dp" />
+
+    <ImageButton
+        style="@style/card.native.actions.button"
+        android:scaleType="fitCenter"
+        android:id="@+id/ic4"
+        android:background="?android:selectableItemBackground"
+        android:src="@drawable/photo_white_add"
+        android:layout_marginRight="8dp"
+        android:layout_width="65dp"
         android:layout_height="65dp" />
 
     <ImageButton

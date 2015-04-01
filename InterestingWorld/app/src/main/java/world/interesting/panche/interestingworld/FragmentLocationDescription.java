@@ -13,6 +13,6 @@ import android.view.ViewGroup;
 public class FragmentLocationDescription extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.scroll_one_parrallax_alpha, container, false);
+        return inflater.inflate(R.layout.location_detail, container, false);
     }
 }

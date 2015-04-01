@@ -23,9 +23,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 
 import com.dd.CircularProgressButton;
 import com.devspark.appmsg.AppMsg;
@@ -59,6 +61,8 @@ public class FragmentAddLocation extends Fragment {
     InputStream is;
     Handler handler = new Handler();
     CircularProgressButton circularProgressButton;
+    Spinner categoryList;
+    Category cat=new Category();
 
     FragmentManager fm;
 
@@ -69,6 +73,7 @@ public class FragmentAddLocation extends Fragment {
 
         View inflatedView = inflater.inflate(R.layout.new_location, container, false);
         circularProgressButton=(CircularProgressButton) inflatedView.findViewById(R.id.buttonEnviar);
+
 
         return inflatedView;
     }
@@ -81,6 +86,8 @@ public class FragmentAddLocation extends Fragment {
         ((MaterialNavigationDrawer)this.getActivity()).getSupportActionBar().show();
         name=(EditText)this.getActivity().findViewById(R.id.editTextName);
         description=(EditText)this.getActivity().findViewById(R.id.editTextDescription);
+        addItemsSpinner();
+
 
         circularProgressButton.setOnClickListener(new View.OnClickListener() {
             // Start new list activity
@@ -119,42 +126,55 @@ public class FragmentAddLocation extends Fragment {
 
         Double lat=((MainActivityUser) getActivity()).getLatitude();
         Double lng=((MainActivityUser) getActivity()).getLongitude();
+        name.setError(null);
+        if(isValidName(name.getText().toString())) {
+
+            if (lat != 0.0) {
+                String url = "http://interestingworld.webcindario.com/insert_location.php";
+                RequestParams params = new RequestParams();
+                params.put("id_user", datos[0]);
+                params.put("name", name.getText());
+                params.put("description", description.getText());
+                params.put("id_category", cat.GetIdCategory(String.valueOf(categoryList.getSelectedItem())));
+                params.put("lat", lat);
+                params.put("lng", lng);
+                //Cargar la imagen
+                int numero = (int) (Math.random() * 99999999) + 1;
+                //is = this.getActivity().getContentResolver().openInputStream(selectedImage);
+                params.put("photo_url", is, numero + "_upload.jpg");
 
 
-        if(lat!=0.0) {
-            String url = "http://interestingworld.webcindario.com/insert_location.php";
-            RequestParams params = new RequestParams();
-            params.put("id_user", datos[0]);
-            params.put("name", name.getText());
-            params.put("description", description.getText());
-            params.put("lat", lat);
-            params.put("lng", lng);
-            //Cargar la imagen
-            int numero = (int) (Math.random() * 99999999) + 1;
-            //is = this.getActivity().getContentResolver().openInputStream(selectedImage);
-            params.put("photo_url", is, numero + "_upload.jpg");
+                client.post(url, params, new AsyncHttpResponseHandler() {
+                    @Override
+                    public void onStart() {
+                        circularProgressButton.setProgress(50);
+                        circularProgressButton.setIndeterminateProgressMode(true);
+                    }
 
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                        if (statusCode == 200) {
 
-            client.post(url, params, new AsyncHttpResponseHandler() {
-                @Override
-                public void onStart() {
-                    circularProgressButton.setProgress(50);
-                    circularProgressButton.setIndeterminateProgressMode(true);
-                }
+                            try {
+                                System.out.println(new String(responseBody));
+                                setResult(new String(responseBody));
+                                System.out.println(getResult());
+                                if (getResult().equals("bien")) {
+                                    AppMsg.makeText(FragmentAddLocation.this.getActivity(), "Punto de interés añadido correctamente", AppMsg.STYLE_INFO).setLayoutGravity(Gravity.BOTTOM).show();
+                                    circularProgressButton.setProgress(100);
+                                    entrar();
+                                } else {
+                                    AppMsg.makeText(FragmentAddLocation.this.getActivity(), "Error al intentar subir los datos, comprueba que todo este correcto", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                                    circularProgressButton.setProgress(-1);
+                                    handler.postDelayed(new Runnable() {
+                                        public void run() {
+                                            circularProgressButton.setProgress(0);
+                                        }
+                                    }, 1000);
+                                }
 
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                    if (statusCode == 200) {
-
-                        try {
-                            System.out.println(new String(responseBody));
-                            setResult(new String(responseBody));
-                            System.out.println(getResult());
-                            if (getResult().equals("bien")) {
-                                AppMsg.makeText(FragmentAddLocation.this.getActivity(), "Punto de interés añadido correctamente", AppMsg.STYLE_INFO).setLayoutGravity(Gravity.BOTTOM).show();
-                                circularProgressButton.setProgress(100);
-                                entrar();
-                            } else {
+                            } catch (JSONException e) {
+                                System.out.println("Falla:" + e);
                                 AppMsg.makeText(FragmentAddLocation.this.getActivity(), "Error al intentar subir los datos, comprueba que todo este correcto", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
                                 circularProgressButton.setProgress(-1);
                                 handler.postDelayed(new Runnable() {
@@ -163,43 +183,35 @@ public class FragmentAddLocation extends Fragment {
                                     }
                                 }, 1000);
                             }
-
-                        } catch (JSONException e) {
-                            System.out.println("Falla:" + e);
-                            AppMsg.makeText(FragmentAddLocation.this.getActivity(), "Error al intentar subir los datos, comprueba que todo este correcto", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
-                            circularProgressButton.setProgress(-1);
-                            handler.postDelayed(new Runnable() {
-                                public void run() {
-                                    circularProgressButton.setProgress(0);
-                                }
-                            }, 1000);
                         }
+                        pDialog.hide();
                     }
-                    pDialog.hide();
-                }
 
-                @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    AppMsg.makeText(FragmentAddLocation.this.getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
-                    circularProgressButton.setProgress(-1);
-                    handler.postDelayed(new Runnable() {
-                        public void run() {
-                            circularProgressButton.setProgress(0);
-                        }
-                    }, 1000);
-                    pDialog.hide();
-                }
-            });
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        AppMsg.makeText(FragmentAddLocation.this.getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
+                        circularProgressButton.setProgress(-1);
+                        handler.postDelayed(new Runnable() {
+                            public void run() {
+                                circularProgressButton.setProgress(0);
+                            }
+                        }, 1000);
+                        pDialog.hide();
+                    }
+                });
+            } else {
+                AppMsg.makeText(FragmentAddLocation.this.getActivity(), "Debes marcar el punto de interés antes de publicar", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
+                circularProgressButton.setProgress(-1);
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        circularProgressButton.setProgress(0);
+                    }
+                }, 1000);
+                pDialog.hide();
+            }
         }else
         {
-            AppMsg.makeText(FragmentAddLocation.this.getActivity(), "Debes marcar el punto de interés antes de publicar", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
-            circularProgressButton.setProgress(-1);
-            handler.postDelayed(new Runnable() {
-                public void run() {
-                    circularProgressButton.setProgress(0);
-                }
-            }, 1000);
-            pDialog.hide();
+            name.setError("Es necesario indicar un nombre");
         }
     }
     public String getResult (){
@@ -255,47 +267,32 @@ public class FragmentAddLocation extends Fragment {
         int  code = 2;
         startActivityForResult(intent, code);
     }
+
     @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         try {
             if(data!=null) {
                 selectedImage = data.getData();
                 is = this.getActivity().getContentResolver().openInputStream(selectedImage);
+                InputStream is2 = this.getActivity().getContentResolver().openInputStream(selectedImage);
                 BufferedInputStream bis = new BufferedInputStream(is);
-                Bitmap bitmap = BitmapFactory.decodeStream(bis);
+                BufferedInputStream bis2 = new BufferedInputStream(is2);
 
-                // original measurements
-                int origWidth = bitmap.getWidth();
-                int origHeight = bitmap.getHeight();
 
-                final int destWidth = 600;//or the width you need
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeStream(bis,null, options);
 
-                System.out.println("Original tamaño "+origWidth);
+                options.inSampleSize = calculateInSampleSize(options,640,480);
+                options.inJustDecodeBounds = false;
+                Bitmap bitmap = BitmapFactory.decodeStream(bis2,null,options);
 
-                if(origWidth > destWidth){
-                    // picture is wider than we want it, we calculate its target height
-                    int destHeight = origHeight/( origWidth / destWidth ) ;
-                    // we create an scaled bitmap so it reduces the image, not just trim it
-                    Bitmap b2 = Bitmap.createScaledBitmap(bitmap, destWidth, destHeight, false);
-                    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-                    // compress to the format you want, JPEG, PNG...
-                    // 70 is the 0-100 quality percentage
-                    b2.compress(Bitmap.CompressFormat.JPEG,70 , outStream);
-                    System.out.println("Tamaño comprimido "+b2.getWidth());
-                    // we save the file, at least until we have made use of it
-                    ImageView iv = (ImageView) this.getActivity().findViewById(R.id.ImageViewLocation);
-                    iv.setImageBitmap(b2);
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    b2.compress(Bitmap.CompressFormat.JPEG, 75, stream);
-                    is = new ByteArrayInputStream(stream.toByteArray());
-                }else {
+                ImageView iv = (ImageView) this.getActivity().findViewById(R.id.ImageViewLocation);
+                iv.setImageBitmap(bitmap);
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
+                is = new ByteArrayInputStream(stream.toByteArray());
 
-                    ImageView iv = (ImageView) this.getActivity().findViewById(R.id.ImageViewLocation);
-                    iv.setImageBitmap(bitmap);
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
-                    is = new ByteArrayInputStream(stream.toByteArray());
-                }
             }
         } catch (FileNotFoundException e) {
             System.out.println("Error: "+e);
@@ -303,6 +300,7 @@ public class FragmentAddLocation extends Fragment {
             e.printStackTrace();
         }
     }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_add_location, menu);
@@ -330,6 +328,47 @@ public class FragmentAddLocation extends Fragment {
         FragmentDialogMap dFragment = new FragmentDialogMap();
         // Show DialogFragment
         dFragment.show(fm, "Dialog Fragment");
+    }
+
+    public void addItemsSpinner(){
+
+        categoryList=(Spinner) this.getActivity().findViewById(R.id.spinnerCategory);
+        System.out.println(cat.GetList());
+        ArrayAdapter<String> dataAdapter= new ArrayAdapter<String>(this.getActivity(),android.R.layout.simple_spinner_dropdown_item,cat.GetList());
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categoryList.setAdapter(dataAdapter);
+
+    }
+
+    // validating password with retype password
+    private boolean isValidName(String name) {
+        if (name != null && !name.equals("")) {
+            return true;
+        }
+        return false;
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 
 }

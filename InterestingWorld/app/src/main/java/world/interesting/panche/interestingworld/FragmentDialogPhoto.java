@@ -111,20 +111,17 @@ public class FragmentDialogPhoto extends DialogFragment {
         Picasso.with(getActivity())
                 .load("http://" + url)
                 .error(R.drawable.ic_launcher)
-                .fit().centerCrop()
                 .into(photoDetail);
     }
     public void MoreInfo()
     {
-        Fragment fragment = new FragmentLocationDetail();
-        bundle.putString("id_location",id);
-        bundle.putString("title",name);
-        bundle.putString("description",description);
-        bundle.putString("lat",lat);
-        bundle.putString("lng", lng);
-        bundle.putString("url_photo",url);
-        bundle.putString("user_location", "");
-        fragment.setArguments(bundle);
+        Fragment fragment = new FragmentLocationDetailTabs();
+        Location loc= new Location(id,name,description,url,"","",lat,lng);
+        if(this.getActivity().getLocalClassName().equals("MainActivity")) {
+            ((MainActivity) getActivity()).SetLocationSelected(loc);
+        }else {
+            ((MainActivityUser) getActivity()).SetLocationSelected(loc);
+        }
         ((MaterialNavigationDrawer)this.getActivity()).setFragmentChild(fragment,name);
         FragmentDialogPhoto.this.dismiss();
     }

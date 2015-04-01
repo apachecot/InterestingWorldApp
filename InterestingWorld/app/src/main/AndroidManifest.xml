@@ -36,7 +36,8 @@
             android:windowSoftInputMode="adjustPan"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
             android:label="@string/app_name"
-            android:theme="@style/NoHeader">
+            android:theme="@style/NoHeader"
+            android:largeHeap="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -47,22 +48,16 @@
             android:windowSoftInputMode="adjustPan"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
             android:label="@string/app_name"
-            android:theme="@style/NavigationDrawer"/>
-        <activity android:name=".Profile" android:label="@string/app_name"
-            android:theme="@style/NavigationDrawer"/>
-        <activity android:name=".Login" android:windowSoftInputMode="stateVisible|adjustResize"
-            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
-            android:label="@string/app_name"
-            android:theme="@style/NavigationDrawer"/>
-        <activity android:name=".NewUser" android:windowSoftInputMode="adjustResize"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/app_name"
-            android:theme="@style/NavigationDrawer"/>
+            android:theme="@style/NavigationDrawer"
+            android:largeHeap="true"
+            />
+
         <activity android:name=".Settings" android:label="@string/app_name"
             android:theme="@style/NavigationDrawer"/>
+
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyDuPZLzqU-sLgZSTkZDnArla_wmrKX_0b4"/>
+            android:value="AIzaSyC5NlYeWju4I2IazqjqEPY6ixkupdI3Ud8"/>
 
     </application>
 

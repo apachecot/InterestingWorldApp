@@ -30,6 +30,16 @@
 
             <TextView
                 android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/description"
+                android:id="@+id/textView3"
+                tools:ignore="HardcodedText"
+                android:background="@android:color/white"
+                android:padding="5dp"
+                android:textSize="25dp" />
+
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. 	Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
                 android:textSize="20sp"
@@ -37,6 +47,28 @@
                 android:padding="5dp"
                 tools:ignore="HardcodedText"
                 android:id="@+id/TextViewDescription" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/location"
+                android:id="@+id/textView"
+                tools:ignore="HardcodedText"
+                android:background="@android:color/white"
+                android:textSize="25dp"
+                android:padding="5dp" />
+
+            <ImageView
+                tools:ignore="HardcodedText"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:gravity="center"
+                android:id="@+id/ImageMapStatic"
+                android:background="@color/colorDetail"
+                android:src="@drawable/back1"
+                android:scaleType="centerCrop"
+                android:layout_marginBottom="10dp" />
+
         </LinearLayout>
 
     </com.nirhart.parallaxscroll.views.ParallaxScrollView>

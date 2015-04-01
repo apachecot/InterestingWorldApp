@@ -134,12 +134,11 @@ public class FragmentIndex extends Fragment {
                     try {
                         System.out.println(new String(responseBody));
                         setResult(new String(responseBody));
-
-
                     }catch(JSONException e)
                     {
                         System.out.println("Falla:"+e );
                         AppMsg.makeText(FragmentIndex.this.getActivity(), "Se ha producido un error al descargar los datos", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                        layout.setRefreshing(false);
                     }
                 }
                 pDialog.hide();
@@ -148,6 +147,9 @@ public class FragmentIndex extends Fragment {
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 AppMsg.makeText(FragmentIndex.this.getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
                 pDialog.hide();
+                list.clear();
+                materialCardLoad();
+                layout.setRefreshing(false);
             }
         });
     }
@@ -175,7 +177,6 @@ public class FragmentIndex extends Fragment {
             datos.add(jsonChildNode.getString("email"));
             list.add(datos);
         }
-        System.out.println("hola?"+list.get(0).get(3));
         materialCardLoad();
         return  list;
     }
@@ -286,11 +287,20 @@ public class FragmentIndex extends Fragment {
                 loadData();
                 selected.setIcon(R.drawable.restaurant_bar);
                 return true;
+            //Fotografias
+            case R.id.category6:
+                category=6;
+                loadData();
+                selected.setIcon(R.drawable.photograph_white);
+                return true;
+            //Ocio
+            case R.id.category7:
+                category=7;
+                loadData();
+                selected.setIcon(R.drawable.leisure_white);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
-
-
 }

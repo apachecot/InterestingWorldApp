@@ -27,6 +27,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -231,18 +232,52 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
             datos.add(jsonChildNode.getString("lng"));
             datos.add(jsonChildNode.getString("photo_url"));
             datos.add(jsonChildNode.getString("email"));
+            datos.add(jsonChildNode.getString("id_category"));
             list.add(datos);
-            addLocation(jsonChildNode.getString("lat"),jsonChildNode.getString("lng"),jsonChildNode.getString("name"),jsonChildNode.getString("photo_url"));
+            addLocation(jsonChildNode.getString("lat"),jsonChildNode.getString("lng"),jsonChildNode.getString("name"),jsonChildNode.getString("photo_url"),jsonChildNode.getString("id_category"));
         }
         return  list;
     }
-    public void addLocation(String lat,String lng,String name,String url_photo)
+    public void addLocation(String lat,String lng,String name,String url_photo,String category)
     {
-        if(!lat.equals("0")) {
-            mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
-                    Double.parseDouble(lng))).title(name).snippet(name));
+        switch(category)
+        {
+            case "0":
+                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
+                        Double.parseDouble(lng))).title(name).snippet(name)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                break;
+            case "1":
+                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
+                        Double.parseDouble(lng))).title(name).snippet(name)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                break;
+            case "2":
+                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
+                        Double.parseDouble(lng))).title(name).snippet(name)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                break;
+            case "3":
+                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
+                        Double.parseDouble(lng))).title(name).snippet(name)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+                break;
+            case "4":
+                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
+                        Double.parseDouble(lng))).title(name).snippet(name)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
+                break;
+            case "5":
+                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
+                        Double.parseDouble(lng))).title(name).snippet(name)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                break;
+            default:
+                mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
+                        Double.parseDouble(lng))).title(name).snippet(name)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                break;
         }
-
     }
 
     @Override
@@ -344,11 +379,16 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                 String id_location=list.get(i).get(0);
                 System.out.println(id_location);
 
-                Fragment fragment = new FragmentLocationDetail();
-                List<String> info=list.get(i);
-                setInfoBundle(info);
-                fragment.setArguments(bundle);
-                ((MaterialNavigationDrawer)this.getActivity()).setFragmentChild(fragment,marker.getTitle());
+                Fragment fragment = new FragmentLocationDetailTabs();
+
+                world.interesting.panche.interestingworld.Location loc= new world.interesting.panche.interestingworld.Location(list.get(i).get(0),
+                        list.get(i).get(1),list.get(i).get(2),list.get(i).get(5),"","",list.get(i).get(3),list.get(i).get(4));
+                if(this.getActivity().getLocalClassName().equals("MainActivity")) {
+                    ((MainActivity) getActivity()).SetLocationSelected(loc);
+                }else {
+                    ((MainActivityUser) getActivity()).SetLocationSelected(loc);
+                }
+                ((MaterialNavigationDrawer)this.getActivity()).setFragmentChild(fragment,list.get(i).get(1));
             }
             i++;
         }

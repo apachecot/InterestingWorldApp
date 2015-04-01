@@ -4,14 +4,14 @@ package world.interesting.panche.interestingworld;
  * Created by Alex on 15/01/2015.
  */
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +19,6 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
 
-import com.cuneytayyildiz.widget.PullRefreshLayout;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -34,7 +33,7 @@ import java.util.List;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
-public class FragmentPhotos extends Fragment {
+public class FragmentPhotosUser extends Fragment {
     View inflatedView;
     GridViewAdapter gridAdapter;
     private SweetAlertDialog pDialog;
@@ -42,14 +41,13 @@ public class FragmentPhotos extends Fragment {
     private final List<String> urls = new ArrayList<String>();
     public List<String> select_image = new ArrayList<String>();
     FragmentManager fm;
-    PullRefreshLayout layout;
     int category=0;
     MenuItem selected;
 
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        inflatedView = inflater.inflate(R.layout.photos_list, container, false);
+        inflatedView = inflater.inflate(R.layout.photos_list_detail, container, false);
         TextView text = new TextView(this.getActivity());
         text.setText(this.getResources().getString(R.string.photos));
         text.setGravity(Gravity.CENTER);
@@ -73,18 +71,8 @@ public class FragmentPhotos extends Fragment {
             }
         });
 
-        layout = (PullRefreshLayout) inflatedView.findViewById(R.id.swipeRefreshLayout);
 
-        // listen refresh event
-        layout.setOnRefreshListener(new PullRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                urls.clear();
-                loadData();
 
-            }
-        });
-        urls.clear();
         loadData();
         return inflatedView;
     }
@@ -95,9 +83,11 @@ public class FragmentPhotos extends Fragment {
         pDialog.setTitleText("Cargando...");
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        params.put("category", category);
 
-        String url="http://interestingworld.webcindario.com/consulta_locations.php";
+        String[] datos=loadPreferences();
+        params.put("id", datos[0]);
+
+        String url="http://interestingworld.webcindario.com/consulta_photos_user.php";
 
         client.post(url,params,new AsyncHttpResponseHandler() {
             @Override
@@ -144,19 +134,12 @@ public class FragmentPhotos extends Fragment {
             jsonChildNode = new JSONObject(jsonChildNode.optString("post").toString());
 
             ArrayList<String> datos = new ArrayList<String>();
-            datos.add(jsonChildNode.getString("id"));
-            datos.add(jsonChildNode.getString("name"));
-            datos.add(jsonChildNode.getString("description"));
-            datos.add(jsonChildNode.getString("lat"));
-            datos.add(jsonChildNode.getString("lng"));
             datos.add(jsonChildNode.getString("photo_url"));
-            datos.add(jsonChildNode.getString("email"));
             list.add(datos);
             urls.add(jsonChildNode.getString("photo_url"));
         }
         gridAdapter.changeModelList(urls,list);
-        // refresh complete
-        layout.setRefreshing(false);
+
         return  list;
     }
 
@@ -180,62 +163,19 @@ public class FragmentPhotos extends Fragment {
         return select_image;
     }
 
-    //Buscador por categorias
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_search, menu);
-        selected= menu.findItem(R.id.list);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Take appropriate action for each action item click
+    public String[] loadPreferences() {
+        String[] datos = new String[5];
+        SharedPreferences prefs = this.getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
+        datos[0] = prefs.getString("id", "-1");
+        datos[1] = prefs.getString("name", "");
+        datos[2] = prefs.getString("lastname", "");
+        datos[3] = prefs.getString("email", "");
+        datos[4] = prefs.getString("photo_url", "");
 
-        switch (item.getItemId()) {
-            //All
-            case R.id.category0:
-                category = 0;
-                urls.clear();
-                loadData();
-                selected.setIcon(R.drawable.location_white);
-                return true;
-            //Monuments
-            case R.id.category1:
-                category = 1;
-                urls.clear();
-                loadData();
-                selected.setIcon(R.drawable.museum_bar);
-                return true;
-            //Museums
-            case R.id.category2:
-                category = 2;
-                urls.clear();
-                loadData();
-                selected.setIcon(R.drawable.art_bar);
-                return true;
-            //Beachs
-            case R.id.category3:
-                category = 3;
-                urls.clear();
-                loadData();
-                selected.setIcon(R.drawable.beach_bar);
-                return true;
-            //Bar
-            case R.id.category4:
-                category = 4;
-                urls.clear();
-                loadData();
-                selected.setIcon(R.drawable.beer_bar);
-                return true;
-            //Restaurant
-            case R.id.category5:
-                category = 5;
-                urls.clear();
-                loadData();
-                selected.setIcon(R.drawable.restaurant_bar);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        for (int i = 0; i < datos.length; i++) {
+            System.out.println(datos[i]);
         }
+        return datos;
     }
+
 }

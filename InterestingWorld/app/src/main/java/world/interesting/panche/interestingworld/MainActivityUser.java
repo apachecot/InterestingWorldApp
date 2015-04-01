@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.widget.TextView;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -32,6 +33,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     Double lat=0.0;
     Double lng=0.0;
     String id_location="";
+    Location locationSelected;
 
     @Override
     public void init(Bundle savedInstanceState) {
@@ -94,8 +96,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     @Override
     public void onAccountOpening(MaterialAccount account) {
         // open profile activity
-        Intent i = new Intent(this,Profile.class);
-        startActivity(i);
+        intentProfile();
     }
 
     @Override
@@ -162,6 +163,13 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         lng=vlng;
 
     }
+
+    public void intentProfile() {
+        Fragment fragment = new FragmentProfile();
+        ((MaterialNavigationDrawer) this).setFragmentChild(fragment, "Profile");
+
+    }
+
     public Double getLatitude()
     {
         return lat;
@@ -172,6 +180,15 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     }
     public void setIdLocation(String id){ id_location=id; }
     public String getIdLocation(){ return id_location; }
+
+    public void SetLocationSelected(Location loc)
+    {
+        locationSelected=loc;
+    }
+    public Location GetLocationSelected()
+    {
+        return locationSelected;
+    }
 
 }
 

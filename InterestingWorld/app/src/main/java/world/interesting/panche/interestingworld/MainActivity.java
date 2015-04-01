@@ -16,6 +16,7 @@ public class MainActivity extends MaterialNavigationDrawer{
 
 
     MaterialSection login, explore, photos, lastLocations;
+    Location locationSelected;
 
     @Override
     public void init(Bundle savedInstanceState) {
@@ -76,6 +77,14 @@ public class MainActivity extends MaterialNavigationDrawer{
             Fragment fragment = new Login();
             ((MaterialNavigationDrawer) this).setFragmentChild(fragment, "Login");
         }
+    }
+    public void SetLocationSelected(Location loc)
+    {
+        locationSelected=loc;
+    }
+    public Location GetLocationSelected()
+    {
+        return locationSelected;
     }
 }
 

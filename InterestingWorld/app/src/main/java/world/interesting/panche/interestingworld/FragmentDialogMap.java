@@ -168,8 +168,5 @@ public class FragmentDialogMap extends DialogFragment {
     public SupportMapFragment getFragment() {
         return fragment;
     }
-    public void sendPosition()
-    {
 
-    }
 }

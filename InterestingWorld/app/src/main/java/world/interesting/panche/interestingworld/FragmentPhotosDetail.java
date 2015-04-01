@@ -34,7 +34,7 @@ import java.util.List;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
-public class FragmentPhotos extends Fragment {
+public class FragmentPhotosDetail extends Fragment {
     View inflatedView;
     GridViewAdapter gridAdapter;
     private SweetAlertDialog pDialog;
@@ -42,14 +42,14 @@ public class FragmentPhotos extends Fragment {
     private final List<String> urls = new ArrayList<String>();
     public List<String> select_image = new ArrayList<String>();
     FragmentManager fm;
-    PullRefreshLayout layout;
     int category=0;
     MenuItem selected;
+    PullRefreshLayout layout;
 
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        inflatedView = inflater.inflate(R.layout.photos_list, container, false);
+        inflatedView = inflater.inflate(R.layout.photos_list_detail, container, false);
         TextView text = new TextView(this.getActivity());
         text.setText(this.getResources().getString(R.string.photos));
         text.setGravity(Gravity.CENTER);
@@ -85,6 +85,7 @@ public class FragmentPhotos extends Fragment {
             }
         });
         urls.clear();
+
         loadData();
         return inflatedView;
     }
@@ -95,9 +96,15 @@ public class FragmentPhotos extends Fragment {
         pDialog.setTitleText("Cargando...");
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        params.put("category", category);
+        Location loc;
+        if(this.getActivity().getLocalClassName().equals("MainActivity")) {
+            loc = ((MainActivity) getActivity()).GetLocationSelected();
+        }else{
+            loc = ((MainActivityUser) getActivity()).GetLocationSelected();
+        }
+        params.put("id", loc.getId());
 
-        String url="http://interestingworld.webcindario.com/consulta_locations.php";
+        String url="http://interestingworld.webcindario.com/consulta_photos_detail.php";
 
         client.post(url,params,new AsyncHttpResponseHandler() {
             @Override
@@ -114,11 +121,13 @@ public class FragmentPhotos extends Fragment {
                     try {
                         System.out.println(new String(responseBody));
                         setResult(new String(responseBody));
+                        layout.setRefreshing(false);
 
 
                     }catch(JSONException e)
                     {
                         System.out.println("Falla:"+e );
+                        layout.setRefreshing(false);
                     }
                 }
                 pDialog.hide();
@@ -126,8 +135,10 @@ public class FragmentPhotos extends Fragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 pDialog.hide();
+                layout.setRefreshing(false);
             }
         });
+
     }
 
     public ArrayList setResult (String result) throws JSONException {
@@ -144,19 +155,12 @@ public class FragmentPhotos extends Fragment {
             jsonChildNode = new JSONObject(jsonChildNode.optString("post").toString());
 
             ArrayList<String> datos = new ArrayList<String>();
-            datos.add(jsonChildNode.getString("id"));
-            datos.add(jsonChildNode.getString("name"));
-            datos.add(jsonChildNode.getString("description"));
-            datos.add(jsonChildNode.getString("lat"));
-            datos.add(jsonChildNode.getString("lng"));
             datos.add(jsonChildNode.getString("photo_url"));
-            datos.add(jsonChildNode.getString("email"));
             list.add(datos);
             urls.add(jsonChildNode.getString("photo_url"));
         }
         gridAdapter.changeModelList(urls,list);
-        // refresh complete
-        layout.setRefreshing(false);
+
         return  list;
     }
 
@@ -180,62 +184,4 @@ public class FragmentPhotos extends Fragment {
         return select_image;
     }
 
-    //Buscador por categorias
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_search, menu);
-        selected= menu.findItem(R.id.list);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Take appropriate action for each action item click
-
-        switch (item.getItemId()) {
-            //All
-            case R.id.category0:
-                category = 0;
-                urls.clear();
-                loadData();
-                selected.setIcon(R.drawable.location_white);
-                return true;
-            //Monuments
-            case R.id.category1:
-                category = 1;
-                urls.clear();
-                loadData();
-                selected.setIcon(R.drawable.museum_bar);
-                return true;
-            //Museums
-            case R.id.category2:
-                category = 2;
-                urls.clear();
-                loadData();
-                selected.setIcon(R.drawable.art_bar);
-                return true;
-            //Beachs
-            case R.id.category3:
-                category = 3;
-                urls.clear();
-                loadData();
-                selected.setIcon(R.drawable.beach_bar);
-                return true;
-            //Bar
-            case R.id.category4:
-                category = 4;
-                urls.clear();
-                loadData();
-                selected.setIcon(R.drawable.beer_bar);
-                return true;
-            //Restaurant
-            case R.id.category5:
-                category = 5;
-                urls.clear();
-                loadData();
-                selected.setIcon(R.drawable.restaurant_bar);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 }

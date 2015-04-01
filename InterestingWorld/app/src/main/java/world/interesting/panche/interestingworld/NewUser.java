@@ -38,6 +38,8 @@ import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
+
 
 /**
  * Created by neokree on 12/12/14.
@@ -220,8 +222,8 @@ public class NewUser extends Fragment {
     }
     public void changeActivity()
     {
-        Intent intent = new Intent(this.getActivity(), Login.class);
-        startActivity(intent);
+        Fragment fragment = new Login();
+        ((MaterialNavigationDrawer)this.getActivity()).setFragmentChild(fragment, "Login");
     }
     //guardar configuración aplicación Android usando SharedPreferences
     public void savePreferences(String[] datos) {
@@ -249,14 +251,47 @@ public class NewUser extends Fragment {
             if(data!=null) {
                 selectedImage = data.getData();
                 is = this.getActivity().getContentResolver().openInputStream(selectedImage);
+                InputStream is2 = this.getActivity().getContentResolver().openInputStream(selectedImage);
                 BufferedInputStream bis = new BufferedInputStream(is);
-                Bitmap bitmap = BitmapFactory.decodeStream(bis);
+                BufferedInputStream bis2 = new BufferedInputStream(is2);
+
+
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeStream(bis,null, options);
+
+                options.inSampleSize = calculateInSampleSize(options,640,480);
+                options.inJustDecodeBounds = false;
+                Bitmap bitmap = BitmapFactory.decodeStream(bis2,null,options);
                 ImageView iv = (ImageView) inflatedView.findViewById(R.id.ImageViewUser);
                 iv.setImageBitmap(bitmap);
             }
         } catch (FileNotFoundException e) {
             System.out.println("Error: "+e);
         }
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 
 
