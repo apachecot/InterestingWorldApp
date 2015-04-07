@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialtabs.MaterialTab;
 import it.neokree.materialtabs.MaterialTabHost;
 import it.neokree.materialtabs.MaterialTabListener;
@@ -34,8 +35,10 @@ public class FragmentLocationDetailTabs extends Fragment implements MaterialTabL
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.tab_layout,container,false);
 
+        ((MaterialNavigationDrawer)getActivity()).changeToolbarColor(getResources().getColor(R.color.fbutton_default_color),getResources().getColor(R.color.fbutton_default_shadow_color));
+
         tabHost = (MaterialTabHost) view.findViewById(R.id.tabHost);
-        tabHost.setPrimaryColor(getResources().getColor(R.color.colorPrimary));
+        tabHost.setPrimaryColor(getResources().getColor(R.color.fbutton_default_color));
         pager = (ViewPager) view.findViewById(R.id.pager );
 
         // init view pager

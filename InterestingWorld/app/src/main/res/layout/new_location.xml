@@ -57,20 +57,17 @@
         android:inputType="textImeMultiLine" />
 
         <TextView
-        android:layout_width="300dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="number"
+        android:inputType="textMultiLine"
         android:ems="10"
         android:id="@+id/textViewLatLng"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="25dp"
-        android:textSize="20dp" />
-
-        <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
-
-        </TableRow>
+        android:textSize="20dp"
+            android:elegantTextHeight="false"
+            android:lines="3"
+            android:maxLines="3" />
 
         <com.dd.CircularProgressButton
             android:layout_gravity="center_horizontal"
@@ -84,6 +81,6 @@
             app:cpb_textComplete="Enviado"
             app:cpb_textError="Error"
             app:cpb_textIdle="Enviar"
-            />
+            android:layout_marginBottom="75dp" />
     </TableLayout>
 </ScrollView>

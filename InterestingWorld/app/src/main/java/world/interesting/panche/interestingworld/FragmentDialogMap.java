@@ -120,11 +120,11 @@ public class FragmentDialogMap extends DialogFragment {
 
             }
         });
-       marker=new MarkerOptions().position(new LatLng(41.41775257865992,
-               2.2058293414581683)).title("Marker").draggable(true).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+       marker=new MarkerOptions().position(new LatLng(((MainActivityUser) getActivity()).getLatitude(),
+               ((MainActivityUser) getActivity()).getLongitude())).title("Marker").draggable(true).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
         mMap.addMarker(marker);
         mMap.setMyLocationEnabled(true);
-        centerCity();
+        centerPoint();
         System.out.println("Mapa seteado");
 
         //mMap.animateCamera(CameraUpdateFactory.zoomBy(15));
@@ -149,12 +149,23 @@ public class FragmentDialogMap extends DialogFragment {
         mMapView.onDestroy();
         super.onDestroy();
     }
-    public void centerCity()
+    public void centerPoint()
     {
-        LatLng madrid = new LatLng(41.41775257865992,
-                2.2058293414581683);
+        Double ln=((MainActivityUser) getActivity()).getLongitude();
+        LatLng point;
+        if(ln==0.0)
+        {
+            point = new LatLng(41.41775257865992,
+                    2.2058293414581683);
+        }
+        else
+        {
+           point = new LatLng(((MainActivityUser) getActivity()).getLongitude(),
+                   ((MainActivityUser) getActivity()).getLongitude());
+        }
+
         CameraPosition camPos = new CameraPosition.Builder()
-                .target(madrid)   //Centramos el mapa en Madrid
+                .target(point)   //Centramos el mapa en Madrid
                 .zoom(10)         //Establecemos el zoom en 19
                 .build();
 

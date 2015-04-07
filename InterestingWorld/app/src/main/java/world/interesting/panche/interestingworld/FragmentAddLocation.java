@@ -161,6 +161,7 @@ public class FragmentAddLocation extends Fragment {
                                 System.out.println(getResult());
                                 if (getResult().equals("bien")) {
                                     AppMsg.makeText(FragmentAddLocation.this.getActivity(), "Punto de interés añadido correctamente", AppMsg.STYLE_INFO).setLayoutGravity(Gravity.BOTTOM).show();
+                                    ((MainActivityUser) getActivity()).UnSetPosition();
                                     circularProgressButton.setProgress(100);
                                     entrar();
                                 } else {

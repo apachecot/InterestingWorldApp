@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.widget.TextView;
@@ -16,6 +18,9 @@ import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import org.apache.http.Header;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialAccount;
@@ -32,6 +37,9 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     String photo_url;
     Double lat=0.0;
     Double lng=0.0;
+    String country="";
+    String locality="";
+    String address="";
     String id_location="";
     Location locationSelected;
     String url_full="";
@@ -160,10 +168,34 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     {
         TextView latlng=(TextView)this.findViewById(R.id.textViewLatLng);
 
-        latlng.setText("Posición: "+vlat+"; "+vlng);
+        Geocoder gcd = new Geocoder(this, Locale.getDefault());
+        List<Address> addresses = null;
+        try {
+            addresses = gcd.getFromLocation(vlat, vlng, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses.size() > 0) {
+
+            locality=addresses.get(0).getLocality();
+            country=addresses.get(0).getCountryName();
+            address=addresses.get(0).getThoroughfare()+" "+addresses.get(0).getSubThoroughfare();
+            System.out.println(address+" "+locality+" "+country);
+        }
+
+
+        latlng.setText("Posición: "+address+", "+locality+", "+country);
         lat=vlat;
         lng=vlng;
 
+    }
+    public void UnSetPosition()
+    {
+        locality="";
+        country="";
+        address="";
+        lat=0.0;
+        lng=0.0;
     }
 
     public void intentProfile() {
