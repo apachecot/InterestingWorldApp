@@ -26,3 +26,4 @@ Bugs a solventar:
 - Desbordamiento de la cache con la carga de imagenes con picasso (NOT SOLVED)
 - Redimensión de la vista al abrir el teclado (NOT SOLVED)
 - Dirección de las imagenes al subirlas al servidor (NOT SOLVED) Orientation
+- Tratar acentos al subirlos al servidor (NOT SOLVED)
