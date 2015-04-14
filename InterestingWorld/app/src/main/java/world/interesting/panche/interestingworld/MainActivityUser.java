@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.FileAsyncHttpResponseHandler;
+import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
 
@@ -21,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Executors;
 
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialAccount;
@@ -32,6 +34,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
 
     MaterialAccount account;
     MaterialSection lastLocations, explore, photos, addlocation, visitlocation, settingsSection;
+    User user;
     String[] datos= new String[5];
     File file_image= new File("");
     String photo_url;
@@ -43,9 +46,14 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     String id_location="";
     Location locationSelected;
     String url_full="";
+    private Picasso mPicasso;
 
     @Override
     public void init(Bundle savedInstanceState) {
+
+
+        mPicasso = new Picasso.Builder(this).executor(Executors.newSingleThreadExecutor()).build();
+        //mPicasso.setIndicatorsEnabled(true);
 
         //Cargamos las preferencias guardadas
         datos=loadPreferences();
@@ -75,7 +83,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         addlocation = this.newSection(this.getResources().getString(R.string.addlocation), this.getResources().getDrawable(R.drawable.addlocation), new FragmentAddLocation())
                 .setSectionColor(Color.parseColor("#2196f3"),Color.parseColor("#1565c0"));
 
-        visitlocation = this.newSection(this.getResources().getString(R.string.visitlocation), this.getResources().getDrawable(R.drawable.visit), new FragmentLocationsUser())
+        visitlocation = this.newSection(this.getResources().getString(R.string.visitlocation), this.getResources().getDrawable(R.drawable.visit), new FragmentLocationsVisited())
                 .setSectionColor(Color.parseColor("#2196f3"),Color.parseColor("#1565c0"));
 
         //Para cargar la configuración
@@ -96,7 +104,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
 
         this.setBackPattern(MaterialNavigationDrawer.BACKPATTERN_BACK_TO_FIRST);
         //this.closeOptionsMenu();
-        //this.addMultiPaneSupport();
+        this.addMultiPaneSupport();
         this.allowArrowAnimation();
         this.disableLearningPattern();
 
@@ -132,6 +140,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         for(int i=0; i < datos.length; i++) {
             System.out.println(datos[i]);
         }
+        user=new User(datos[0],datos[1],datos[2],datos[4],datos[3]);
         return datos;
     }
     // Función para cargar la imagen provinente de internet
@@ -182,9 +191,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
             address=addresses.get(0).getThoroughfare()+" "+addresses.get(0).getSubThoroughfare();
             System.out.println(address+" "+locality+" "+country);
         }
-
-
-        latlng.setText("Posición: "+address+", "+locality+", "+country);
+        latlng.setText(address+" "+locality+" "+country);
         lat=vlat;
         lng=vlng;
 
@@ -231,6 +238,36 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     {
         return url_full;
     }
+    public Picasso getmPicasso() {
+        return mPicasso;
+    }
 
+    public User getUser() {
+        return user;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getLocality() {
+        return locality;
+    }
+
+    public void setLocality(String locality) {
+        this.locality = locality;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 }
 

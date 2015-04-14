@@ -18,6 +18,8 @@ import android.widget.ImageView;
 
 
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 
@@ -62,13 +64,17 @@ public class FragmentImageViewer extends DialogFragment {
         Class cl=this.getActivity().getClass();
         if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
             url=((MainActivity) getActivity()).GetImageUrlFull();
+            ((MainActivity) getActivity()).getmPicasso()
+                    .load("http://"+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
+                    .error(R.drawable.not_found)
+                    .into(mImageView,imageLoadedCallback);
         }else {
             url=((MainActivityUser) getActivity()).GetImageUrlFull();
+            ((MainActivityUser) getActivity()).getmPicasso()
+                    .load("http://"+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
+                    .error(R.drawable.not_found)
+                    .into(mImageView,imageLoadedCallback);
         }
-        Picasso.with(getActivity())
-                .load("http://"+url)
-                .error(R.drawable.not_found)
-                .into(mImageView,imageLoadedCallback);
 
         return inflatedView;
     }

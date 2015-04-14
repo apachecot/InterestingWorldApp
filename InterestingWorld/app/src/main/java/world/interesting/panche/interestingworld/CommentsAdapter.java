@@ -9,11 +9,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -22,15 +20,15 @@ import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 /**
  * Created by Panche on 01/04/2015.
  */
-public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.ViewHolder> {
+public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHolder> {
 
-    private ArrayList<Location> Locations;
+    private ArrayList<Comments> Comments;
     private int itemLayout;
     private final Context context;
 
 
-    public  LocationsAdapter(ArrayList<Location> data,  int itemLayout,Context context){
-        Locations = data;
+    public CommentsAdapter(ArrayList<Comments> data, int itemLayout, Context context){
+        Comments = data;
         this.itemLayout = itemLayout;
         this.context = context;
     }
@@ -44,56 +42,66 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Location loc = Locations.get(position);
-        holder.name.setText(loc.getName());
+        Comments com = Comments.get(position);
+        holder.name.setText(com.getComment());
+        holder.userName.setText(com.getUser_name());
+        holder.date.setText(com.getDate());
 
         Class cl=context.getClass();
         if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
 
             ((MainActivity) context).getmPicasso() //
-                    .load("http://"+loc.getUrl())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
+                    .load("http://" + com.getUrl())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
                     .placeholder(R.drawable.back1) //
                     .error(R.drawable.not_found) //
-                    .fit().centerCrop()//
+                    .fit().centerCrop().transform(new RoundedTransformationPicasso())//
                     .tag(context)
                     .into(holder.image);
-            //((MainActivity) context).getmPicasso() .invalidate("http://"+loc.getUrl());
+            //((MainActivity) context).getmPicasso() .invalidate("http://" + com.getUrl());
 
         }else {
 
             ((MainActivityUser) context).getmPicasso() //
-                    .load("http://"+loc.getUrl())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
+                    .load("http://" + com.getUrl())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
                     .placeholder(R.drawable.back1) //
                     .error(R.drawable.not_found) //
-                    .fit().centerCrop()//
+                    .fit().centerCrop().transform(new RoundedTransformationPicasso())//
                     .tag(context)
                     .into(holder.image);
-            //((MainActivityUser) context).getmPicasso() .invalidate("http://"+loc.getUrl());
+           // ((MainActivityUser) context).getmPicasso() .invalidate("http://" + com.getUrl());
         }
 
-        holder.itemView.setTag(loc);
+        holder.itemView.setTag(com);
+
     }
+
 
     @Override
     public int getItemCount() {
-        return Locations.size();
+        return Comments.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements AdapterView.OnClickListener {
+    public static class ViewHolder extends RecyclerView.ViewHolder //implements AdapterView.OnClickListener
+    {
 
         public ImageView image;
         public TextView name;
+        public TextView userName;
+        public TextView date;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            itemView.setOnClickListener(this);
+            //itemView.setOnClickListener(this);
 
             image = (ImageView) itemView.findViewById(R.id.image);
             name = (TextView) itemView.findViewById(R.id.name);
+            userName = (TextView) itemView.findViewById(R.id.username);
+            date = (TextView) itemView.findViewById(R.id.date);
 
         }
-
+        //Desactivo el click para implementación más adelante
+        /*
         @Override
         public void onClick(View view) {
 
@@ -109,6 +117,7 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
             ((MaterialNavigationDrawer)view.getContext()).setFragmentChild(fragment,loc.getName());
 
         }
+        */
 
     }
 }

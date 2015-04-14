@@ -4,31 +4,26 @@ package world.interesting.panche.interestingworld;
  * Created by Alex on 15/01/2015.
  */
 
+import android.app.ProgressDialog;
 import android.content.Context;
-import android.graphics.Color;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cuneytayyildiz.widget.PullRefreshLayout;
-import com.devspark.appmsg.AppMsg;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-
-
 
 import org.apache.http.Header;
 import org.json.JSONArray;
@@ -37,24 +32,19 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import cn.pedant.SweetAlert.SweetAlertDialog;
-
-
-
 
 /**
  * Created by neokree on 24/11/14.
  */
-public class FragmentIndex extends Fragment {
+public class FragmentLocationsVisited extends Fragment {
+
 
     View inflatedView;
 
-    private SweetAlertDialog pDialog;
-    private static Context mcontext;
+    private ProgressDialog pDialog;
     ArrayList<Location> list = new ArrayList<Location>();
+    String[] datos=new String[5];
     PullRefreshLayout layout;
-    int category=0;
-    MenuItem selected;
     TextView emptyView;
 
     @Override
@@ -63,18 +53,8 @@ public class FragmentIndex extends Fragment {
         TextView text = new TextView(this.getActivity());
         text.setText(this.getResources().getString(R.string.profile));
         text.setGravity(Gravity.CENTER);
-        setHasOptionsMenu(true);
 
         layout = (PullRefreshLayout) inflatedView.findViewById(R.id.swipeRefreshLayout);
-
-        // listen refresh event
-        layout.setOnRefreshListener(new PullRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                loadData();
-            }
-        });
-
 
         return inflatedView;
 
@@ -90,15 +70,16 @@ public class FragmentIndex extends Fragment {
     public void loadData()
     {
 
-        pDialog = new SweetAlertDialog(this.getActivity(), SweetAlertDialog.PROGRESS_TYPE);
-        pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
-        pDialog.setTitleText("Cargando...");
-
+        pDialog = new ProgressDialog(this.getActivity());
+        pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        pDialog.setMessage("Procesando...");
+        pDialog.setCancelable(true);
+        pDialog.setMax(100);
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        params.put("category", category);
-
-        String url="http://interestingworld.webcindario.com/consulta_locations.php";
+        datos=loadPreferences();
+        params.put("id_user", datos[0]);
+        String url="http://interestingworld.webcindario.com/consulta_locations_visited.php";
 
 
 
@@ -106,7 +87,7 @@ public class FragmentIndex extends Fragment {
             @Override
             public void onStart()
             {
-                pDialog.setCancelable(true);
+                pDialog.setProgress(0);
                 pDialog.show();
             }
             @Override
@@ -117,11 +98,12 @@ public class FragmentIndex extends Fragment {
                     try {
                         System.out.println(new String(responseBody));
                         setResult(new String(responseBody));
+
+
                     }catch(JSONException e)
                     {
                         System.out.println("Falla:"+e );
-                        AppMsg.makeText(FragmentIndex.this.getActivity(), "No se han encontrado datos", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
-                        layout.setRefreshing(false);
+                        Toast.makeText(getActivity(), "No se han encontrado datos", Toast.LENGTH_SHORT).show();
                         list.clear();
                         materialCardLoad();
                     }
@@ -130,11 +112,8 @@ public class FragmentIndex extends Fragment {
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                AppMsg.makeText(FragmentIndex.this.getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
+                Toast.makeText(getActivity(), "Parece que hay algún problema con la red", Toast.LENGTH_SHORT).show();
                 pDialog.hide();
-                list.clear();
-                materialCardLoad();
-                layout.setRefreshing(false);
             }
         });
     }
@@ -183,106 +162,19 @@ public class FragmentIndex extends Fragment {
         layout.setRefreshing(false);
 
     }
-    /*
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
+    public String[] loadPreferences() {
+        String[] datos=new String[5];
+        SharedPreferences prefs = this.getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
+        datos[0] = prefs.getString("id", "-1");
+        datos[1] = prefs.getString("name", "");
+        datos[2] = prefs.getString("lastname", "");
+        datos[3] = prefs.getString("email", "");
+        datos[4] = prefs.getString("photo_url", "");
 
-        MenuItem item3  = menu.findItem(R.id.add_location);
-        item3.setVisible(false);
-    }*/
-
-    //Buscador por categorias
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_search, menu);
-        selected= menu.findItem(R.id.list);
-        switch (category) {
-            //All
-            case 0:
-                selected.setIcon(R.drawable.location_white);
-                //Monuments
-            case 1:
-                selected.setIcon(R.drawable.museum_bar);
-                //Museums
-            case 2:
-                selected.setIcon(R.drawable.art_bar);
-                //Beachs
-            case 3:
-                selected.setIcon(R.drawable.beach_bar);
-                //Bar
-            case 4:
-                selected.setIcon(R.drawable.beer_bar);
-                //Restaurant
-            case 5:
-                selected.setIcon(R.drawable.restaurant_bar);
-                //Fotografias
-            case 6:
-                selected.setIcon(R.drawable.photograph_white);
-                //Ocio
-            case 7:
-                selected.setIcon(R.drawable.leisure_white);
-            default:
-                selected.setIcon(R.drawable.location_white);
-
+        for(int i=0; i < datos.length; i++) {
+            System.out.println(datos[i]);
         }
-        super.onCreateOptionsMenu(menu, inflater);
+        return datos;
     }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Take appropriate action for each action item click
 
-        switch (item.getItemId()) {
-            //All
-            case R.id.category0:
-                category=0;
-                loadData();
-                selected.setIcon(R.drawable.location_white);
-                return true;
-            //Monuments
-            case R.id.category1:
-                category=1;
-                loadData();
-                selected.setIcon(R.drawable.museum_bar);
-                return true;
-            //Museums
-            case R.id.category2:
-                category=2;
-                loadData();
-                selected.setIcon(R.drawable.art_bar);
-                return true;
-            //Beachs
-            case R.id.category3:
-                category=3;
-                loadData();
-                selected.setIcon(R.drawable.beach_bar);
-                return true;
-            //Bar
-            case R.id.category4:
-                category=4;
-                loadData();
-                selected.setIcon(R.drawable.beer_bar);
-                return true;
-            //Restaurant
-            case R.id.category5:
-                category=5;
-                loadData();
-                selected.setIcon(R.drawable.restaurant_bar);
-                return true;
-            //Fotografias
-            case R.id.category6:
-                category=6;
-                loadData();
-                selected.setIcon(R.drawable.photograph_white);
-                return true;
-            //Ocio
-            case R.id.category7:
-                category=7;
-                loadData();
-                selected.setIcon(R.drawable.leisure_white);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 }

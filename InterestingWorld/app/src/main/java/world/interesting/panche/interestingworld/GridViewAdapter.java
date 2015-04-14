@@ -10,10 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 import static android.widget.ImageView.ScaleType.CENTER_CROP;
 
@@ -36,15 +40,32 @@ final class GridViewAdapter extends BaseAdapter {
 
         // Get the image URL for the current position.
         String url = getItem(position);
+        Class cl=context.getClass();
+        if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
 
-        // Trigger the download of the URL asynchronously into the image view.
-        Picasso.with(context) //
-                .load("http://"+url) //
-                .placeholder(R.drawable.back1) //
-                .error(R.drawable.not_found) //
-                .resize(256,256).centerCrop()//
-                .tag(context).skipMemoryCache() //
-                .into(view);
+            ((MainActivity) context).getmPicasso() //
+                    .load("http://"+url)//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
+                    .placeholder(R.drawable.back1) //
+                    .error(R.drawable.not_found) //
+                    .resize(256,256).centerCrop()//
+                    .tag(context)
+                    .into(view);
+            ((MainActivity) context).getmPicasso() .invalidate("http://"+url);
+
+        }else {
+
+            ((MainActivityUser) context).getmPicasso() //
+                    .load("http://"+url)//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
+                    .placeholder(R.drawable.back1) //
+                    .error(R.drawable.not_found) //
+                    .resize(256,256).centerCrop()//
+                    .tag(context)
+                    .into(view);
+            ((MainActivityUser) context).getmPicasso() .invalidate("http://"+url);
+        }
+
+
+
 
         return view;
     }

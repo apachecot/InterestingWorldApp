@@ -34,8 +34,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 
-import it.gmariotti.cardslib.library.recyclerview.internal.CardArrayRecyclerViewAdapter;
-import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
 
 
 /**
@@ -43,13 +41,14 @@ import it.gmariotti.cardslib.library.recyclerview.view.CardRecyclerView;
  */
 public class FragmentLocationsUser extends Fragment {
 
-    CardRecyclerView mRecyclerView;
+
     View inflatedView;
-    CardArrayRecyclerViewAdapter mCardArrayAdapter;
+
     private ProgressDialog pDialog;
     ArrayList<Location> list = new ArrayList<Location>();
     String[] datos=new String[5];
     PullRefreshLayout layout;
+    TextView emptyView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -107,7 +106,9 @@ public class FragmentLocationsUser extends Fragment {
                     }catch(JSONException e)
                     {
                         System.out.println("Falla:"+e );
-                        Toast.makeText(getActivity(), "Error en el registro, compruebe los campos", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "No se han encontrado datos", Toast.LENGTH_SHORT).show();
+                        list.clear();
+                        materialCardLoad();
                     }
                 }
                 pDialog.hide();
@@ -134,7 +135,8 @@ public class FragmentLocationsUser extends Fragment {
             jsonChildNode = new JSONObject(jsonChildNode.optString("post").toString());
 
             Location loc= new Location(jsonChildNode.getString("id"),jsonChildNode.getString("name"),jsonChildNode.getString("description"),
-                    jsonChildNode.getString("photo_url"),jsonChildNode.getString("email"),"",jsonChildNode.getString("lat"),jsonChildNode.getString("lng"));
+                    jsonChildNode.getString("photo_url"),jsonChildNode.getString("email"),"",jsonChildNode.getString("lat"),jsonChildNode.getString("lng"),
+                    jsonChildNode.getString("address"),jsonChildNode.getString("country"),jsonChildNode.getString("locality"));
             list.add(loc);
         }
         materialCardLoad();
@@ -145,9 +147,20 @@ public class FragmentLocationsUser extends Fragment {
 
         RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.my_recycler_view);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(new LocationsAdapter(list, R.layout.card,this.getActivity()));
+        LocationsAdapter dataset=new LocationsAdapter(list, R.layout.card,this.getActivity());
+        recyclerView.setAdapter(dataset);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        emptyView = (TextView) getActivity().findViewById(R.id.empty_view);
+        if (dataset.getItemCount()==0) {
+
+            recyclerView.setVisibility(View.INVISIBLE);
+            emptyView.setVisibility(View.VISIBLE);
+        }
+        else {
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyView.setVisibility(View.INVISIBLE);
+        }
         // refresh complete
         layout.setRefreshing(false);
 

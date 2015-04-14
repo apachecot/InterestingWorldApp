@@ -58,6 +58,15 @@
                 android:textSize="25dp"
                 android:padding="5dp" />
 
+            <TextView
+                tools:ignore="HardcodedText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:background="@android:color/white"
+                android:padding="5dp"
+                android:id="@+id/textViewAddress" />
+
             <ImageView
                 tools:ignore="HardcodedText"
                 android:layout_width="match_parent"

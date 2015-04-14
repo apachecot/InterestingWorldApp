@@ -36,6 +36,8 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
@@ -43,6 +45,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,6 +62,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     private LocationManager locationManager;
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 1000;
+    double lat_old=0.0,lng_old=0.0,zoom_old=3.0;
     int category=0;
     MenuItem selected;
 
@@ -85,7 +89,17 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
         setUpMapIfNeeded(inflatedView);
         setHasOptionsMenu(true);
+        final GoogleMap.OnCameraChangeListener mOnCameraChangeListener =
+                new GoogleMap.OnCameraChangeListener() {
 
+                    @Override
+                    public void onCameraChange(CameraPosition cameraPosition) {
+                        System.out.println(cameraPosition.target.latitude+" "+cameraPosition.target.longitude);
+                        System.out.println("Zoom: "+cameraPosition.zoom);
+                        getDistance();
+                    }
+                };
+        mMap.setOnCameraChangeListener(mOnCameraChangeListener);
         return inflatedView;
     }
 
@@ -93,7 +107,6 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     @Override
     public void onStart() {
         super.onStart();
-        loadData();
     }
 
     @Override
@@ -112,6 +125,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         }
     }
 
+
     private void setUpMap() {
 
         mMap.setMyLocationEnabled(true);
@@ -119,7 +133,6 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         mMap.setOnInfoWindowClickListener(this);
         centerCity();
         System.out.println("Mapa seteado");
-        //mMap.animateCamera(CameraUpdateFactory.zoomBy(15));
     }
 
     @Override
@@ -150,19 +163,26 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     public void centerCity()
     {
         CameraPosition camPos;
-
-            LatLng center = new LatLng(50.654458, 2.383097);
+            lat_old=50.654458;
+            lng_old=2.383097;
+            LatLng center = new LatLng(lat_old, lng_old);
             camPos = new CameraPosition.Builder()
-                    .target(center)   //Centramos el mapa en Madrid
-                    .zoom(3)         //Establecemos el zoom en 19
+                    .target(center)
+                    .zoom(Float.parseFloat(String.valueOf(zoom_old)))
                     .build();
 
         CameraUpdate camUpd3 = CameraUpdateFactory.newCameraPosition(camPos);
 
         mMap.animateCamera(camUpd3);
+        loadData(getDistance());
     }
-    public void loadData()
+
+    public void loadData(double distance)
     {
+        //Seteamos de nuevo el centro del mapa y el zoom
+        lat_old=mMap.getCameraPosition().target.latitude;
+        lng_old=mMap.getCameraPosition().target.longitude;
+        zoom_old=mMap.getCameraPosition().zoom;
 
         pDialog = new ProgressDialog(this.getActivity());
         pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -172,8 +192,11 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
         params.put("category", category);
+        params.put("distance",distance);
+        params.put("lat",mMap.getCameraPosition().target.latitude);
+        params.put("lng",mMap.getCameraPosition().target.longitude);
 
-        String url="http://interestingworld.webcindario.com/consulta_locations.php";
+        String url="http://interestingworld.webcindario.com/consulta_map_precise.php";
 
 
 
@@ -197,7 +220,6 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                     }catch(JSONException e)
                     {
                         System.out.println("Falla:"+e );
-                        Toast.makeText(getActivity(), "Error en el registro, compruebe los campos", Toast.LENGTH_SHORT).show();
                     }
                 }
                 pDialog.hide();
@@ -233,6 +255,10 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
             datos.add(jsonChildNode.getString("photo_url"));
             datos.add(jsonChildNode.getString("email"));
             datos.add(jsonChildNode.getString("id_category"));
+            datos.add(jsonChildNode.getString("address"));
+            datos.add(jsonChildNode.getString("country"));
+            datos.add(jsonChildNode.getString("locality"));
+
             list.add(datos);
             addLocation(jsonChildNode.getString("lat"),jsonChildNode.getString("lng"),jsonChildNode.getString("name"),jsonChildNode.getString("photo_url"),jsonChildNode.getString("id_category"));
         }
@@ -334,8 +360,9 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                         if (not_first_time_showing_info_window) {
                             Picasso.with(getActivity())
                                     .load("http://" + url_photo)
-                                    .error(R.drawable.not_found).resize(128,128).centerCrop()
+                                    .error(R.drawable.not_found).resize(128, 128).centerCrop()
                                     .into((ImageView) myContentsView.findViewById(R.id.badge));
+
                             not_first_time_showing_info_window=false;
                         }
                         else
@@ -345,6 +372,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                                     .load("http://" + url_photo)
                                     .error(R.drawable.not_found).resize(128,128).centerCrop()
                                     .into((ImageView) myContentsView.findViewById(R.id.badge), new InfoWindowRefresher(marker));
+
                         }
 
                         System.out.println(url_photo);
@@ -382,7 +410,8 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                 Fragment fragment = new FragmentLocationDetailTabs();
 
                 world.interesting.panche.interestingworld.Location loc= new world.interesting.panche.interestingworld.Location(list.get(i).get(0),
-                        list.get(i).get(1),list.get(i).get(2),list.get(i).get(5),"","",list.get(i).get(3),list.get(i).get(4));
+                        list.get(i).get(1),list.get(i).get(2),list.get(i).get(5),"","",list.get(i).get(3),list.get(i).get(4),list.get(i).get(6)
+                        ,list.get(i).get(7),list.get(i).get(8));
                 if(this.getActivity().getLocalClassName().equals("MainActivity")) {
                     ((MainActivity) getActivity()).SetLocationSelected(loc);
                 }else {
@@ -411,16 +440,6 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         @Override
         public void onError() {}
     }
-    public void setInfoBundle(List<String> info)
-    {
-        bundle.putString("id_location",info.get(0).toString());
-        bundle.putString("title",info.get(1).toString());
-        bundle.putString("description",info.get(2).toString());
-        bundle.putString("lat",info.get(3).toString());
-        bundle.putString("lng", info.get(4).toString());
-        bundle.putString("url_photo",info.get(5).toString());
-        bundle.putString("user_location",info.get(6).toString());
-    }
     //Buscador por categorias
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -436,42 +455,63 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
             //All
             case R.id.category0:
                 category = 0;
-                loadData();
+                loadData(getDistance());
                 selected.setIcon(R.drawable.location_white);
                 return true;
             //Monuments
             case R.id.category1:
                 category = 1;
-                loadData();
+                loadData(getDistance());
                 selected.setIcon(R.drawable.museum_bar);
                 return true;
             //Museums
             case R.id.category2:
                 category = 2;
-                loadData();
+                loadData(getDistance());
                 selected.setIcon(R.drawable.art_bar);
                 return true;
             //Beachs
             case R.id.category3:
                 category = 3;
-                loadData();
+                loadData(getDistance());
                 selected.setIcon(R.drawable.beach_bar);
                 return true;
             //Bar
             case R.id.category4:
                 category = 4;
-                loadData();
+                loadData(getDistance());
                 selected.setIcon(R.drawable.beer_bar);
                 return true;
             //Restaurant
             case R.id.category5:
                 category = 5;
-                loadData();
+                loadData(getDistance());
                 selected.setIcon(R.drawable.restaurant_bar);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+
+
+    }
+    public Double getDistance()
+    {
+        double[] zooms = {21282,16355,10064,5540,2909,1485,752,378,190,95,48,24,12,6,3,1.48,0.74,0.37,0.19};
+        Double distance=(zooms[Math.round(mMap.getCameraPosition().zoom)]*(mMapView.getWidth()))/1000;
+        if(zoom_old+1<mMap.getCameraPosition().zoom || zoom_old-1 > mMap.getCameraPosition().zoom) {
+            loadData(distance);
+        }
+        else if(mMap.getCameraPosition().target.latitude>lat_old+((distance/1.5)/100) || mMap.getCameraPosition().target.latitude<lat_old-((distance/1.5)/100))
+        {
+            System.out.println("Cargaría de nuevo");
+            loadData(distance);
+        }else if(mMap.getCameraPosition().target.longitude>lng_old+((distance/1.5)/100) || mMap.getCameraPosition().target.longitude<lng_old-((distance/1.5)/100))
+        {
+            System.out.println("Cargaría de nuevo");
+            loadData(distance);
+        }
+        System.out.println("Distance: "+distance);
+        return distance;
     }
 
 

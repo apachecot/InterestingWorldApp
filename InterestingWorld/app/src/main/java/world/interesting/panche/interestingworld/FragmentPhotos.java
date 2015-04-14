@@ -45,6 +45,8 @@ public class FragmentPhotos extends Fragment {
     PullRefreshLayout layout;
     int category=0;
     MenuItem selected;
+    GridView gv;
+    TextView emptyView;
 
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -57,11 +59,12 @@ public class FragmentPhotos extends Fragment {
         fm= this.getActivity().getSupportFragmentManager();
 
         gridAdapter=new GridViewAdapter(this.getActivity());
+        emptyView = (TextView) inflatedView.findViewById(R.id.empty_view);
 
-        GridView gv = (GridView) inflatedView.findViewById(R.id.grid_view);
+        gv = (GridView) inflatedView.findViewById(R.id.grid_view);
         gv.setAdapter(gridAdapter);
         gv.setOnScrollListener(new SampleScrollListener(this.getActivity()));
-
+        gv.setEmptyView(emptyView);
 
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -118,7 +121,9 @@ public class FragmentPhotos extends Fragment {
 
                     }catch(JSONException e)
                     {
-                        System.out.println("Falla:"+e );
+                        list.clear();
+                        urls.clear();
+                        changeAdapter();
                     }
                 }
                 pDialog.hide();
@@ -133,6 +138,7 @@ public class FragmentPhotos extends Fragment {
     public ArrayList setResult (String result) throws JSONException {
 
         list.clear();
+        urls.clear();
         String cadenaJSON = result.toString();//Le pasamos a la variable cadenaJSON una cadena de tipo JSON (en este caso es la creada anteriormente)
 
         JSONObject jsonObject = new JSONObject(cadenaJSON); //Creamos un objeto de tipo JSON y le pasamos la cadena JSON
@@ -151,12 +157,14 @@ public class FragmentPhotos extends Fragment {
             datos.add(jsonChildNode.getString("lng"));
             datos.add(jsonChildNode.getString("photo_url"));
             datos.add(jsonChildNode.getString("email"));
+            datos.add(jsonChildNode.getString("id_category"));
+            datos.add(jsonChildNode.getString("address"));
+            datos.add(jsonChildNode.getString("country"));
+            datos.add(jsonChildNode.getString("locality"));
             list.add(datos);
             urls.add(jsonChildNode.getString("photo_url"));
         }
-        gridAdapter.changeModelList(urls,list);
-        // refresh complete
-        layout.setRefreshing(false);
+        changeAdapter();
         return  list;
     }
 
@@ -172,6 +180,14 @@ public class FragmentPhotos extends Fragment {
         args.putString("name", select_image.get(1));
         args.putString("description", select_image.get(2));
         dFragment.setArguments(args);
+        world.interesting.panche.interestingworld.Location loc= new world.interesting.panche.interestingworld.Location(select_image.get(0),
+                select_image.get(1),select_image.get(2),select_image.get(5),"","",select_image.get(3),select_image.get(4),select_image.get(6),
+                select_image.get(7),select_image.get(8));
+        if(this.getActivity().getLocalClassName().equals("MainActivity")) {
+            ((MainActivity) getActivity()).SetLocationSelected(loc);
+        }else {
+            ((MainActivityUser) getActivity()).SetLocationSelected(loc);
+        }
         // Show DialogFragment
         dFragment.show(fm, "Dialog Photo");
     }
@@ -185,6 +201,35 @@ public class FragmentPhotos extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_search, menu);
         selected= menu.findItem(R.id.list);
+        switch (category) {
+            //All
+            case 0:
+                selected.setIcon(R.drawable.location_white);
+            //Monuments
+            case 1:
+                selected.setIcon(R.drawable.museum_bar);
+            //Museums
+            case 2:
+                selected.setIcon(R.drawable.art_bar);
+            //Beachs
+            case 3:
+                selected.setIcon(R.drawable.beach_bar);
+            //Bar
+            case 4:
+                selected.setIcon(R.drawable.beer_bar);
+            //Restaurant
+            case 5:
+                selected.setIcon(R.drawable.restaurant_bar);
+            //Fotografias
+            case 6:
+                selected.setIcon(R.drawable.photograph_white);
+            //Ocio
+            case 7:
+                selected.setIcon(R.drawable.leisure_white);
+            default:
+                selected.setIcon(R.drawable.location_white);
+
+        }
         super.onCreateOptionsMenu(menu, inflater);
     }
     @Override
@@ -194,48 +239,63 @@ public class FragmentPhotos extends Fragment {
         switch (item.getItemId()) {
             //All
             case R.id.category0:
-                category = 0;
-                urls.clear();
+                category=0;
                 loadData();
                 selected.setIcon(R.drawable.location_white);
                 return true;
             //Monuments
             case R.id.category1:
-                category = 1;
-                urls.clear();
+                category=1;
                 loadData();
                 selected.setIcon(R.drawable.museum_bar);
                 return true;
             //Museums
             case R.id.category2:
-                category = 2;
-                urls.clear();
+                category=2;
                 loadData();
                 selected.setIcon(R.drawable.art_bar);
                 return true;
             //Beachs
             case R.id.category3:
-                category = 3;
-                urls.clear();
+                category=3;
                 loadData();
                 selected.setIcon(R.drawable.beach_bar);
                 return true;
             //Bar
             case R.id.category4:
-                category = 4;
-                urls.clear();
+                category=4;
                 loadData();
                 selected.setIcon(R.drawable.beer_bar);
                 return true;
             //Restaurant
             case R.id.category5:
-                category = 5;
-                urls.clear();
+                category=5;
                 loadData();
                 selected.setIcon(R.drawable.restaurant_bar);
                 return true;
+            //Fotografias
+            case R.id.category6:
+                category=6;
+                loadData();
+                selected.setIcon(R.drawable.photograph_white);
+                return true;
+            //Ocio
+            case R.id.category7:
+                category=7;
+                loadData();
+                selected.setIcon(R.drawable.leisure_white);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
+
         }
+    }
+    public void changeAdapter()
+    {
+
+        gridAdapter.changeModelList(urls,list);
+
+        // refresh complete
+        layout.setRefreshing(false);
     }
 }

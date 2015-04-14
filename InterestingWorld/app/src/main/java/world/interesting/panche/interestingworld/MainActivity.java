@@ -7,6 +7,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.squareup.picasso.Picasso;
+
+import java.util.concurrent.Executors;
+
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
 
@@ -18,10 +22,15 @@ public class MainActivity extends MaterialNavigationDrawer{
     MaterialSection login, explore, photos, lastLocations;
     Location locationSelected;
     String url_full="";
+    private Picasso mPicasso;
+
+
 
     @Override
     public void init(Bundle savedInstanceState) {
 
+        mPicasso = new Picasso.Builder(this).executor(Executors.newSingleThreadExecutor()).build();
+        //mPicasso.setIndicatorsEnabled(true);
 
         // night section with section color
         lastLocations = this.newSection(this.getResources().getString(R.string.lastlocations),this.getResources().getDrawable(R.drawable.map), new FragmentIndex()).setSectionColor(Color.parseColor("#03a9f4"));
@@ -41,7 +50,7 @@ public class MainActivity extends MaterialNavigationDrawer{
 
 
         //this.closeOptionsMenu();
-        //this.addMultiPaneSupport();
+        this.addMultiPaneSupport();
         this.allowArrowAnimation();
         this.disableLearningPattern();
 
@@ -94,6 +103,10 @@ public class MainActivity extends MaterialNavigationDrawer{
     public String GetImageUrlFull()
     {
         return url_full;
+    }
+
+    public Picasso getmPicasso() {
+        return mPicasso;
     }
 }
 

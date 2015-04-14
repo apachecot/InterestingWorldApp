@@ -39,6 +39,7 @@ public class FragmentLocationDetailTabs extends Fragment implements MaterialTabL
 
         tabHost = (MaterialTabHost) view.findViewById(R.id.tabHost);
         tabHost.setPrimaryColor(getResources().getColor(R.color.fbutton_default_color));
+        tabHost.setAccentColor(getResources().getColor(R.color.white));
         pager = (ViewPager) view.findViewById(R.id.pager );
 
         // init view pager
@@ -102,7 +103,7 @@ public class FragmentLocationDetailTabs extends Fragment implements MaterialTabL
                     frag= new FragmentPhotosDetail();
                 break;
                 case 2:
-                    frag=new FragmentPhotosDetail();
+                    frag=new FragmentComments();
                 break;
                 default:
                     frag=new FragmentPhotosDetail();

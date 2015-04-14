@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -108,20 +110,29 @@ public class FragmentDialogPhoto extends DialogFragment {
     public void LoadImage()
     {
         ImageView photoDetail = (ImageView) view.findViewById(R.id.ImagePhoto);
-        Picasso.with(getActivity())
-                .load("http://" + url)
-                .error(R.drawable.not_found).skipMemoryCache()
-                .into(photoDetail);
+
+        Class cl=getActivity().getClass();
+        if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
+
+            ((MainActivity) getActivity()).getmPicasso() //
+                    .load("http://"+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
+                    .error(R.drawable.not_found) //
+                    .into(photoDetail);
+            ((MainActivity) getActivity()).getmPicasso() .invalidate("http://"+url);
+
+        }else {
+
+            ((MainActivityUser) getActivity()).getmPicasso() //
+                    .load("http://"+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
+                    .error(R.drawable.not_found) //
+                    .into(photoDetail);
+            ((MainActivityUser) getActivity()).getmPicasso() .invalidate("http://"+url);
+        }
+
     }
     public void MoreInfo()
     {
         Fragment fragment = new FragmentLocationDetailTabs();
-        Location loc= new Location(id,name,description,url,"","",lat,lng);
-        if(this.getActivity().getLocalClassName().equals("MainActivity")) {
-            ((MainActivity) getActivity()).SetLocationSelected(loc);
-        }else {
-            ((MainActivityUser) getActivity()).SetLocationSelected(loc);
-        }
         ((MaterialNavigationDrawer)this.getActivity()).setFragmentChild(fragment,name);
         FragmentDialogPhoto.this.dismiss();
     }

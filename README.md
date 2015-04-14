@@ -1,4 +1,4 @@
-# ProyectoDaw
+﻿# ProyectoDaw
 
 Puntos implementados:
 - Menu (OK)
@@ -15,11 +15,11 @@ Puntos implementados:
 - Compartir (OK)
 - Nuevo usuario (OK)
 - Marcar recorrido (OK)
+- Comentarios (OK)
 
 Puntos sin implementar:
 - Me gusta imagen (Falta)
-- Comentarios (Falta)
-- Busqueda por mapa y cercania (Falta)
+- Busqueda por mapa y cercania (OK falta depurarlo más)
 
 Bugs a solventar:
 - Imagenes con muchas calidad falla la cache (Solved)

@@ -35,6 +35,8 @@ import com.devspark.appmsg.AppMsg;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
@@ -53,19 +55,21 @@ import java.io.InputStream;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class FragmentLocationDetail extends Fragment {
-    String title_txt,description_txt,lat,lng,url_photo,user_location,id;
+    String title_txt,description_txt,lat,lng,url_photo,user_location,id,address,locality,country;
     View inflatedView;
-    ImageButton bNavigate,bShare,bPhoto;
+    ImageButton bNavigate,bShare,bPhoto,bVisited;
     Uri selectedImage;
     InputStream is;
     private ProgressDialog pDialog;
     String result;
     String[] datos= new String[5];
+    FragmentManager fm;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         //Seteamos la estructura del fragment
         inflatedView = inflater.inflate(R.layout.location_detail, container, false);
+         fm = this.getActivity().getSupportFragmentManager();
 
         //Cambiamos el icono del menu por el de volver atras
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
@@ -81,6 +85,7 @@ public class FragmentLocationDetail extends Fragment {
 
         //TextView title = (TextView) inflatedView.findViewById(R.id.TextViewTitle);
         TextView description = (TextView) inflatedView.findViewById(R.id.TextViewDescription);
+        TextView street = (TextView) inflatedView.findViewById(R.id.textViewAddress);
         ImageView photoDetail = (ImageView) inflatedView.findViewById(R.id.ImageDetail);
         ImageView imageMap = (ImageView) inflatedView.findViewById(R.id.ImageMapStatic);
         Location loc;
@@ -96,22 +101,49 @@ public class FragmentLocationDetail extends Fragment {
         url_photo=loc.getUrl();
         user_location=loc.getUser();
         id= loc.getId();
+        address=loc.getAddress();
+        country=loc.getCountry();
+        locality=loc.getLocality();
+        if(!country.equals("")) {
+            street.setText(address + " " + locality + "," + country);
+        }
 
         //title.setText(title_txt);
         description.setText(description_txt);
-        Picasso.with(getActivity())
-                .load("http://" + url_photo)
-                .error(R.drawable.not_found).skipMemoryCache()
-                .fit().centerCrop()
-                .into(photoDetail);
+        Class cl=this.getActivity().getClass();
+        if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
+            ((MainActivity) getActivity()).getmPicasso()
+                    .load("http://"+url_photo)//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
+                    .error(R.drawable.not_found)
+                    .fit().centerCrop()
+                    .into(photoDetail);
 
-        Picasso.with(getActivity())
-                .load("http://maps.googleapis.com/maps/api/staticmap?center="+lat+","+lng+"&zoom=16&size=400x400&" +
-                        "&markers=color:blue%7Clabel:"+title_txt.charAt(0)+"%7C"+lat+","+lng)
-                .error(R.drawable.not_found).skipMemoryCache()
-                .fit().centerCrop()
-                .into(imageMap);
+            ((MainActivity) getActivity()).getmPicasso().load("http://maps.googleapis.com/maps/api/staticmap?center="+lat+","+lng+"&zoom=16&size=400x400&" +
+                    "&markers=color:blue%7Clabel:"+title_txt.charAt(0)+"%7C"+lat+","+lng)
+                    //.memoryPolicy(MemoryPolicy.NO_CACHE,MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE,NetworkPolicy.NO_STORE).skipMemoryCache()
+                    .error(R.drawable.not_found)
+                    .fit().centerCrop()
+                    .into(imageMap);
+            ((MainActivity) getActivity()).getmPicasso() .invalidate("http://"+url_photo);
+            ((MainActivity) getActivity()).getmPicasso() .invalidate("http://maps.googleapis.com/maps/api/staticmap?center="+lat+","+lng+"&zoom=16&size=400x400&" +
+                    "&markers=color:blue%7Clabel:"+title_txt.charAt(0)+"%7C"+lat+","+lng);
+        }else {
+            ((MainActivityUser) getActivity()).getmPicasso()
+                    .load("http://"+url_photo)//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
+                    .error(R.drawable.not_found)
+                    .fit().centerCrop()
+                    .into(photoDetail);
 
+            ((MainActivityUser) getActivity()).getmPicasso().load("http://maps.googleapis.com/maps/api/staticmap?center=" + lat + "," + lng + "&zoom=16&size=400x400&" +
+                    "&markers=color:blue%7Clabel:" + title_txt.charAt(0) + "%7C" + lat + "," + lng)
+                    //.memoryPolicy(MemoryPolicy.NO_CACHE,MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE,NetworkPolicy.NO_STORE)
+                    .error(R.drawable.not_found)
+                    .fit().centerCrop()
+                    .into(imageMap);
+            ((MainActivityUser) getActivity()).getmPicasso() .invalidate("http://"+url_photo);
+            ((MainActivityUser) getActivity()).getmPicasso() .invalidate("http://maps.googleapis.com/maps/api/staticmap?center="+lat+","+lng+"&zoom=16&size=400x400&" +
+                    "&markers=color:blue%7Clabel:"+title_txt.charAt(0)+"%7C"+lat+","+lng);
+        }
 
 
         bShare = (ImageButton)inflatedView.findViewById(R.id.ic3);
@@ -121,11 +153,26 @@ public class FragmentLocationDetail extends Fragment {
                 onShareItem(v);
             }
         });
+        bVisited = (ImageButton)inflatedView.findViewById(R.id.ic2);
+        bVisited.setOnClickListener(new View.OnClickListener() {
+            // Start new list activity
+            public void onClick(View v) {
+                if(getActivity().getLocalClassName().equals("MainActivityUser")) {
+                    SweetAlertVisited();
+                }else{
+                    AppMsg.makeText(getActivity(), "Debes estar loggeado para poder marcar como visitado", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                }
+            }
+        });
         bPhoto = (ImageButton)inflatedView.findViewById(R.id.ic4);
         bPhoto.setOnClickListener(new View.OnClickListener() {
             // Start new list activity
             public void onClick(View v) {
-                selectImage(v);
+                if(getActivity().getLocalClassName().equals("MainActivityUser")) {
+                    selectImage(v);
+                }else{
+                    AppMsg.makeText(getActivity(), "Debes estar loggeado para poder introducir una fotografía", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                }
             }
         });
         bNavigate = (ImageButton)inflatedView.findViewById(R.id.ic1);
@@ -220,13 +267,19 @@ public class FragmentLocationDetail extends Fragment {
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
                 is = new ByteArrayInputStream(stream.toByteArray());
-                SweetAlert();
+                SweetAlertImage();
 
             }
         } catch (FileNotFoundException e) {
-            System.out.println("Error: "+e);
+            new SweetAlertDialog(this.getActivity(), SweetAlertDialog.ERROR_TYPE)
+                    .setTitleText("Oops...")
+                    .setContentText("Parece que algo ha fallado!")
+                    .show();
         } catch (IOException e) {
-            e.printStackTrace();
+            new SweetAlertDialog(this.getActivity(), SweetAlertDialog.ERROR_TYPE)
+                    .setTitleText("Oops...")
+                    .setContentText("Parece que algo ha fallado!")
+                    .show();
         }
     }
     public static int calculateInSampleSize(
@@ -252,7 +305,7 @@ public class FragmentLocationDetail extends Fragment {
         return inSampleSize;
     }
 
-    public void SweetAlert()
+    public void SweetAlertImage()
     {
         new SweetAlertDialog(this.getActivity(), SweetAlertDialog.WARNING_TYPE)
                 .setTitleText(title_txt)
@@ -377,6 +430,118 @@ public class FragmentLocationDetail extends Fragment {
         }
         return datos;
     }
+    public void SweetAlertVisited()
+    {
+        new SweetAlertDialog(this.getActivity(), SweetAlertDialog.WARNING_TYPE)
+                .setTitleText(title_txt)
+                .setContentText("¿Marcar como visitado?")
+                .setCancelText("No")
+                .setConfirmText("Sí")
+                .showCancelButton(true)
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                    }
+                })
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                        try {
+                            visited();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .show();
+    }
+    public void visited() throws JSONException, FileNotFoundException {
+        //Inicializamos dialog
+        pDialog = new ProgressDialog(this.getActivity());
+        pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        pDialog.setMessage("Procesando...");
+        pDialog.setCancelable(true);
+        pDialog.setMax(100);
+
+        datos=loadPreferences();
+
+        result="";
+
+        AsyncHttpClient client = new AsyncHttpClient();
 
 
+        String url = "http://interestingworld.webcindario.com/insert_location_visited.php";
+        RequestParams params = new RequestParams();
+        params.put("id_user", datos[0]);
+        params.put("id_location", id);
+
+        client.post(url, params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                if (statusCode == 200) {
+
+                    try {
+                        System.out.println(new String(responseBody));
+                        setResult(new String(responseBody));
+                        System.out.println(getResult());
+                        if (getResult().equals("bien")) {
+                            SweetAlertComment();
+                        } else {
+                            AppMsg.makeText(FragmentLocationDetail.this.getActivity(), "Ups.. algo ha fallado, vuelve a intentarlo", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                        }
+
+                    } catch (JSONException e) {
+                        System.out.println("Falla:" + e);
+                        AppMsg.makeText(FragmentLocationDetail.this.getActivity(), "Error al intentar subir la imágen", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+
+                    }
+                }
+                pDialog.hide();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                AppMsg.makeText(FragmentLocationDetail.this.getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
+                pDialog.hide();
+            }
+        });
+    }
+    public void SweetAlertComment()
+    {
+        new SweetAlertDialog(this.getActivity(), SweetAlertDialog.SUCCESS_TYPE)
+                .setTitleText("Tú opinión importa")
+                .setContentText("Marcado como visitado.\n ¿Quieres dejar un comentario sobre que te ha parecido '" + title_txt + "'?")
+                .setCancelText("No")
+                .setConfirmText("Sí")
+                .showCancelButton(true)
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                    }
+                })
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                        dialogComment();
+                    }
+                })
+                .show();
+    }
+    private void dialogComment() {
+        // custom dialog
+        FragmentDialogComment dFragment = new FragmentDialogComment();
+        // Show DialogFragment
+        dFragment.show(fm, "Dialog Fragment");
+    }
 }

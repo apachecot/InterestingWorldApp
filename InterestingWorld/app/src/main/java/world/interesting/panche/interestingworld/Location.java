@@ -15,8 +15,13 @@ public class Location {
     String id_user;
     String lat;
     String lng;
+    String address;
+    String country;
+    String locality;
 
-    public Location(String Nid,String Nname,String Ndescription,String Nurl,String Nuser,String Nid_user,String Nlat,String Nlng)
+    public Location(String Nid,String Nname,String Ndescription,String Nurl,
+                    String Nuser,String Nid_user,String Nlat,String Nlng,
+                    String Naddress, String Ncountry, String Nlocality)
     {
         id=Nid;
         name=Nname;
@@ -26,6 +31,10 @@ public class Location {
         id_user=Nid_user;
         lat=Nlat;
         lng=Nlng;
+        address=Naddress;
+        country=Ncountry;
+        locality=Nlocality;
+
 
     }
 
@@ -91,5 +100,29 @@ public class Location {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getLocality() {
+        return locality;
+    }
+
+    public void setLocality(String locality) {
+        this.locality = locality;
     }
 }

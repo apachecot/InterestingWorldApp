@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bootstrap="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textMultiLine"
+        android:ems="10"
+        android:id="@+id/editTextComment"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp" />
+
+
+    <com.beardedhen.androidbootstrap.BootstrapButton
+        android:id="@+id/dialogButtonCancel"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:text="@string/cancel"
+        bootstrap:bb_icon_right="fa-close"
+        bootstrap:bb_roundedCorners="true"
+        bootstrap:bb_type="danger"
+        android:layout_below="@+id/editTextComment"
+        android:layout_alignLeft="@+id/editTextComment"
+        android:layout_alignStart="@+id/editTextComment" />
+
+    <com.beardedhen.androidbootstrap.BootstrapButton
+        android:id="@+id/dialogButtonOk"
+        android:layout_width="50dp"
+        android:layout_height="55dp"
+        android:text="@string/accept"
+        bootstrap:bb_icon_right="fa-check-circle"
+        bootstrap:bb_type="success"
+        bootstrap:bb_roundedCorners="true"
+        android:layout_alignTop="@+id/dialogButtonCancel"
+        android:layout_alignEnd="@+id/editTextComment" />
+
+
+</RelativeLayout>

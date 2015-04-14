@@ -13,7 +13,7 @@
         android:scaleType="fitCenter"
         android:id="@+id/ic2"
         android:background="?android:selectableItemBackground"
-        android:src="@drawable/star"
+        android:src="@drawable/like"
         style="@style/card.native.actions.button"
         android:layout_marginRight="8dp"
         android:layout_height="65dp"
@@ -23,10 +23,10 @@
         android:scaleType="fitCenter"
         android:id="@+id/ic3"
         android:background="?android:selectableItemBackground"
-        android:src="@drawable/abc_ic_menu_share_mtrl_alpha"
         style="@style/card.native.actions.button"
         android:layout_marginRight="8dp"
         android:layout_width="69dp"
-        android:layout_height="65dp" />
+        android:layout_height="65dp"
+        android:src="@drawable/share" />
 
 </LinearLayout>

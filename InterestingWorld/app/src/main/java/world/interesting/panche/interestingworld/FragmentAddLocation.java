@@ -52,9 +52,7 @@ public class FragmentAddLocation extends Fragment {
 
     EditText name,description;
     ImageView image_button;
-    Button bAccept;
     private ProgressDialog pDialog;
-    private BD bd = new BD();
     String result;
     String[] datos= new String[5];
     Uri selectedImage;
@@ -138,6 +136,9 @@ public class FragmentAddLocation extends Fragment {
                 params.put("id_category", cat.GetIdCategory(String.valueOf(categoryList.getSelectedItem())));
                 params.put("lat", lat);
                 params.put("lng", lng);
+                params.put("address", (((MainActivityUser) getActivity()).getAddress()));
+                params.put("country", (((MainActivityUser) getActivity()).getCountry()));
+                params.put("locality", (((MainActivityUser) getActivity()).getLocality()));
                 //Cargar la imagen
                 int numero = (int) (Math.random() * 99999999) + 1;
                 //is = this.getActivity().getContentResolver().openInputStream(selectedImage);

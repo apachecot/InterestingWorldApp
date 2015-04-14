@@ -41,13 +41,13 @@ public class FragmentPhotosUser extends Fragment {
     private final List<String> urls = new ArrayList<String>();
     public List<String> select_image = new ArrayList<String>();
     FragmentManager fm;
-    int category=0;
     MenuItem selected;
+    TextView emptyView;
 
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        inflatedView = inflater.inflate(R.layout.photos_list_detail, container, false);
+        inflatedView = inflater.inflate(R.layout.photos_list_user, container, false);
         TextView text = new TextView(this.getActivity());
         text.setText(this.getResources().getString(R.string.photos));
         text.setGravity(Gravity.CENTER);
@@ -55,10 +55,12 @@ public class FragmentPhotosUser extends Fragment {
         fm= this.getActivity().getSupportFragmentManager();
 
         gridAdapter=new GridViewAdapter(this.getActivity());
+        emptyView = (TextView) inflatedView.findViewById(R.id.empty_view);
 
         GridView gv = (GridView) inflatedView.findViewById(R.id.grid_view);
         gv.setAdapter(gridAdapter);
         gv.setOnScrollListener(new SampleScrollListener(this.getActivity()));
+        gv.setEmptyView(emptyView);
 
 
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
