@@ -9,10 +9,10 @@
         android:layout_height="wrap_content"
         android:text="Deja pulsado para marcar el punto."
         android:id="@+id/textView4"
-        android:textSize="18dp"
+        android:textSize="16dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="5dp" />
+        android:layout_marginBottom="10dp" />
 
     <com.beardedhen.androidbootstrap.BootstrapButton
         android:id="@+id/dialogButtonOk"
@@ -23,11 +23,12 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="false"
         android:layout_marginRight="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
         bootstrap:bb_icon_right="fa-check-circle"
         bootstrap:bb_type="success"
         bootstrap:bb_roundedCorners="true"
-        />
+        android:layout_alignParentLeft="false"
+        android:paddingRight="20dp" />
 
 
     <com.beardedhen.androidbootstrap.BootstrapButton
@@ -39,7 +40,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="false"
         android:layout_marginLeft="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
         bootstrap:bb_icon_right="fa-close"
         bootstrap:bb_roundedCorners="true"
         bootstrap:bb_type="danger"
@@ -51,9 +52,10 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_below="@+id/dialogButtonOk"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="20dp"/>
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentStart="false"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentTop="false" />
 
 
 </RelativeLayout>

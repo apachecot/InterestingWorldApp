@@ -8,12 +8,12 @@ import android.content.SharedPreferences;
 /**
  * Created by Alex on 19/01/2015.
  */
-public class Preferences extends Activity {
+public class Preferences{
 
 
     //guardar configuración aplicación Android usando SharedPreferences
-    public void savePreferences(String[] datos) {
-        SharedPreferences prefs = getSharedPreferences("preferences", Context.MODE_PRIVATE);
+    static void savePreferences(String[] datos,Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("preferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("id", datos[0]);
         editor.putString("name", datos[1]);
@@ -25,9 +25,9 @@ public class Preferences extends Activity {
     }
 
     //cargar configuración aplicación Android usando SharedPreferences
-    public String[] loadPreferences() {
+    static String[] loadPreferences(Context context) {
         String[] datos=new String[5];
-        SharedPreferences prefs = getSharedPreferences("preferences", Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences("preferences", Context.MODE_PRIVATE);
         datos[0] = prefs.getString("id", "-1");
         datos[1] = prefs.getString("name", "");
         datos[2] = prefs.getString("lastname", "");

@@ -2,7 +2,7 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:alertDialogStyle">@style/AlertDialog.HoloStyle</item>
+
     </style>
 
     <!-- Base application theme. -->
@@ -13,7 +13,7 @@
         <item name="colorAccent">#FFFFFF</item>
         <item name="rippleBackport">true</item>
         <item name="multipaneSupport">true</item>
-        <item name="android:alertDialogStyle">@style/AlertDialog.HoloStyle</item>
+        <item name="toolbarElevation">true</item>
     </style>
 
 
@@ -26,11 +26,10 @@
         <item name="drawerType">@integer/DRAWERTYPE_NO_HEADER</item>
         <item name="android:popupBackground">#8bc34a</item>
         <item name="multipaneSupport">true</item>
-        <item name="android:alertDialogStyle">@style/AlertDialog.HoloStyle</item>
         <item name="toolbarElevation">true</item>
     </style>
 
-    <style name="AlertDialog.HoloStyle" parent="@android:style/Theme.Dialog">
+    <style name="MY.DIALOG" parent="android:Theme">
         <item name="android:bottomBright">@color/white</item>
         <item name="android:bottomDark">@color/white</item>
         <item name="android:bottomMedium">@color/white</item>
@@ -39,7 +38,10 @@
         <item name="android:centerMedium">@color/white</item>
         <item name="android:topBright">@color/colorPrimary</item>
         <item name="android:topDark">@color/colorPrimary</item>
-        <item name="toolbarElevation">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowNoTitle">true</item>
+
     </style>
 
 </resources>

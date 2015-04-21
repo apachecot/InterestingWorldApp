@@ -8,9 +8,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -67,6 +69,7 @@ public class FragmentPhotosDetail extends Fragment {
     Uri selectedImage;
     InputStream is;
     TextView emptyView;
+    AsyncHttpClient client=new AsyncHttpClient();
 
 
 
@@ -131,13 +134,18 @@ public class FragmentPhotosDetail extends Fragment {
         loadData();
         return inflatedView;
     }
+    @Override
+    public void onDestroy() {
+        client.cancelAllRequests(true);
+        super.onDestroy();
+    }
 
     public void loadData()
     {
         pDialog = new SweetAlertDialog(this.getActivity(), SweetAlertDialog.PROGRESS_TYPE);
         pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
         pDialog.setTitleText("Cargando...");
-        AsyncHttpClient client = new AsyncHttpClient();
+        client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
         Location loc;
         if(this.getActivity().getLocalClassName().equals("MainActivity")) {
@@ -199,6 +207,7 @@ public class FragmentPhotosDetail extends Fragment {
 
             ArrayList<String> datos = new ArrayList<String>();
             datos.add(jsonChildNode.getString("photo_url"));
+            datos.add(jsonChildNode.getString("id"));
             list.add(datos);
             urls.add(jsonChildNode.getString("photo_url"));
         }
@@ -218,7 +227,7 @@ public class FragmentPhotosDetail extends Fragment {
         if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
             ((MainActivity) getActivity()).SetImageUrlFull(select_image.get(0));
         }else {
-            ((MainActivityUser) getActivity()).SetImageUrlFull(select_image.get(0));
+            ((MainActivityUser) getActivity()).SetImageUrlFull(select_image.get(0),select_image.get(1));
         }
         dFragment.show(fm, "Dialog Photo");
 
@@ -248,9 +257,20 @@ public class FragmentPhotosDetail extends Fragment {
                 options.inJustDecodeBounds = true;
                 BitmapFactory.decodeStream(bis,null, options);
 
-                options.inSampleSize = calculateInSampleSize(options,640,480);
+                options.inSampleSize = calculateInSampleSize(options,480,480);
                 options.inJustDecodeBounds = false;
                 Bitmap bitmap = BitmapFactory.decodeStream(bis2,null,options);
+
+                //Rotar la imagen
+                String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
+                Cursor cur = this.getActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
+                int orientation = -1;
+                if (cur != null && cur.moveToFirst()) {
+                    orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
+                }
+                Matrix matrix = new Matrix();
+                matrix.postRotate(orientation);
+                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
@@ -273,14 +293,14 @@ public class FragmentPhotosDetail extends Fragment {
 
         if (height > reqHeight || width > reqWidth) {
 
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
+            final int halfHeight = height;
+            final int halfWidth = width;
 
             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
             // height and width larger than the requested height and width.
             while ((halfHeight / inSampleSize) > reqHeight
                     && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
+                inSampleSize++;
             }
         }
 
@@ -323,11 +343,11 @@ public class FragmentPhotosDetail extends Fragment {
         pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
         pDialog.setTitleText("Cargando...");
 
-        datos=loadPreferences();
+        datos=Preferences.loadPreferences(this.getActivity());
 
         result="";
 
-        AsyncHttpClient client = new AsyncHttpClient();
+        client = new AsyncHttpClient();
 
 
         String url = "http://interestingworld.webcindario.com/insert_photo_location.php";
@@ -336,9 +356,9 @@ public class FragmentPhotosDetail extends Fragment {
         params.put("id_location", id);
 
         //Cargar la imagen
-        int numero = (int) (Math.random() * 99999999) + 1;
-        //is = this.getActivity().getContentResolver().openInputStream(selectedImage);
-        params.put("photo_url", is, numero + "_upload.jpg");
+        int numero1 = (int) (Math.random() * 99999999) + 1;
+        int numero2 = (int) (Math.random() * 99999999) + 1;
+        params.put("photo_url", is, numero1+""+numero2 + "_location.jpg");
 
 
         client.post(url, params, new AsyncHttpResponseHandler() {
@@ -395,20 +415,4 @@ public class FragmentPhotosDetail extends Fragment {
         //A través de los nombres de cada dato obtenemos su contenido
         return  this.result=jsonObject.getString("Estado").toLowerCase();
     }
-    public String[] loadPreferences() {
-        String[] datos=new String[5];
-        SharedPreferences prefs = this.getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
-        datos[0] = prefs.getString("id", "-1");
-        datos[1] = prefs.getString("name", "");
-        datos[2] = prefs.getString("lastname", "");
-        datos[3] = prefs.getString("email", "");
-        datos[4] = prefs.getString("photo_url", "");
-
-        for(int i=0; i < datos.length; i++) {
-            System.out.println(datos[i]);
-        }
-        return datos;
-    }
-
-
 }

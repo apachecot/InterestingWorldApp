@@ -14,7 +14,6 @@
         android:src="@drawable/map_path"
         android:background="?android:selectableItemBackground"
         style="@style/card.native.actions.button"
-        android:layout_marginRight="8dp"
         android:layout_height="65dp"
         android:layout_width="65dp" />
 
@@ -25,20 +24,41 @@
         android:background="?android:selectableItemBackground"
         android:src="@drawable/visit_white"
         style="@style/card.native.actions.button"
-        android:layout_marginRight="8dp"
         android:layout_weight="0.08"
         android:layout_height="65dp"
         android:layout_width="65dp" />
 
-    <ImageButton
-        style="@style/card.native.actions.button"
-        android:scaleType="fitCenter"
-        android:id="@+id/ic5"
-        android:background="?android:selectableItemBackground"
-        android:src="@drawable/like"
-        android:layout_marginRight="8dp"
+    <RelativeLayout
         android:layout_width="65dp"
-        android:layout_height="65dp" />
+        android:layout_height="65dp">
+
+        <ImageButton
+            style="@style/card.native.actions.button"
+            android:scaleType="fitCenter"
+            android:id="@+id/ic5"
+            android:background="?android:selectableItemBackground"
+            android:src="@drawable/like"
+            android:layout_width="65dp"
+            android:layout_height="65dp" />
+
+        <TextView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="2"
+            android:id="@+id/textViewNlikes"
+            android:textColor="@color/cpb_white"
+            android:autoText="true"
+            android:background="@drawable/circle"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"
+            android:textSize="13dp" />
+    </RelativeLayout>
 
     <ImageButton
         style="@style/card.native.actions.button"
@@ -46,7 +66,6 @@
         android:id="@+id/ic4"
         android:background="?android:selectableItemBackground"
         android:src="@drawable/photo_white_add"
-        android:layout_marginRight="8dp"
         android:layout_width="65dp"
         android:layout_height="65dp" />
 
@@ -55,7 +74,6 @@
         android:id="@+id/ic3"
         android:background="?android:selectableItemBackground"
         style="@style/card.native.actions.button"
-        android:layout_marginRight="8dp"
         android:layout_width="65dp"
         android:layout_height="65dp"
         android:src="@drawable/share" />

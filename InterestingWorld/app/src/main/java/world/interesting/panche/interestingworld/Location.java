@@ -12,28 +12,34 @@ public class Location {
     String description;
     String url;
     String user;
+    String lastname;
     String id_user;
+    String photo_user;
     String lat;
     String lng;
     String address;
     String country;
     String locality;
+    String rating;
 
     public Location(String Nid,String Nname,String Ndescription,String Nurl,
-                    String Nuser,String Nid_user,String Nlat,String Nlng,
-                    String Naddress, String Ncountry, String Nlocality)
+                    String Nuser,String Nlastname,String Nid_user,String Nphoto_user,String Nlat,String Nlng,
+                    String Naddress, String Ncountry, String Nlocality,String Nrating)
     {
         id=Nid;
         name=Nname;
         description=Ndescription;
         url=Nurl;
         user=Nuser;
+        lastname=Nlastname;
         id_user=Nid_user;
         lat=Nlat;
         lng=Nlng;
         address=Naddress;
         country=Ncountry;
         locality=Nlocality;
+        rating=Nrating;
+        photo_user=Nphoto_user;
 
 
     }
@@ -124,5 +130,30 @@ public class Location {
 
     public void setLocality(String locality) {
         this.locality = locality;
+    }
+
+    public String getRating() {
+        return rating;
+    }
+
+    public void setRating(String rating) {
+        this.rating = rating;
+    }
+
+
+    public String getPhoto_user() {
+        return photo_user;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+
+    public void setPhoto_user(String photo_user) {
+        this.photo_user = photo_user;
     }
 }

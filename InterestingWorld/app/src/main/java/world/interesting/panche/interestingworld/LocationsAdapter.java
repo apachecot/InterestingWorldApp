@@ -46,6 +46,7 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
     public void onBindViewHolder(ViewHolder holder, int position) {
         Location loc = Locations.get(position);
         holder.name.setText(loc.getName());
+        holder.nLikes.setText(loc.getRating());
 
         Class cl=context.getClass();
         if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
@@ -83,6 +84,8 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
 
         public ImageView image;
         public TextView name;
+        public TextView nLikes;
+
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -91,6 +94,7 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
 
             image = (ImageView) itemView.findViewById(R.id.image);
             name = (TextView) itemView.findViewById(R.id.name);
+            nLikes=(TextView) itemView.findViewById(R.id.textViewLikes);
 
         }
 

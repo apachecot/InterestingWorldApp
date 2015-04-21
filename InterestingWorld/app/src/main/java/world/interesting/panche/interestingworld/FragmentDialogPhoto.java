@@ -10,17 +10,27 @@ import android.os.Environment;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.devspark.appmsg.AppMsg;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
+import org.apache.http.Header;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,10 +44,13 @@ import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
  */
 public class FragmentDialogPhoto extends DialogFragment {
     public List<String> select_image = new ArrayList<String>();
-    String name,url,lat,lng,id,description;
+    String name,url,lat,lng,id,description,id_image;
     View view;
     Bundle bundle= new Bundle();
-    ImageButton bInfo,bShare,bNavigate;
+    ImageButton bInfo,bShare,bNavigate,bLike;
+    String[] datos= new String[5];
+    String result;
+    Location loc;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -59,7 +72,28 @@ public class FragmentDialogPhoto extends DialogFragment {
                 onShareItem(v);
             }
         });
+        //Boton me gusta
+        bLike = (ImageButton)view.findViewById(R.id.ic2);
+        bLike.setOnClickListener(new View.OnClickListener() {
+            // Start new list activity
+            public void onClick(View v) {
+                if(getActivity().getLocalClassName().equals("MainActivityUser")) {
+                    SweetAlertLike();
+                }else{
+                    AppMsg.makeText(getActivity(), "Debes estar loggeado para poder marcar que te gusta", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                }
+            }
+        });
 
+        Class cl=this.getActivity().getClass();
+        if(!cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
+
+
+            ArrayList<String> info_image =((MainActivityUser) getActivity()).GetImageUrlFull();
+            loc=((MainActivityUser)getActivity()).GetLocationSelected();
+            id_image=info_image.get(1);
+
+        }
 
         id = getArguments().getString("id");
         name = getArguments().getString("name");
@@ -184,4 +218,124 @@ public class FragmentDialogPhoto extends DialogFragment {
         }
         return bmpUri;
     }
+    //-------------- Funciones LIKE ----------------------------------------------
+    public void SweetAlertLike()
+    {
+        new SweetAlertDialog(this.getActivity(), SweetAlertDialog.WARNING_TYPE)
+                .setTitleText(loc.getName())
+                .setContentText("¿Te gusta esta imagen?")
+                .setCancelText("No")
+                .setConfirmText("Sí")
+                .showCancelButton(true)
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                    }
+                })
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                        try {
+                            like();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .show();
+    }
+
+    public void like() throws JSONException, FileNotFoundException {
+
+        datos=Preferences.loadPreferences(this.getActivity());
+
+        result="";
+
+        AsyncHttpClient client = new AsyncHttpClient();
+
+
+        String url = "http://interestingworld.webcindario.com/insert_rating_location.php";
+        RequestParams params = new RequestParams();
+        params.put("id_user", datos[0]);
+        params.put("id_location", loc.getLocality());
+
+        client.post(url, params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                if (statusCode == 200) {
+
+                    try {
+                        System.out.println(new String(responseBody));
+                        setResult(new String(responseBody));
+                        System.out.println(getResult());
+                        if (getResult().equals("borrado")) {
+                            SweetAlertInfo("Ya no te gusta este punto de interés",false);
+                        } else {
+                            if (getResult().equals("insertado")) {
+                                SweetAlertInfo("Te gusta este punto de interés",true);
+                            }else {
+                                SweetAlertInfo("Ups.. se ha producido un error",false);
+                            }
+                        }
+
+                    } catch (JSONException e) {
+                        System.out.println("Falla:" + e);
+                        SweetAlertInfo("Ups... se ha producido un error",false);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                SweetAlertInfo("Parece que hay algún problema con la red",false);
+
+            }
+        });
+    }
+    public String getResult (){
+
+
+        return this.result;
+    }
+    public String setResult (String result) throws JSONException {
+        String cadenaJSON = result.toString();//Le pasamos a la variable cadenaJSON una cadena de tipo JSON (en este caso es la creada anteriormente)
+
+        JSONObject jsonObject = new JSONObject(cadenaJSON); //Creamos un objeto de tipo JSON y le pasamos la cadena JSON
+        String posts = jsonObject.getString("posts");
+
+        //Entramos en el array de posts
+        jsonObject=new JSONObject(posts);
+
+        //A través de los nombres de cada dato obtenemos su contenido
+        return  this.result=jsonObject.getString("Estado").toLowerCase();
+    }
+    public void SweetAlertInfo(String message,Boolean format)
+    {
+        int style=1;
+        if(format==true)
+        {
+            style=SweetAlertDialog.SUCCESS_TYPE;
+        }else{ style=SweetAlertDialog.ERROR_TYPE;}
+
+        new SweetAlertDialog(this.getActivity(), style)
+                .setTitleText(message)
+                .setConfirmText("Ok")
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                    }
+                })
+                .show();
+    }
+
 }

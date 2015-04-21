@@ -41,6 +41,7 @@ public class FragmentLocationDetailTabs extends Fragment implements MaterialTabL
         tabHost.setPrimaryColor(getResources().getColor(R.color.fbutton_default_color));
         tabHost.setAccentColor(getResources().getColor(R.color.white));
         pager = (ViewPager) view.findViewById(R.id.pager );
+        pager.setOffscreenPageLimit(2);
 
         // init view pager
         adapter = new ViewPagerAdapter(this.getFragmentManager());

@@ -6,10 +6,11 @@
     <string name="login">Login</string>
     <string name="profile">Perfil</string>
     <string name="lastlocations">Nuevos puntos</string>
-    <string name="explore">Puntos de interés</string>
-    <string name="photos">Buscar fotografías</string>
+    <string name="explore">Mapa</string>
+    <string name="photos">Nuevas fotografías</string>
     <string name="addlocation">Añadir punto de interés</string>
     <string name="visitlocation">Puntos de interés visitados</string>
+    <string name="likedlocations">Puntos e imágenes que te gustan</string>
     <string name="email">Email</string>
     <string name="pass">Password</string>
     <string name="name">Nombre</string>
@@ -49,5 +50,6 @@
     <string name="cancel">Cancelar</string>
     <string name="addComment">addComment</string>
     <string name="no_data_available">No hay resultados</string>
+    <string name="user">Usuario</string>
 
 </resources>

@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
 
+import com.cuneytayyildiz.widget.PullRefreshLayout;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -43,6 +44,8 @@ public class FragmentPhotosUser extends Fragment {
     FragmentManager fm;
     MenuItem selected;
     TextView emptyView;
+    PullRefreshLayout layout;
+    AsyncHttpClient client=new AsyncHttpClient();
 
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -62,6 +65,15 @@ public class FragmentPhotosUser extends Fragment {
         gv.setOnScrollListener(new SampleScrollListener(this.getActivity()));
         gv.setEmptyView(emptyView);
 
+        layout = (PullRefreshLayout) inflatedView.findViewById(R.id.swipeRefreshLayout);
+
+        // listen refresh event
+        layout.setOnRefreshListener(new PullRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadDataPhotosUser();
+            }
+        });
 
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -74,19 +86,26 @@ public class FragmentPhotosUser extends Fragment {
         });
 
 
-        urls.clear();
-        loadData();
+
+        loadDataPhotosUser();
         return inflatedView;
     }
-    public void loadData()
+    @Override
+    public void onDestroy() {
+        client.cancelAllRequests(true);
+        super.onDestroy();
+    }
+    public void loadDataPhotosUser()
     {
+        urls.clear();
+        list.clear();
         pDialog = new SweetAlertDialog(this.getActivity(), SweetAlertDialog.PROGRESS_TYPE);
         pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
         pDialog.setTitleText("Cargando...");
-        AsyncHttpClient client = new AsyncHttpClient();
+        client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
 
-        String[] datos=loadPreferences();
+        String[] datos=Preferences.loadPreferences(this.getActivity());
         params.put("id", datos[0]);
 
         String url="http://interestingworld.webcindario.com/consulta_photos_user.php";
@@ -106,11 +125,13 @@ public class FragmentPhotosUser extends Fragment {
                     try {
                         System.out.println(new String(responseBody));
                         setResult(new String(responseBody));
+                        pDialog.hide();
 
 
                     }catch(JSONException e)
                     {
                         System.out.println("Falla:"+e );
+                        pDialog.hide();
                     }
                 }
                 pDialog.hide();
@@ -120,11 +141,13 @@ public class FragmentPhotosUser extends Fragment {
                 pDialog.hide();
             }
         });
+        layout.setRefreshing(false);
     }
 
     public ArrayList setResult (String result) throws JSONException {
 
         list.clear();
+        urls.clear();
         String cadenaJSON = result.toString();//Le pasamos a la variable cadenaJSON una cadena de tipo JSON (en este caso es la creada anteriormente)
 
         JSONObject jsonObject = new JSONObject(cadenaJSON); //Creamos un objeto de tipo JSON y le pasamos la cadena JSON
@@ -137,6 +160,7 @@ public class FragmentPhotosUser extends Fragment {
 
             ArrayList<String> datos = new ArrayList<String>();
             datos.add(jsonChildNode.getString("photo_url"));
+            datos.add(jsonChildNode.getString("id"));
             list.add(datos);
             urls.add(jsonChildNode.getString("photo_url"));
         }
@@ -146,51 +170,17 @@ public class FragmentPhotosUser extends Fragment {
         return  list;
     }
 
-    private void dialogPhoto() {
-        // custom dialog
-        FragmentDialogPhoto dFragment = new FragmentDialogPhoto();
-        // Supply num input as an argument.
-        Bundle args = new Bundle();
-        args.putString("id", select_image.get(0));
-        args.putString("url", select_image.get(5));
-        args.putString("lat", select_image.get(3));
-        args.putString("lng", select_image.get(4));
-        args.putString("name", select_image.get(1));
-        args.putString("description", select_image.get(2));
-        dFragment.setArguments(args);
-        // Show DialogFragment
-        dFragment.show(fm, "Dialog Photo");
-    }
-    public List<String> getInfoPhoto()
-    {
-        return select_image;
-    }
-
-    public String[] loadPreferences() {
-        String[] datos = new String[5];
-        SharedPreferences prefs = this.getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
-        datos[0] = prefs.getString("id", "-1");
-        datos[1] = prefs.getString("name", "");
-        datos[2] = prefs.getString("lastname", "");
-        datos[3] = prefs.getString("email", "");
-        datos[4] = prefs.getString("photo_url", "");
-
-        for (int i = 0; i < datos.length; i++) {
-            System.out.println(datos[i]);
-        }
-        return datos;
-    }
     public void ViewFull()
     {
 
-        FragmentImageViewer dFragment = new FragmentImageViewer();
+        FragmentImageViewerProfile dFragment = new FragmentImageViewerProfile();
         // Supply num input as an argument.
         // Show DialogFragment
         Class cl=this.getActivity().getClass();
         if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
             ((MainActivity) getActivity()).SetImageUrlFull(select_image.get(0));
         }else {
-            ((MainActivityUser) getActivity()).SetImageUrlFull(select_image.get(0));
+            ((MainActivityUser) getActivity()).SetImageUrlFull(select_image.get(0),select_image.get(1));
         }
         dFragment.show(fm, "Dialog Photo");
 

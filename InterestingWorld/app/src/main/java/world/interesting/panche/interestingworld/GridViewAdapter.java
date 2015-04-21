@@ -6,9 +6,12 @@ package world.interesting.panche.interestingworld;
 
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
@@ -32,13 +35,15 @@ final class GridViewAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        SquaredImageView view = (SquaredImageView) convertView;
-        if (view == null) {
-            view = new SquaredImageView(context);
-            view.setScaleType(CENTER_CROP);
-        }
+        LayoutInflater inflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        // Get the image URL for the current position.
+        View grid = new View(context);
+            grid = inflater.inflate(R.layout.item_photo_grid, null);
+            TextView textView = (TextView) grid.findViewById(R.id.textViewLikes);
+            ImageView imageView = (ImageView)grid.findViewById(R.id.grid_image);
+            textView.setText("90");
+
         String url = getItem(position);
         Class cl=context.getClass();
         if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
@@ -47,9 +52,9 @@ final class GridViewAdapter extends BaseAdapter {
                     .load("http://"+url)//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
                     .placeholder(R.drawable.back1) //
                     .error(R.drawable.not_found) //
-                    .resize(256,256).centerCrop()//
+                    .fit().centerCrop()//
                     .tag(context)
-                    .into(view);
+                    .into(imageView);
             ((MainActivity) context).getmPicasso() .invalidate("http://"+url);
 
         }else {
@@ -58,16 +63,16 @@ final class GridViewAdapter extends BaseAdapter {
                     .load("http://"+url)//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
                     .placeholder(R.drawable.back1) //
                     .error(R.drawable.not_found) //
-                    .resize(256,256).centerCrop()//
+                    .fit().centerCrop()//
                     .tag(context)
-                    .into(view);
+                    .into(imageView);
             ((MainActivityUser) context).getmPicasso() .invalidate("http://"+url);
         }
 
 
 
 
-        return view;
+        return grid;
     }
 
     @Override public int getCount() {

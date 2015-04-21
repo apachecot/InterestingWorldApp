@@ -250,14 +250,17 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
             datos.add(jsonChildNode.getString("id"));
             datos.add(jsonChildNode.getString("name"));
             datos.add(jsonChildNode.getString("description"));
+            datos.add(jsonChildNode.getString("photo_url"));
+            datos.add(jsonChildNode.getString("user_name"));
+            datos.add(jsonChildNode.getString("lastname"));
+            datos.add(jsonChildNode.getString("id_user"));
+            datos.add(jsonChildNode.getString("photo_user"));
             datos.add(jsonChildNode.getString("lat"));
             datos.add(jsonChildNode.getString("lng"));
-            datos.add(jsonChildNode.getString("photo_url"));
-            datos.add(jsonChildNode.getString("email"));
-            datos.add(jsonChildNode.getString("id_category"));
             datos.add(jsonChildNode.getString("address"));
             datos.add(jsonChildNode.getString("country"));
             datos.add(jsonChildNode.getString("locality"));
+            datos.add(jsonChildNode.getString("rating"));
 
             list.add(datos);
             addLocation(jsonChildNode.getString("lat"),jsonChildNode.getString("lng"),jsonChildNode.getString("name"),jsonChildNode.getString("photo_url"),jsonChildNode.getString("id_category"));
@@ -354,7 +357,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                     if(list.get(i).get(1).equals(marker.getTitle()))
                     {
                         final Boolean[] finish = {false};
-                        url_photo=list.get(i).get(5).toString();
+                        url_photo=list.get(i).get(3).toString();
                         i=list.size();
                         //Si es la primera vez que llamamos a la función de cargar imagen debemos utilizar el callback para saber cuando ha finalizado la carga y recargar debidamente
                         if (not_first_time_showing_info_window) {
@@ -410,8 +413,9 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                 Fragment fragment = new FragmentLocationDetailTabs();
 
                 world.interesting.panche.interestingworld.Location loc= new world.interesting.panche.interestingworld.Location(list.get(i).get(0),
-                        list.get(i).get(1),list.get(i).get(2),list.get(i).get(5),"","",list.get(i).get(3),list.get(i).get(4),list.get(i).get(6)
-                        ,list.get(i).get(7),list.get(i).get(8));
+                        list.get(i).get(1),list.get(i).get(2),list.get(i).get(3),list.get(i).get(4),list.get(i).get(5),list.get(i).get(6),
+                        list.get(i).get(7),list.get(i).get(8),list.get(i).get(9),list.get(i).get(10)
+                        ,list.get(i).get(11),list.get(i).get(12),list.get(i).get(13));
                 if(this.getActivity().getLocalClassName().equals("MainActivity")) {
                     ((MainActivity) getActivity()).SetLocationSelected(loc);
                 }else {

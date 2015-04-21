@@ -45,6 +45,7 @@ public class Login extends Fragment {
     Handler handler = new Handler();
     CircularProgressButton circularProgressButtonAccept,circularProgressButtonNew;
     View inflatedView;
+    AsyncHttpClient client=new AsyncHttpClient();
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -76,6 +77,11 @@ public class Login extends Fragment {
 
         return inflatedView;
     }
+    @Override
+    public void onDestroy() {
+        client.cancelAllRequests(true);
+        super.onDestroy();
+    }
     public void newUser (View view)
     {
             Fragment fragment = new NewUser();
@@ -95,7 +101,7 @@ public class Login extends Fragment {
 
         result="";
 
-        AsyncHttpClient client = new AsyncHttpClient();
+        client = new AsyncHttpClient();
 
         String url="http://interestingworld.webcindario.com/search_user.php";
         RequestParams params = new RequestParams();
@@ -206,9 +212,7 @@ public class Login extends Fragment {
     }
     public void entrar(String[] datos)
     {
-        loadPreferences();
-        savePreferences(datos);
-        loadPreferences();
+        Preferences.savePreferences(datos,this.getActivity());
         handler.postDelayed(new Runnable() {
             public void run() {
                 circularProgressButtonAccept.setProgress(0);
@@ -225,34 +229,4 @@ public class Login extends Fragment {
         startActivity(intent);
         this.getActivity().finish();
     }
-    //guardar configuración aplicación Android usando SharedPreferences
-    public void savePreferences(String[] datos) {
-        SharedPreferences prefs = this.getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("id", datos[0]);
-        editor.putString("name", datos[1]);
-        editor.putString("lastname", datos[2]);
-        editor.putString("email", datos[3]);
-        editor.putString("photo_url", datos[4]);
-        editor.commit();
-        System.out.println("Guardadas preferencias");
-    }
-
-    //cargar configuración aplicación Android usando SharedPreferences
-    public String[] loadPreferences() {
-        String[] datos=new String[5];
-        SharedPreferences prefs = this.getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
-        datos[0] = prefs.getString("id", "-1");
-        datos[1] = prefs.getString("name", "");
-        datos[2] = prefs.getString("lastname", "");
-        datos[3] = prefs.getString("email", "");
-        datos[4] = prefs.getString("photo_url", "");
-
-        for(int i=0; i < datos.length; i++) {
-              System.out.println(datos[i]);
-        }
-        return datos;
-    }
-
-
 }

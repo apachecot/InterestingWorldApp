@@ -7,8 +7,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,6 +37,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
@@ -57,6 +61,7 @@ public class NewUser extends Fragment {
     CircularProgressButton circularProgressButton;
     View inflatedView;
     ImageView image_button;
+    AsyncHttpClient client=new AsyncHttpClient();
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -96,6 +101,11 @@ public class NewUser extends Fragment {
 
         return inflatedView;
     }
+    @Override
+    public void onDestroy() {
+        client.cancelAllRequests(true);
+        super.onDestroy();
+    }
     public void buttonAccept(View view) throws JSONException, FileNotFoundException {
         //Inicializamos dialog
         pDialog = new ProgressDialog(NewUser.this.getActivity());
@@ -111,7 +121,7 @@ public class NewUser extends Fragment {
         result="";
 
         if(!name.getText().toString().equals("") && !lastname.getText().toString().equals("") && !email.getText().toString().equals("") && !password.getText().toString().equals("")) {
-            AsyncHttpClient client = new AsyncHttpClient();
+            client = new AsyncHttpClient();
 
             String url = "http://interestingworld.webcindario.com/insert_user.php";
             RequestParams params = new RequestParams();
@@ -120,9 +130,11 @@ public class NewUser extends Fragment {
             params.put("email", email.getText());
             params.put("password", password.getText());
             //Cargar la imagen
-            int numero = (int) (Math.random() * 99999999) + 1;
-            is = this.getActivity().getContentResolver().openInputStream(selectedImage);
-            params.put("photo_url", is, numero + "_upload.jpg");
+            int numero1 = (int) (Math.random() * 99999999) + 1;
+            int numero2 = (int) (Math.random() * 99999999) + 1;
+            params.put("photo_url", is, numero1+""+numero2 + "_user.jpg");
+
+
 
 
             client.post(url, params, new AsyncHttpResponseHandler() {
@@ -209,7 +221,6 @@ public class NewUser extends Fragment {
     }
     public void entrar()
     {
-        savePreferences(datos);
         handler.postDelayed(new Runnable() {
             public void run() {
                 circularProgressButton.setProgress(0);
@@ -224,18 +235,6 @@ public class NewUser extends Fragment {
     {
         Fragment fragment = new Login();
         ((MaterialNavigationDrawer)this.getActivity()).setFragmentChild(fragment, "Login");
-    }
-    //guardar configuración aplicación Android usando SharedPreferences
-    public void savePreferences(String[] datos) {
-        SharedPreferences prefs = this.getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("id", datos[0]);
-        editor.putString("name", datos[1]);
-        editor.putString("lastname", datos[2]);
-        editor.putString("email", datos[3]);
-        editor.putString("photo_url", datos[4]);
-        editor.commit();
-        System.out.println("Guardadas preferencias");
     }
     public void selectImage (View view)
     {
@@ -260,11 +259,28 @@ public class NewUser extends Fragment {
                 options.inJustDecodeBounds = true;
                 BitmapFactory.decodeStream(bis,null, options);
 
-                options.inSampleSize = calculateInSampleSize(options,640,480);
+                options.inSampleSize = calculateInSampleSize(options,250,250);
                 options.inJustDecodeBounds = false;
                 Bitmap bitmap = BitmapFactory.decodeStream(bis2,null,options);
+
+                //Rotar la imagen
+                String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
+                Cursor cur = this.getActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
+                int orientation = -1;
+                if (cur != null && cur.moveToFirst()) {
+                    orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
+                }
+                Matrix matrix = new Matrix();
+                matrix.postRotate(orientation);
+                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
                 ImageView iv = (ImageView) inflatedView.findViewById(R.id.ImageViewUser);
                 iv.setImageBitmap(bitmap);
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
+                is = new ByteArrayInputStream(stream.toByteArray());
+                System.out.println(bitmap.getHeight() + " " + bitmap.getWidth());
+
             }
         } catch (FileNotFoundException e) {
             System.out.println("Error: "+e);

@@ -8,8 +8,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -57,13 +59,14 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 public class FragmentLocationDetail extends Fragment {
     String title_txt,description_txt,lat,lng,url_photo,user_location,id,address,locality,country;
     View inflatedView;
-    ImageButton bNavigate,bShare,bPhoto,bVisited;
+    ImageButton bNavigate,bShare,bPhoto,bVisited,bLike;
     Uri selectedImage;
     InputStream is;
     private ProgressDialog pDialog;
     String result;
     String[] datos= new String[5];
     FragmentManager fm;
+    AsyncHttpClient client=new AsyncHttpClient();
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -86,8 +89,12 @@ public class FragmentLocationDetail extends Fragment {
         //TextView title = (TextView) inflatedView.findViewById(R.id.TextViewTitle);
         TextView description = (TextView) inflatedView.findViewById(R.id.TextViewDescription);
         TextView street = (TextView) inflatedView.findViewById(R.id.textViewAddress);
+        TextView user = (TextView) inflatedView.findViewById(R.id.textViewUser);
         ImageView photoDetail = (ImageView) inflatedView.findViewById(R.id.ImageDetail);
+        ImageView photoUser = (ImageView) inflatedView.findViewById(R.id.imageViewUser);
         ImageView imageMap = (ImageView) inflatedView.findViewById(R.id.ImageMapStatic);
+        TextView nLikes = (TextView) inflatedView.findViewById(R.id.textViewNlikes);
+
         Location loc;
         if(this.getActivity().getLocalClassName().equals("MainActivity")) {
             loc = ((MainActivity) getActivity()).GetLocationSelected();
@@ -107,6 +114,10 @@ public class FragmentLocationDetail extends Fragment {
         if(!country.equals("")) {
             street.setText(address + " " + locality + "," + country);
         }
+        user.setText(loc.getUser()+" "+loc.getLastname());
+        nLikes.setText(loc.getRating());
+        Drawable shape = getResources(). getDrawable(R.drawable.circle);
+        nLikes.setBackground(shape);
 
         //title.setText(title_txt);
         description.setText(description_txt);
@@ -117,6 +128,11 @@ public class FragmentLocationDetail extends Fragment {
                     .error(R.drawable.not_found)
                     .fit().centerCrop()
                     .into(photoDetail);
+            ((MainActivity) getActivity()).getmPicasso()
+                    .load("http://"+loc.getPhoto_user())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
+                    .error(R.drawable.not_found)
+                    .fit().centerCrop().transform(new RoundedTransformationPicasso())//
+                    .into(photoUser);
 
             ((MainActivity) getActivity()).getmPicasso().load("http://maps.googleapis.com/maps/api/staticmap?center="+lat+","+lng+"&zoom=16&size=400x400&" +
                     "&markers=color:blue%7Clabel:"+title_txt.charAt(0)+"%7C"+lat+","+lng)
@@ -133,6 +149,11 @@ public class FragmentLocationDetail extends Fragment {
                     .error(R.drawable.not_found)
                     .fit().centerCrop()
                     .into(photoDetail);
+            ((MainActivityUser) getActivity()).getmPicasso()
+                    .load("http://"+loc.getPhoto_user())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
+                    .error(R.drawable.not_found)
+                    .fit().centerCrop().transform(new RoundedTransformationPicasso())//
+                    .into(photoUser);
 
             ((MainActivityUser) getActivity()).getmPicasso().load("http://maps.googleapis.com/maps/api/staticmap?center=" + lat + "," + lng + "&zoom=16&size=400x400&" +
                     "&markers=color:blue%7Clabel:" + title_txt.charAt(0) + "%7C" + lat + "," + lng)
@@ -145,7 +166,7 @@ public class FragmentLocationDetail extends Fragment {
                     "&markers=color:blue%7Clabel:"+title_txt.charAt(0)+"%7C"+lat+","+lng);
         }
 
-
+        //Botton compartir
         bShare = (ImageButton)inflatedView.findViewById(R.id.ic3);
         bShare.setOnClickListener(new View.OnClickListener() {
             // Start new list activity
@@ -153,6 +174,7 @@ public class FragmentLocationDetail extends Fragment {
                 onShareItem(v);
             }
         });
+        //Boton visitado
         bVisited = (ImageButton)inflatedView.findViewById(R.id.ic2);
         bVisited.setOnClickListener(new View.OnClickListener() {
             // Start new list activity
@@ -164,6 +186,19 @@ public class FragmentLocationDetail extends Fragment {
                 }
             }
         });
+        //Boton me gusta
+        bLike = (ImageButton)inflatedView.findViewById(R.id.ic5);
+        bLike.setOnClickListener(new View.OnClickListener() {
+            // Start new list activity
+            public void onClick(View v) {
+                if(getActivity().getLocalClassName().equals("MainActivityUser")) {
+                    SweetAlertLike();
+                }else{
+                    AppMsg.makeText(getActivity(), "Debes estar loggeado para poder marcar que te gusta", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                }
+            }
+        });
+        //Boton subir imagen
         bPhoto = (ImageButton)inflatedView.findViewById(R.id.ic4);
         bPhoto.setOnClickListener(new View.OnClickListener() {
             // Start new list activity
@@ -175,18 +210,21 @@ public class FragmentLocationDetail extends Fragment {
                 }
             }
         });
+        //Boton navegar hacía el lugar
         bNavigate = (ImageButton)inflatedView.findViewById(R.id.ic1);
         bNavigate.setOnClickListener(new View.OnClickListener() {
             // Start new list activity
             public void onClick(View v) {
-                Uri gmmIntentUri = Uri.parse("google.navigation:q="+lat+","+lng+"&mode=w");
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);
+                SweetAlertPath();
             }
         });
 
         return inflatedView;
+    }
+    @Override
+    public void onDestroy() {
+        client.cancelAllRequests(true);
+        super.onDestroy();
     }
     public void onShareItem(View v) {
         // Get access to bitmap image from view
@@ -211,7 +249,7 @@ public class FragmentLocationDetail extends Fragment {
         }
     }
 
-    // Returns the URI path to the Bitmap displayed in specified ImageView
+    // ----------------------------------Funciones Subir Imagen --------------------------------------
     public Uri getLocalBitmapUri(ImageView imageView) {
         // Extract Bitmap from ImageView drawable
         Drawable drawable = imageView.getDrawable();
@@ -260,9 +298,20 @@ public class FragmentLocationDetail extends Fragment {
                 options.inJustDecodeBounds = true;
                 BitmapFactory.decodeStream(bis,null, options);
 
-                options.inSampleSize = calculateInSampleSize(options,640,480);
+                options.inSampleSize = calculateInSampleSize(options,480,480);
                 options.inJustDecodeBounds = false;
                 Bitmap bitmap = BitmapFactory.decodeStream(bis2,null,options);
+
+                //Rotar la imagen
+                String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
+                Cursor cur = this.getActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
+                int orientation = -1;
+                if (cur != null && cur.moveToFirst()) {
+                    orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
+                }
+                Matrix matrix = new Matrix();
+                matrix.postRotate(orientation);
+                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
@@ -291,14 +340,14 @@ public class FragmentLocationDetail extends Fragment {
 
         if (height > reqHeight || width > reqWidth) {
 
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
+            final int halfHeight = height;
+            final int halfWidth = width;
 
             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
             // height and width larger than the requested height and width.
             while ((halfHeight / inSampleSize) > reqHeight
                     && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
+                inSampleSize ++;
             }
         }
 
@@ -324,7 +373,7 @@ public class FragmentLocationDetail extends Fragment {
                     public void onClick(SweetAlertDialog sDialog) {
                         sDialog.cancel();
                         try {
-                            buttonAccept();
+                            UploadImage();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         } catch (FileNotFoundException e) {
@@ -335,7 +384,7 @@ public class FragmentLocationDetail extends Fragment {
                 .show();
     }
 
-    public void buttonAccept() throws JSONException, FileNotFoundException {
+    public void UploadImage() throws JSONException, FileNotFoundException {
         //Inicializamos dialog
         pDialog = new ProgressDialog(this.getActivity());
         pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -343,11 +392,11 @@ public class FragmentLocationDetail extends Fragment {
         pDialog.setCancelable(true);
         pDialog.setMax(100);
 
-        datos=loadPreferences();
+        datos=Preferences.loadPreferences(this.getActivity());
 
         result="";
 
-        AsyncHttpClient client = new AsyncHttpClient();
+        client = new AsyncHttpClient();
 
 
         String url = "http://interestingworld.webcindario.com/insert_photo_location.php";
@@ -357,8 +406,8 @@ public class FragmentLocationDetail extends Fragment {
 
         //Cargar la imagen
         int numero = (int) (Math.random() * 99999999) + 1;
-        //is = this.getActivity().getContentResolver().openInputStream(selectedImage);
-        params.put("photo_url", is, numero + "_upload.jpg");
+        int numero2 = (int) (Math.random() * 99999999) + 1;
+        params.put("photo_url", is, numero+""+numero2 + "_location.jpg");
 
 
         client.post(url, params, new AsyncHttpResponseHandler() {
@@ -415,21 +464,8 @@ public class FragmentLocationDetail extends Fragment {
         //A través de los nombres de cada dato obtenemos su contenido
         return  this.result=jsonObject.getString("Estado").toLowerCase();
     }
-    //cargar configuración aplicación Android usando SharedPreferences
-    public String[] loadPreferences() {
-        String[] datos=new String[5];
-        SharedPreferences prefs = this.getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
-        datos[0] = prefs.getString("id", "-1");
-        datos[1] = prefs.getString("name", "");
-        datos[2] = prefs.getString("lastname", "");
-        datos[3] = prefs.getString("email", "");
-        datos[4] = prefs.getString("photo_url", "");
 
-        for(int i=0; i < datos.length; i++) {
-            System.out.println(datos[i]);
-        }
-        return datos;
-    }
+    //---------------------- Funciones Visitado ----------------------------------------------
     public void SweetAlertVisited()
     {
         new SweetAlertDialog(this.getActivity(), SweetAlertDialog.WARNING_TYPE)
@@ -467,11 +503,11 @@ public class FragmentLocationDetail extends Fragment {
         pDialog.setCancelable(true);
         pDialog.setMax(100);
 
-        datos=loadPreferences();
+        datos=Preferences.loadPreferences(this.getActivity());
 
         result="";
 
-        AsyncHttpClient client = new AsyncHttpClient();
+        client = new AsyncHttpClient();
 
 
         String url = "http://interestingworld.webcindario.com/insert_location_visited.php";
@@ -493,10 +529,14 @@ public class FragmentLocationDetail extends Fragment {
                         System.out.println(new String(responseBody));
                         setResult(new String(responseBody));
                         System.out.println(getResult());
-                        if (getResult().equals("bien")) {
-                            SweetAlertComment();
+                        if (getResult().equals("borrado")) {
+                            SweetAlertInfo("Punto de interés no visitado",false);
                         } else {
-                            AppMsg.makeText(FragmentLocationDetail.this.getActivity(), "Ups.. algo ha fallado, vuelve a intentarlo", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                            if (getResult().equals("insertado")) {
+                                SweetAlertComment("Punto de interés marcado como visitado.");
+                            }else {
+                                AppMsg.makeText(FragmentLocationDetail.this.getActivity(), "Ups.. algo ha fallado, vuelve a intentarlo", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                            }
                         }
 
                     } catch (JSONException e) {
@@ -515,11 +555,102 @@ public class FragmentLocationDetail extends Fragment {
             }
         });
     }
-    public void SweetAlertComment()
+    //-------------- Funciones LIKE ----------------------------------------------
+    public void SweetAlertLike()
+    {
+        new SweetAlertDialog(this.getActivity(), SweetAlertDialog.WARNING_TYPE)
+                .setTitleText(title_txt)
+                .setContentText("¿Te gusta este punto de interés?")
+                .setCancelText("No")
+                .setConfirmText("Sí")
+                .showCancelButton(true)
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                    }
+                })
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                        try {
+                            like();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .show();
+    }
+    public void like() throws JSONException, FileNotFoundException {
+        //Inicializamos dialog
+        pDialog = new ProgressDialog(this.getActivity());
+        pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        pDialog.setMessage("Procesando...");
+        pDialog.setCancelable(true);
+        pDialog.setMax(100);
+
+        datos=Preferences.loadPreferences(this.getActivity());
+
+        result="";
+
+        client = new AsyncHttpClient();
+
+
+        String url = "http://interestingworld.webcindario.com/insert_rating_location.php";
+        RequestParams params = new RequestParams();
+        params.put("id_user", datos[0]);
+        params.put("id_location", id);
+
+        client.post(url, params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                if (statusCode == 200) {
+
+                    try {
+                        System.out.println(new String(responseBody));
+                        setResult(new String(responseBody));
+                        System.out.println(getResult());
+                        if (getResult().equals("borrado")) {
+                            SweetAlertInfo("Ya no te gusta este punto de interés",false);
+                        } else {
+                            if (getResult().equals("insertado")) {
+                                SweetAlertComment("Has marcado que te gusta");
+                            }else {
+                                AppMsg.makeText(FragmentLocationDetail.this.getActivity(), "Ups.. algo ha fallado, vuelve a intentarlo", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                            }
+                        }
+
+                    } catch (JSONException e) {
+                        System.out.println("Falla:" + e);
+                        AppMsg.makeText(FragmentLocationDetail.this.getActivity(), "Error al intentar publicar tu voto", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+
+                    }
+                }
+                pDialog.hide();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                AppMsg.makeText(FragmentLocationDetail.this.getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
+                pDialog.hide();
+            }
+        });
+    }
+//--------------------- Funciones Comentarios ---------------------------------------
+    public void SweetAlertComment(String related)
     {
         new SweetAlertDialog(this.getActivity(), SweetAlertDialog.SUCCESS_TYPE)
                 .setTitleText("Tú opinión importa")
-                .setContentText("Marcado como visitado.\n ¿Quieres dejar un comentario sobre que te ha parecido '" + title_txt + "'?")
+                .setContentText(related+".\n ¿Quieres dejar un comentario sobre que te ha parecido '" + title_txt + "'?")
                 .setCancelText("No")
                 .setConfirmText("Sí")
                 .showCancelButton(true)
@@ -543,5 +674,61 @@ public class FragmentLocationDetail extends Fragment {
         FragmentDialogComment dFragment = new FragmentDialogComment();
         // Show DialogFragment
         dFragment.show(fm, "Dialog Fragment");
+    }
+
+    //-------------------------------------
+    public void SweetAlertInfo(String message,Boolean format)
+    {
+        int style=1;
+        if(format==true)
+        {
+            style=SweetAlertDialog.SUCCESS_TYPE;
+        }else{ style=SweetAlertDialog.ERROR_TYPE;}
+
+        new SweetAlertDialog(this.getActivity(), style)
+                .setTitleText(message)
+                .setConfirmText("Ok")
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                    }
+                })
+                .show();
+    }
+
+    public void PathLocation(String mode)
+    {
+        Uri gmmIntentUri = Uri.parse("google.navigation:q="+lat+","+lng+"&mode="+mode);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        startActivity(mapIntent);
+    }
+
+    public void SweetAlertPath()
+    {
+        new SweetAlertDialog(this.getActivity(), SweetAlertDialog.NORMAL_TYPE)
+                .setTitleText("Marcar recorrido desde mi ubicación")
+                .setContentText("Recuerda que debes tener el gps activado para poder utilizar esta función, no te olvides de marcar como visitado el punto de interés una vez lo hayas hecho.\n" +
+                        "Selecciona como deseas desplazarte al lugar.")
+                .setCancelText("Coche")
+                .setConfirmText("Andando")
+                .showCancelButton(true)
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                        PathLocation("c");
+                    }
+                })
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                        PathLocation("w");
+
+                    }
+                })
+                .show();
     }
 }

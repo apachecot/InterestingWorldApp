@@ -20,6 +20,8 @@ import org.apache.http.Header;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
@@ -33,7 +35,7 @@ import it.neokree.materialnavigationdrawer.elements.listeners.MaterialAccountLis
 public class MainActivityUser extends MaterialNavigationDrawer implements MaterialAccountListener {
 
     MaterialAccount account;
-    MaterialSection lastLocations, explore, photos, addlocation, visitlocation, settingsSection;
+    MaterialSection lastLocations, explore, photos, addlocation, visitlocation,likedlocations, settingsSection;
     User user;
     String[] datos= new String[5];
     File file_image= new File("");
@@ -46,6 +48,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     String id_location="";
     Location locationSelected;
     String url_full="";
+    String id_image_selected="";
     private Picasso mPicasso;
 
     @Override
@@ -56,7 +59,8 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         //mPicasso.setIndicatorsEnabled(true);
 
         //Cargamos las preferencias guardadas
-        datos=loadPreferences();
+        datos=Preferences.loadPreferences(this);
+        user=new User(datos[0],datos[1],datos[2],datos[4],datos[3]);
         photo_url=datos[4];
         //Llamamos a cargar la imagen
         loadImage("http://"+photo_url);
@@ -83,7 +87,11 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         addlocation = this.newSection(this.getResources().getString(R.string.addlocation), this.getResources().getDrawable(R.drawable.addlocation), new FragmentAddLocation())
                 .setSectionColor(Color.parseColor("#2196f3"),Color.parseColor("#1565c0"));
 
+        //Puntos visitados
         visitlocation = this.newSection(this.getResources().getString(R.string.visitlocation), this.getResources().getDrawable(R.drawable.visit), new FragmentLocationsVisited())
+                .setSectionColor(Color.parseColor("#2196f3"),Color.parseColor("#1565c0"));
+        //Puntos que te gustan
+        likedlocations = this.newSection(this.getResources().getString(R.string.likedlocations), this.getResources().getDrawable(R.drawable.like), new FragmentLocationsLiked())
                 .setSectionColor(Color.parseColor("#2196f3"),Color.parseColor("#1565c0"));
 
         //Para cargar la configuración
@@ -96,6 +104,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         this.addSection(photos);
         this.addSection(addlocation);
         this.addSection(visitlocation);
+        this.addSection(likedlocations);
         //this.addSubheader("Opciones");
         //this.addDivisor();
         this.addBottomSection(settingsSection);
@@ -127,22 +136,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         super.onStart();
     }
 
-    //cargar configuración aplicación Android usando SharedPreferences
-    public String[] loadPreferences() {
-        String[] datos=new String[5];
-        SharedPreferences prefs = getSharedPreferences("preferences", Context.MODE_PRIVATE);
-        datos[0] = prefs.getString("id", "-1");
-        datos[1] = prefs.getString("name", "");
-        datos[2] = prefs.getString("lastname", "");
-        datos[3] = prefs.getString("email", "");
-        datos[4] = prefs.getString("photo_url", "");
 
-        for(int i=0; i < datos.length; i++) {
-            System.out.println(datos[i]);
-        }
-        user=new User(datos[0],datos[1],datos[2],datos[4],datos[3]);
-        return datos;
-    }
     // Función para cargar la imagen provinente de internet
     public void loadImage(String path)
     {
@@ -176,6 +170,9 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     public void setPosition(double vlat, double vlng)
     {
         TextView latlng=(TextView)this.findViewById(R.id.textViewLatLng);
+        locality="";
+        country="";
+        address="";
 
         Geocoder gcd = new Geocoder(this, Locale.getDefault());
         List<Address> addresses = null;
@@ -185,11 +182,27 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
             e.printStackTrace();
         }
         if (addresses.size() > 0) {
+            for(int i = addresses.get(0).getMaxAddressLineIndex();i>=0;i--)
+            {
+                if(i==addresses.get(0).getMaxAddressLineIndex())
+                {
+                    country=addresses.get(0).getAddressLine(i);
+                }
+                else
+                {
+                    if(i==(addresses.get(0).getMaxAddressLineIndex()-1))
+                    {
+                        locality=addresses.get(0).getAddressLine(i);
+                    }
+                    else
+                    {
 
-            locality=addresses.get(0).getLocality();
-            country=addresses.get(0).getCountryName();
-            address=addresses.get(0).getThoroughfare()+" "+addresses.get(0).getSubThoroughfare();
-            System.out.println(address+" "+locality+" "+country);
+                        address = address + " " + addresses.get(0).getAddressLine(i);
+
+                    }
+                }
+            }
+            System.out.println(address + " " + locality + " " + country);
         }
         latlng.setText(address+" "+locality+" "+country);
         lat=vlat;
@@ -219,8 +232,6 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     {
         return lng;
     }
-    public void setIdLocation(String id){ id_location=id; }
-    public String getIdLocation(){ return id_location; }
 
     public void SetLocationSelected(Location loc)
     {
@@ -230,13 +241,18 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     {
         return locationSelected;
     }
-    public void SetImageUrlFull(String url)
+    public void SetImageUrlFull(String url,String id)
     {
         url_full=url;
+        id_image_selected=id;
     }
-    public String GetImageUrlFull()
+    public ArrayList<String> GetImageUrlFull()
     {
-        return url_full;
+        ArrayList<String> selected=new ArrayList<String>();
+        selected.add(url_full);
+        selected.add(id_image_selected);
+
+        return selected;
     }
     public Picasso getmPicasso() {
         return mPicasso;
@@ -250,24 +266,14 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         return country;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
     public String getLocality() {
         return locality;
-    }
-
-    public void setLocality(String locality) {
-        this.locality = locality;
     }
 
     public String getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
+
 }
 

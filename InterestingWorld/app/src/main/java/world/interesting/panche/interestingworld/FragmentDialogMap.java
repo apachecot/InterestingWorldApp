@@ -160,7 +160,7 @@ public class FragmentDialogMap extends DialogFragment {
         }
         else
         {
-           point = new LatLng(((MainActivityUser) getActivity()).getLongitude(),
+           point = new LatLng(((MainActivityUser) getActivity()).getLatitude(),
                    ((MainActivityUser) getActivity()).getLongitude());
         }
 

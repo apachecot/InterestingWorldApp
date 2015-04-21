@@ -49,6 +49,7 @@ public class FragmentLocationsUser extends Fragment {
     String[] datos=new String[5];
     PullRefreshLayout layout;
     TextView emptyView;
+    AsyncHttpClient client=new AsyncHttpClient();
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -69,6 +70,11 @@ public class FragmentLocationsUser extends Fragment {
         materialCardLoad();
         loadData();
     }
+    @Override
+    public void onDestroy() {
+        client.cancelAllRequests(true);
+        super.onDestroy();
+    }
 
     public void loadData()
     {
@@ -78,9 +84,9 @@ public class FragmentLocationsUser extends Fragment {
         pDialog.setMessage("Procesando...");
         pDialog.setCancelable(true);
         pDialog.setMax(100);
-        AsyncHttpClient client = new AsyncHttpClient();
+        client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
-        datos=loadPreferences();
+        datos=Preferences.loadPreferences(this.getActivity());
         params.put("id_user", datos[0]);
         String url="http://interestingworld.webcindario.com/consulta_locations_user.php";
 
@@ -135,8 +141,9 @@ public class FragmentLocationsUser extends Fragment {
             jsonChildNode = new JSONObject(jsonChildNode.optString("post").toString());
 
             Location loc= new Location(jsonChildNode.getString("id"),jsonChildNode.getString("name"),jsonChildNode.getString("description"),
-                    jsonChildNode.getString("photo_url"),jsonChildNode.getString("email"),"",jsonChildNode.getString("lat"),jsonChildNode.getString("lng"),
-                    jsonChildNode.getString("address"),jsonChildNode.getString("country"),jsonChildNode.getString("locality"));
+                    jsonChildNode.getString("photo_url"),jsonChildNode.getString("user_name"),jsonChildNode.getString("lastname"),
+                    jsonChildNode.getString("id_user"),jsonChildNode.getString("photo_user"),jsonChildNode.getString("lat"),jsonChildNode.getString("lng"),
+                    jsonChildNode.getString("address"),jsonChildNode.getString("country"),jsonChildNode.getString("locality"),jsonChildNode.getString("rating"));
             list.add(loc);
         }
         materialCardLoad();
@@ -165,19 +172,4 @@ public class FragmentLocationsUser extends Fragment {
         layout.setRefreshing(false);
 
     }
-    public String[] loadPreferences() {
-        String[] datos=new String[5];
-        SharedPreferences prefs = this.getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
-        datos[0] = prefs.getString("id", "-1");
-        datos[1] = prefs.getString("name", "");
-        datos[2] = prefs.getString("lastname", "");
-        datos[3] = prefs.getString("email", "");
-        datos[4] = prefs.getString("photo_url", "");
-
-        for(int i=0; i < datos.length; i++) {
-            System.out.println(datos[i]);
-        }
-        return datos;
-    }
-
 }

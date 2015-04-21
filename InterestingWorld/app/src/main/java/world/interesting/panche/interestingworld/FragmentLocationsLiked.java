@@ -36,7 +36,7 @@ import java.util.ArrayList;
 /**
  * Created by neokree on 24/11/14.
  */
-public class FragmentLocationsVisited extends Fragment {
+public class FragmentLocationsLiked extends Fragment {
 
 
     View inflatedView;
@@ -85,7 +85,7 @@ public class FragmentLocationsVisited extends Fragment {
         RequestParams params = new RequestParams();
         datos=Preferences.loadPreferences(this.getActivity());
         params.put("id_user", datos[0]);
-        String url="http://interestingworld.webcindario.com/consulta_locations_visited.php";
+        String url="http://interestingworld.webcindario.com/consulta_locations_liked.php";
 
 
 
@@ -104,7 +104,7 @@ public class FragmentLocationsVisited extends Fragment {
                     try {
                         System.out.println(new String(responseBody));
                         setResult(new String(responseBody));
-                        pDialog.hide();
+
 
                     }catch(JSONException e)
                     {
@@ -112,7 +112,6 @@ public class FragmentLocationsVisited extends Fragment {
                         Toast.makeText(getActivity(), "No se han encontrado datos", Toast.LENGTH_SHORT).show();
                         list.clear();
                         materialCardLoad();
-                        pDialog.hide();
                     }
                 }
                 pDialog.hide();
@@ -123,7 +122,6 @@ public class FragmentLocationsVisited extends Fragment {
                 pDialog.hide();
             }
         });
-        layout.setRefreshing(false);
     }
 
     public ArrayList setResult (String result) throws JSONException {
@@ -140,8 +138,8 @@ public class FragmentLocationsVisited extends Fragment {
             jsonChildNode = new JSONObject(jsonChildNode.optString("post").toString());
 
             Location loc= new Location(jsonChildNode.getString("id"),jsonChildNode.getString("name"),jsonChildNode.getString("description"),
-                    jsonChildNode.getString("photo_url"),jsonChildNode.getString("name"),jsonChildNode.getString("lastname"),jsonChildNode.getString("id_user"),
-                    jsonChildNode.getString("photo_user"),jsonChildNode.getString("lat"),jsonChildNode.getString("lng"),
+                    jsonChildNode.getString("photo_url"),jsonChildNode.getString("name"),jsonChildNode.getString("lastname"),
+                    jsonChildNode.getString("id_user"),jsonChildNode.getString("photo_user"),jsonChildNode.getString("lat"),jsonChildNode.getString("lng"),
                     jsonChildNode.getString("address"),jsonChildNode.getString("country"),jsonChildNode.getString("locality"),jsonChildNode.getString("rating"));
             list.add(loc);
         }
@@ -171,5 +169,6 @@ public class FragmentLocationsVisited extends Fragment {
         layout.setRefreshing(false);
 
     }
+
 
 }

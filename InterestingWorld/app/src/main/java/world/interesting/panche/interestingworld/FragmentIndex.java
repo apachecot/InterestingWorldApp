@@ -56,6 +56,7 @@ public class FragmentIndex extends Fragment {
     int category=0;
     MenuItem selected;
     TextView emptyView;
+    AsyncHttpClient client=new AsyncHttpClient();
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -86,6 +87,12 @@ public class FragmentIndex extends Fragment {
         materialCardLoad();
         loadData();
     }
+    @Override
+    public void onDestroy() {
+        client.cancelAllRequests(true);
+        super.onDestroy();
+    }
+
 
     public void loadData()
     {
@@ -94,7 +101,7 @@ public class FragmentIndex extends Fragment {
         pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
         pDialog.setTitleText("Cargando...");
 
-        AsyncHttpClient client = new AsyncHttpClient();
+        client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
         params.put("category", category);
 
@@ -153,8 +160,9 @@ public class FragmentIndex extends Fragment {
             jsonChildNode = new JSONObject(jsonChildNode.optString("post").toString());
 
             Location loc= new Location(jsonChildNode.getString("id"),jsonChildNode.getString("name"),jsonChildNode.getString("description"),
-                    jsonChildNode.getString("photo_url"),jsonChildNode.getString("email"),"",jsonChildNode.getString("lat"),jsonChildNode.getString("lng"),
-                    jsonChildNode.getString("address"),jsonChildNode.getString("country"),jsonChildNode.getString("locality"));
+                    jsonChildNode.getString("photo_url"),jsonChildNode.getString("user_name"),jsonChildNode.getString("lastname"),
+                    jsonChildNode.getString("id_user"),jsonChildNode.getString("photo_user"),jsonChildNode.getString("lat"),jsonChildNode.getString("lng"),
+                    jsonChildNode.getString("address"),jsonChildNode.getString("country"),jsonChildNode.getString("locality"),jsonChildNode.getString("rating"));
             list.add(loc);
         }
         materialCardLoad();

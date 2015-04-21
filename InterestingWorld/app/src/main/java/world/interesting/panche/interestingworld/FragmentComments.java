@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.cuneytayyildiz.widget.PullRefreshLayout;
@@ -30,6 +31,7 @@ import com.devspark.appmsg.AppMsg;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.SyncHttpClient;
 import com.melnykov.fab.FloatingActionButton;
 
 import org.apache.http.Header;
@@ -57,6 +59,7 @@ public class FragmentComments extends Fragment {
     MenuItem selected;
     FloatingActionButton fab;
     TextView emptyView;
+    AsyncHttpClient client=new AsyncHttpClient();
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -98,6 +101,11 @@ public class FragmentComments extends Fragment {
         materialCardLoad();
         loadData();
     }
+    @Override
+    public void onDestroy() {
+        client.cancelAllRequests(true);
+        super.onDestroy();
+    }
 
     public void loadData()
     {
@@ -114,7 +122,7 @@ public class FragmentComments extends Fragment {
         }
 
 
-        AsyncHttpClient client = new AsyncHttpClient();
+        client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
         params.put("id", loc.getId());
 
@@ -193,6 +201,7 @@ public class FragmentComments extends Fragment {
 
             recyclerView.setVisibility(View.INVISIBLE);
             emptyView.setVisibility(View.VISIBLE);
+
         }
         else {
             recyclerView.setVisibility(View.VISIBLE);

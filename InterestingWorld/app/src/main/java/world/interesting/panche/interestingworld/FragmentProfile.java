@@ -45,6 +45,7 @@ public class FragmentProfile extends Fragment implements MaterialTabListener {
         tabHost = (MaterialTabHost) view.findViewById(R.id.tabHost);
         tabHost.setPrimaryColor(getResources().getColor(R.color.red_btn_bg_color));
         pager = (ViewPager) view.findViewById(R.id.pager );
+        pager.setOffscreenPageLimit(2);
 
         // init view pager
         adapter = new ViewPagerAdapter(getChildFragmentManager());

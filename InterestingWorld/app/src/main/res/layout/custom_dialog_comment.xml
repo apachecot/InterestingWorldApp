@@ -18,26 +18,31 @@
 
     <com.beardedhen.androidbootstrap.BootstrapButton
         android:id="@+id/dialogButtonCancel"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="@string/cancel"
         bootstrap:bb_icon_right="fa-close"
         bootstrap:bb_roundedCorners="true"
         bootstrap:bb_type="danger"
+        android:layout_alignStart="@+id/editTextComment"
+        android:layout_alignParentBottom="false"
         android:layout_below="@+id/editTextComment"
-        android:layout_alignLeft="@+id/editTextComment"
-        android:layout_alignStart="@+id/editTextComment" />
+        android:layout_marginTop="20dp"
+        android:paddingBottom="20dp" />
 
     <com.beardedhen.androidbootstrap.BootstrapButton
         android:id="@+id/dialogButtonOk"
-        android:layout_width="50dp"
-        android:layout_height="55dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="@string/accept"
         bootstrap:bb_icon_right="fa-check-circle"
         bootstrap:bb_type="success"
         bootstrap:bb_roundedCorners="true"
-        android:layout_alignTop="@+id/dialogButtonCancel"
-        android:layout_alignEnd="@+id/editTextComment" />
+        android:layout_alignEnd="@+id/editTextComment"
+        android:layout_alignParentBottom="false"
+        android:layout_below="@+id/editTextComment"
+        android:layout_marginTop="20dp"
+        android:paddingBottom="20dp" />
 
 
 </RelativeLayout>

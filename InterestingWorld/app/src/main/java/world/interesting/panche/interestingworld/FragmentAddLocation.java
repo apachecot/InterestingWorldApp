@@ -8,8 +8,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,6 +39,7 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.apache.http.Header;
+import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -61,6 +65,7 @@ public class FragmentAddLocation extends Fragment {
     CircularProgressButton circularProgressButton;
     Spinner categoryList;
     Category cat=new Category();
+    AsyncHttpClient client=new AsyncHttpClient();
 
     FragmentManager fm;
 
@@ -108,6 +113,11 @@ public class FragmentAddLocation extends Fragment {
             }
         });
     }
+    @Override
+    public void onDestroy() {
+        client.cancelAllRequests(true);
+        super.onDestroy();
+    }
     public void buttonAccept(View view) throws JSONException, FileNotFoundException {
         //Inicializamos dialog
         pDialog = new ProgressDialog(FragmentAddLocation.this.getActivity());
@@ -116,11 +126,11 @@ public class FragmentAddLocation extends Fragment {
         pDialog.setCancelable(true);
         pDialog.setMax(100);
 
-        datos=loadPreferences();
+        datos=Preferences.loadPreferences(this.getActivity());
 
         result="";
 
-        AsyncHttpClient client = new AsyncHttpClient();
+        client = new AsyncHttpClient();
 
         Double lat=((MainActivityUser) getActivity()).getLatitude();
         Double lng=((MainActivityUser) getActivity()).getLongitude();
@@ -139,10 +149,15 @@ public class FragmentAddLocation extends Fragment {
                 params.put("address", (((MainActivityUser) getActivity()).getAddress()));
                 params.put("country", (((MainActivityUser) getActivity()).getCountry()));
                 params.put("locality", (((MainActivityUser) getActivity()).getLocality()));
+
                 //Cargar la imagen
                 int numero = (int) (Math.random() * 99999999) + 1;
+                int numero2 = (int) (Math.random() * 99999999) + 1;
                 //is = this.getActivity().getContentResolver().openInputStream(selectedImage);
-                params.put("photo_url", is, numero + "_upload.jpg");
+                params.put("photo_url", is, numero+""+numero2 + "_location.jpg");
+                //params.setContentEncoding(HTTP.UTF_8);
+
+
 
 
                 client.post(url, params, new AsyncHttpResponseHandler() {
@@ -150,6 +165,8 @@ public class FragmentAddLocation extends Fragment {
                     public void onStart() {
                         circularProgressButton.setProgress(50);
                         circularProgressButton.setIndeterminateProgressMode(true);
+                        //setCharset("UTF-8");
+
                     }
 
                     @Override
@@ -246,21 +263,7 @@ public class FragmentAddLocation extends Fragment {
     {
         ((MaterialNavigationDrawer)this.getActivity()).setSection(((MainActivityUser) getActivity()).lastLocations);
     }
-    //cargar configuración aplicación Android usando SharedPreferences
-    public String[] loadPreferences() {
-        String[] datos=new String[5];
-        SharedPreferences prefs = this.getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
-        datos[0] = prefs.getString("id", "-1");
-        datos[1] = prefs.getString("name", "");
-        datos[2] = prefs.getString("lastname", "");
-        datos[3] = prefs.getString("email", "");
-        datos[4] = prefs.getString("photo_url", "");
 
-        for(int i=0; i < datos.length; i++) {
-            System.out.println(datos[i]);
-        }
-        return datos;
-    }
     public void selectImage (View view)
     {
         Intent intent =  new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -283,16 +286,30 @@ public class FragmentAddLocation extends Fragment {
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inJustDecodeBounds = true;
                 BitmapFactory.decodeStream(bis,null, options);
-
-                options.inSampleSize = calculateInSampleSize(options,640,480);
+                //Comprimimos la imagen
+                options.inSampleSize = calculateInSampleSize(options,480,480);
                 options.inJustDecodeBounds = false;
                 Bitmap bitmap = BitmapFactory.decodeStream(bis2,null,options);
 
+                //Rotar la imagen
+                String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
+                Cursor cur = this.getActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
+                int orientation = -1;
+                if (cur != null && cur.moveToFirst()) {
+                    orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
+                }
+                Matrix matrix = new Matrix();
+                matrix.postRotate(orientation);
+                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                //Añadimos la imagen a la vista
                 ImageView iv = (ImageView) this.getActivity().findViewById(R.id.ImageViewLocation);
                 iv.setImageBitmap(bitmap);
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
+
                 is = new ByteArrayInputStream(stream.toByteArray());
+                System.out.println(bitmap.getHeight()+" "+bitmap.getWidth());
+
 
             }
         } catch (FileNotFoundException e) {
@@ -358,14 +375,14 @@ public class FragmentAddLocation extends Fragment {
 
         if (height > reqHeight || width > reqWidth) {
 
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
+            final int halfHeight = height;
+            final int halfWidth = width;
 
             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
             // height and width larger than the requested height and width.
             while ((halfHeight / inSampleSize) > reqHeight
                     && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
+                inSampleSize ++;
             }
         }
 

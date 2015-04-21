@@ -54,7 +54,7 @@
         android:layout_gravity="center_horizontal"
         android:hint="@string/description"
         android:layout_marginTop="25dp"
-        android:inputType="textImeMultiLine" />
+        android:inputType="textMultiLine" />
 
         <TextView
         android:layout_width="wrap_content"

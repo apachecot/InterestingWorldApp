@@ -36,31 +36,18 @@ public class Profile extends Fragment {
         super.onCreate(savedInstanceState);
         inflatedView = inflater.inflate(R.layout.profile, container, false);
 
-        datos=loadPreferences();
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-
-        actionBar.setHomeAsUpIndicator(((MainActivityUser) this.getActivity()).getV7DrawerToggleDelegate().getThemeUpIndicator());
-        return inflatedView;
-    }
-    public String[] loadPreferences() {
-        String[] datos=new String[5];
-        SharedPreferences prefs = this.getActivity().getSharedPreferences("preferences", Context.MODE_PRIVATE);
-        datos[0] = prefs.getString("id", "-1");
-        datos[1] = prefs.getString("name", "");
-        datos[2] = prefs.getString("lastname", "");
-        datos[3] = prefs.getString("email", "");
-        datos[4] = prefs.getString("photo_url", "");
-
-        for(int i=0; i < datos.length; i++) {
-            System.out.println(datos[i]);
-        }
+        datos=Preferences.loadPreferences(this.getActivity());
         SmartImageView myImage = (SmartImageView) inflatedView.findViewById(R.id.my_image);
         myImage.setImageUrl("http://"+datos[4]);
         TextView name = (TextView) inflatedView.findViewById(R.id.textViewName);
         TextView email = (TextView) inflatedView.findViewById(R.id.textViewEmail);
         name.setText(datos[1]+" "+datos[2]);
         email.setText(datos[3]);
-        return datos;
+        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
+        actionBar.setHomeAsUpIndicator(((MainActivityUser) this.getActivity()).getV7DrawerToggleDelegate().getThemeUpIndicator());
+        return inflatedView;
     }
+
 }

@@ -47,6 +47,7 @@ public class FragmentPhotos extends Fragment {
     MenuItem selected;
     GridView gv;
     TextView emptyView;
+    AsyncHttpClient client=new AsyncHttpClient();
 
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -65,6 +66,7 @@ public class FragmentPhotos extends Fragment {
         gv.setAdapter(gridAdapter);
         gv.setOnScrollListener(new SampleScrollListener(this.getActivity()));
         gv.setEmptyView(emptyView);
+        gv.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
 
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -91,12 +93,17 @@ public class FragmentPhotos extends Fragment {
         loadData();
         return inflatedView;
     }
+    @Override
+    public void onDestroy() {
+        client.cancelAllRequests(true);
+        super.onDestroy();
+    }
     public void loadData()
     {
         pDialog = new SweetAlertDialog(this.getActivity(), SweetAlertDialog.PROGRESS_TYPE);
         pDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
         pDialog.setTitleText("Cargando...");
-        AsyncHttpClient client = new AsyncHttpClient();
+        client = new AsyncHttpClient();
         RequestParams params = new RequestParams();
         params.put("category", category);
 
@@ -153,14 +160,17 @@ public class FragmentPhotos extends Fragment {
             datos.add(jsonChildNode.getString("id"));
             datos.add(jsonChildNode.getString("name"));
             datos.add(jsonChildNode.getString("description"));
+            datos.add(jsonChildNode.getString("photo_url"));
+            datos.add(jsonChildNode.getString("user_name"));
+            datos.add(jsonChildNode.getString("lastname"));
+            datos.add(jsonChildNode.getString("id_user"));
+            datos.add(jsonChildNode.getString("photo_user"));
             datos.add(jsonChildNode.getString("lat"));
             datos.add(jsonChildNode.getString("lng"));
-            datos.add(jsonChildNode.getString("photo_url"));
-            datos.add(jsonChildNode.getString("email"));
-            datos.add(jsonChildNode.getString("id_category"));
             datos.add(jsonChildNode.getString("address"));
             datos.add(jsonChildNode.getString("country"));
             datos.add(jsonChildNode.getString("locality"));
+            datos.add(jsonChildNode.getString("rating"));
             list.add(datos);
             urls.add(jsonChildNode.getString("photo_url"));
         }
@@ -174,15 +184,16 @@ public class FragmentPhotos extends Fragment {
         // Supply num input as an argument.
         Bundle args = new Bundle();
         args.putString("id", select_image.get(0));
-        args.putString("url", select_image.get(5));
-        args.putString("lat", select_image.get(3));
-        args.putString("lng", select_image.get(4));
+        args.putString("url", select_image.get(3));
+        args.putString("lat", select_image.get(8));
+        args.putString("lng", select_image.get(9));
         args.putString("name", select_image.get(1));
         args.putString("description", select_image.get(2));
         dFragment.setArguments(args);
         world.interesting.panche.interestingworld.Location loc= new world.interesting.panche.interestingworld.Location(select_image.get(0),
-                select_image.get(1),select_image.get(2),select_image.get(5),"","",select_image.get(3),select_image.get(4),select_image.get(6),
-                select_image.get(7),select_image.get(8));
+                select_image.get(1),select_image.get(2),select_image.get(3),select_image.get(4),select_image.get(5),
+                select_image.get(6),select_image.get(7),select_image.get(8),select_image.get(9),
+                select_image.get(10),select_image.get(11),select_image.get(12),select_image.get(13));
         if(this.getActivity().getLocalClassName().equals("MainActivity")) {
             ((MainActivity) getActivity()).SetLocationSelected(loc);
         }else {
