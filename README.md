@@ -38,3 +38,10 @@ Bugs a solventar:
 Puntos a implementar para ampliación:
 - Utilizar la api de foursquare (Añadir puntos, buscar puntos, buscar fotografias, añadir fotografias)
 - Login con GMAIL o FACEBOOK
+
+Testeos:
+- Samsung Galaxy S3 (Android 4.4.4) ROM Carbon (Terminal de testeo habitual)
+- Tablet Ainol Hero 10 (Android 4.2)
+- Samsung Galaxy S4 (Android 4.4.4-Android 5.0.1)
+- BQ Aquaris E5 (Android 4.4.4)
+- BQ Aquaris 5 HD (Android 4.4.2)
