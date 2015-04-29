@@ -36,7 +36,7 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <activity
-            android:name=".MainActivity"
+            android:name=".Splash"
             android:windowSoftInputMode="adjustPan"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
             android:label="@string/app_name"
@@ -47,20 +47,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MainActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
+            android:label="@string/app_name"
+            android:theme="@style/NoHeader"/>
         <activity android:name=".MainActivityUser"
             android:windowSoftInputMode="adjustPan"
             android:configChanges="orientation|keyboard|keyboardHidden|screenSize|screenLayout|uiMode"
             android:label="@string/app_name"
-            android:theme="@style/NavigationDrawer"
-
-            />
-
-        <activity android:name=".Settings" android:label="@string/app_name"
             android:theme="@style/NavigationDrawer"/>
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyC5NlYeWju4I2IazqjqEPY6ixkupdI3Ud8"/>
+        <!--
+        AIzaSyC5NlYeWju4I2IazqjqEPY6ixkupdI3Ud8 test
+        AIzaSyD2ryhU6TxD00Lz3p9KLvBmq6hQqfgL49g production
+        AIzaSyDuPZLzqU-sLgZSTkZDnArla_wmrKX_0b4 testAntiguo
+        -->
 
     </application>
 

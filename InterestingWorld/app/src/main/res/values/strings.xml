@@ -51,5 +51,6 @@
     <string name="addComment">addComment</string>
     <string name="no_data_available">No hay resultados</string>
     <string name="user">Usuario</string>
+    <string name="logout">Cerrar sesión</string>
 
 </resources>

@@ -13,23 +13,15 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.NetworkPolicy;
-import com.squareup.picasso.Picasso;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
-
-import static android.widget.ImageView.ScaleType.CENTER_CROP;
-
-final class GridViewAdapter extends BaseAdapter {
+final class GridViewAdapterImages extends BaseAdapter {
     private final Context context;
     private List<String> urls = new ArrayList<String>();
     public ArrayList<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
 
-    public GridViewAdapter(Context context) {
+    public GridViewAdapterImages(Context context) {
         this.context = context;
     }
 
@@ -88,7 +80,7 @@ final class GridViewAdapter extends BaseAdapter {
     }
 
     public String getRatingImage(int position) {
-        return list.get(position).get(14);
+        return list.get(position).get(2);
     }
     public List<String> getInfoSelectedPhoto(int position)
     {

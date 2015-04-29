@@ -30,6 +30,7 @@ import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 import it.neokree.materialnavigationdrawer.elements.MaterialAccount;
 import it.neokree.materialnavigationdrawer.elements.MaterialSection;
 import it.neokree.materialnavigationdrawer.elements.listeners.MaterialAccountListener;
+import it.neokree.materialnavigationdrawer.elements.listeners.MaterialSectionListener;
 
 
 public class MainActivityUser extends MaterialNavigationDrawer implements MaterialAccountListener {
@@ -50,6 +51,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     String url_full="";
     String id_image_selected="";
     private Picasso mPicasso;
+    Intent i;
 
     @Override
     public void init(Bundle savedInstanceState) {
@@ -95,8 +97,13 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
                 .setSectionColor(Color.parseColor("#2196f3"),Color.parseColor("#1565c0"));
 
         //Para cargar la configuración
-        Intent i = new Intent(this,Settings.class);
-        settingsSection = this.newSection(this.getResources().getString(R.string.settings),this.getResources().getDrawable(R.drawable.settings),i);
+
+        settingsSection = this.newSection(this.getResources().getString(R.string.logout),this.getResources().getDrawable(R.drawable.settings),new MaterialSectionListener() {
+            @Override
+            public void onClick(MaterialSection section) {
+                restoreUser();
+            }
+        });
 
         // add your sections to the drawer
         this.addSection(lastLocations);
@@ -272,6 +279,14 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
 
     public String getAddress() {
         return address;
+    }
+
+    public void restoreUser()
+    {
+        Preferences.RestorePreferences(this);
+        i = new Intent(this, MainActivity.class);
+        startActivity(i);
+        finish();
     }
 
 

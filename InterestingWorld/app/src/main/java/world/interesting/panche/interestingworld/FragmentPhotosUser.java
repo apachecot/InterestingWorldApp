@@ -36,7 +36,7 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class FragmentPhotosUser extends Fragment {
     View inflatedView;
-    GridViewAdapter gridAdapter;
+    GridViewAdapterImages gridAdapter;
     private SweetAlertDialog pDialog;
     ArrayList<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
     private final List<String> urls = new ArrayList<String>();
@@ -57,7 +57,7 @@ public class FragmentPhotosUser extends Fragment {
         setHasOptionsMenu(true);
         fm= this.getActivity().getSupportFragmentManager();
 
-        gridAdapter=new GridViewAdapter(this.getActivity());
+        gridAdapter=new GridViewAdapterImages(this.getActivity());
         emptyView = (TextView) inflatedView.findViewById(R.id.empty_view);
 
         GridView gv = (GridView) inflatedView.findViewById(R.id.grid_view);
@@ -161,6 +161,7 @@ public class FragmentPhotosUser extends Fragment {
             ArrayList<String> datos = new ArrayList<String>();
             datos.add(jsonChildNode.getString("photo_url"));
             datos.add(jsonChildNode.getString("id"));
+            datos.add(jsonChildNode.getString("rating"));
             list.add(datos);
             urls.add(jsonChildNode.getString("photo_url"));
         }

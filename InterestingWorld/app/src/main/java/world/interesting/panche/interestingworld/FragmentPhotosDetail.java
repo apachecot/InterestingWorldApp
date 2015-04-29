@@ -54,7 +54,7 @@ import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 public class FragmentPhotosDetail extends Fragment {
     View inflatedView;
-    GridViewAdapter gridAdapter;
+    GridViewAdapterImages gridAdapter;
     private SweetAlertDialog pDialog;
     ArrayList<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
     private final List<String> urls = new ArrayList<String>();
@@ -83,7 +83,7 @@ public class FragmentPhotosDetail extends Fragment {
         fm= this.getActivity().getSupportFragmentManager();
 
         emptyView = (TextView) inflatedView.findViewById(R.id.empty_view);
-        gridAdapter=new GridViewAdapter(this.getActivity());
+        gridAdapter=new GridViewAdapterImages(this.getActivity());
 
         gv = (GridView) inflatedView.findViewById(R.id.grid_view);
         gv.setAdapter(gridAdapter);
@@ -208,6 +208,7 @@ public class FragmentPhotosDetail extends Fragment {
             ArrayList<String> datos = new ArrayList<String>();
             datos.add(jsonChildNode.getString("photo_url"));
             datos.add(jsonChildNode.getString("id"));
+            datos.add(jsonChildNode.getString("rating"));
             list.add(datos);
             urls.add(jsonChildNode.getString("photo_url"));
         }

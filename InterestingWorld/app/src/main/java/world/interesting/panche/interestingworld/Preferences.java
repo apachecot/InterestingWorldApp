@@ -21,7 +21,6 @@ public class Preferences{
         editor.putString("email", datos[3]);
         editor.putString("photo_url", datos[4]);
         editor.commit();
-        System.out.println("Guardadas preferencias");
     }
 
     //cargar configuración aplicación Android usando SharedPreferences
@@ -34,5 +33,16 @@ public class Preferences{
         datos[3] = prefs.getString("email", "");
         datos[4] = prefs.getString("photo_url", "");
         return datos;
+    }
+
+    static void RestorePreferences(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("preferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("id", "-1");
+        editor.putString("name", "");
+        editor.putString("lastname", "");
+        editor.putString("email", "");
+        editor.putString("photo_url", "");
+        editor.commit();
     }
 }

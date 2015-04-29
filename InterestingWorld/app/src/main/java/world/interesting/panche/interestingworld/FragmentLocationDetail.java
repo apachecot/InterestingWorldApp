@@ -67,6 +67,8 @@ public class FragmentLocationDetail extends Fragment {
     String[] datos= new String[5];
     FragmentManager fm;
     AsyncHttpClient client=new AsyncHttpClient();
+    TextView nLikes;
+    Location loc;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -93,9 +95,9 @@ public class FragmentLocationDetail extends Fragment {
         ImageView photoDetail = (ImageView) inflatedView.findViewById(R.id.ImageDetail);
         ImageView photoUser = (ImageView) inflatedView.findViewById(R.id.imageViewUser);
         ImageView imageMap = (ImageView) inflatedView.findViewById(R.id.ImageMapStatic);
-        TextView nLikes = (TextView) inflatedView.findViewById(R.id.textViewNlikes);
+        nLikes = (TextView) inflatedView.findViewById(R.id.textViewNlikes);
 
-        Location loc;
+
         if(this.getActivity().getLocalClassName().equals("MainActivity")) {
             loc = ((MainActivity) getActivity()).GetLocationSelected();
         }else{
@@ -117,7 +119,7 @@ public class FragmentLocationDetail extends Fragment {
         user.setText(loc.getUser()+" "+loc.getLastname());
         nLikes.setText(loc.getRating());
         Drawable shape = getResources(). getDrawable(R.drawable.circle);
-        nLikes.setBackground(shape);
+        //nLikes.setBackground(shape);
 
         //title.setText(title_txt);
         description.setText(description_txt);
@@ -189,6 +191,17 @@ public class FragmentLocationDetail extends Fragment {
         //Boton me gusta
         bLike = (ImageButton)inflatedView.findViewById(R.id.ic5);
         bLike.setOnClickListener(new View.OnClickListener() {
+            // Start new list activity
+            public void onClick(View v) {
+                if(getActivity().getLocalClassName().equals("MainActivityUser")) {
+                    SweetAlertLike();
+                }else{
+                    AppMsg.makeText(getActivity(), "Debes estar loggeado para poder marcar que te gusta", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                }
+            }
+        });
+
+        nLikes.setOnClickListener(new View.OnClickListener() {
             // Start new list activity
             public void onClick(View v) {
                 if(getActivity().getLocalClassName().equals("MainActivityUser")) {
@@ -621,9 +634,13 @@ public class FragmentLocationDetail extends Fragment {
                         System.out.println(getResult());
                         if (getResult().equals("borrado")) {
                             SweetAlertInfo("Ya no te gusta este punto de interés",false);
+                            loc.setRating(Integer.parseInt(loc.getRating())-1+"");
+                            nLikes.setText(loc.getRating());
                         } else {
                             if (getResult().equals("insertado")) {
                                 SweetAlertComment("Has marcado que te gusta");
+                                loc.setRating(Integer.parseInt(loc.getRating())+1+"");
+                                nLikes.setText(loc.getRating());
                             }else {
                                 AppMsg.makeText(FragmentLocationDetail.this.getActivity(), "Ups.. algo ha fallado, vuelve a intentarlo", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
                             }

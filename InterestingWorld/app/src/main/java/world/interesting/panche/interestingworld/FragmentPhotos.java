@@ -107,7 +107,7 @@ public class FragmentPhotos extends Fragment {
         RequestParams params = new RequestParams();
         params.put("category", category);
 
-        String url="http://interestingworld.webcindario.com/consulta_locations.php";
+        String url="http://interestingworld.webcindario.com/consulta_photos.php";
 
         client.post(url,params,new AsyncHttpResponseHandler() {
             @Override
@@ -171,6 +171,7 @@ public class FragmentPhotos extends Fragment {
             datos.add(jsonChildNode.getString("country"));
             datos.add(jsonChildNode.getString("locality"));
             datos.add(jsonChildNode.getString("rating"));
+            datos.add(jsonChildNode.getString("rating_image"));
             list.add(datos);
             urls.add(jsonChildNode.getString("photo_url"));
         }

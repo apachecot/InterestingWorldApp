@@ -1,8 +1,10 @@
 package world.interesting.panche.interestingworld;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,11 +12,21 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.devspark.appmsg.AppMsg;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 
+import org.apache.http.Header;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 /**
@@ -25,6 +37,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
     private ArrayList<Comments> Comments;
     private int itemLayout;
     private final Context context;
+    private String result;
 
 
     public CommentsAdapter(ArrayList<Comments> data, int itemLayout, Context context){
@@ -81,7 +94,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
         return Comments.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder //implements AdapterView.OnClickListener
+    public class ViewHolder extends RecyclerView.ViewHolder implements AdapterView.OnClickListener
     {
 
         public ImageView image;
@@ -92,7 +105,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
         public ViewHolder(View itemView) {
             super(itemView);
 
-            //itemView.setOnClickListener(this);
+            itemView.setOnClickListener(this);
 
             image = (ImageView) itemView.findViewById(R.id.image);
             name = (TextView) itemView.findViewById(R.id.name);
@@ -100,24 +113,126 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
             date = (TextView) itemView.findViewById(R.id.date);
 
         }
-        //Desactivo el click para implementación más adelante
-        /*
+
+        //Al hacer click si es comentario propio preguntar si desea eliminar
         @Override
         public void onClick(View view) {
 
-            Location loc= (Location) view.getTag();
-            Fragment fragment = new FragmentLocationDetailTabs();
+            Comments com= (Comments) view.getTag();
             Class cl=view.getContext().getClass();
 
-            if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
-                ((MainActivity) view.getContext()).SetLocationSelected(loc);
-            }else {
-                ((MainActivityUser) view.getContext()).SetLocationSelected(loc);
+            if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivityUser")) {
+                User us=((MainActivityUser) view.getContext()).getUser();
+                if(us.getId().equals(com.getId_user()))
+                {
+                    SweetAlertComment(com.getId());
+                }
             }
-            ((MaterialNavigationDrawer)view.getContext()).setFragmentChild(fragment,loc.getName());
+
 
         }
-        */
+    }
+    //---------------------- Funciones Visitado ----------------------------------------------
+    public void SweetAlertComment(final String id)
+    {
+        new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
+                .setTitleText("Comentario")
+                .setContentText("¿Deseas borrar tú comentario?")
+                .setCancelText("No")
+                .setConfirmText("Sí")
+                .showCancelButton(true)
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                    }
+                })
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                        eliminate(id);
+                    }
+                })
+                .show();
+    }
+    public void eliminate(String id){
+        //Inicializamos dialog
 
+        result="";
+
+        AsyncHttpClient client = new AsyncHttpClient();
+
+
+        String url = "http://interestingworld.webcindario.com/delete_comment.php";
+        RequestParams params = new RequestParams();
+        params.put("id", id);
+
+        client.post(url, params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                if (statusCode == 200) {
+
+                    try {
+                        System.out.println(new String(responseBody));
+                        setResult(new String(responseBody));
+
+                        if (result.equals("bien")) {
+                            SweetAlertInfo("Comentario eliminado",true);
+                        } else {
+
+                            SweetAlertInfo("Ups.. algo ha fallado, vuelve a intentarlo",false);
+
+                        }
+
+                    } catch (JSONException e) {
+                        SweetAlertInfo("Ups.. algo ha fallado, vuelve a intentarlo",false);
+
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                SweetAlertInfo("Parece que hay algún problema con la red",false);
+            }
+        });
+    }
+    public String setResult (String result) throws JSONException {
+        String cadenaJSON = result.toString();//Le pasamos a la variable cadenaJSON una cadena de tipo JSON (en este caso es la creada anteriormente)
+
+        JSONObject jsonObject = new JSONObject(cadenaJSON); //Creamos un objeto de tipo JSON y le pasamos la cadena JSON
+        String posts = jsonObject.getString("posts");
+
+        //Entramos en el array de posts
+        jsonObject=new JSONObject(posts);
+
+        //A través de los nombres de cada dato obtenemos su contenido
+        return  this.result=jsonObject.getString("Estado").toLowerCase();
+    }
+    //-------------------------------------
+    public void SweetAlertInfo(String message,Boolean format)
+    {
+        int style=1;
+        if(format==true)
+        {
+            style=SweetAlertDialog.SUCCESS_TYPE;
+        }else{ style=SweetAlertDialog.ERROR_TYPE;}
+
+        new SweetAlertDialog(context, style)
+                .setTitleText(message)
+                .setConfirmText("Ok")
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                    }
+                })
+                .show();
     }
 }

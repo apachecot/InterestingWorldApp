@@ -24,7 +24,6 @@
         android:background="?android:selectableItemBackground"
         android:src="@drawable/visit_white"
         style="@style/card.native.actions.button"
-        android:layout_weight="0.08"
         android:layout_height="65dp"
         android:layout_width="65dp" />
 
@@ -45,19 +44,23 @@
             android:layout_width="22dp"
             android:layout_height="22dp"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="2"
+            android:text="233"
             android:id="@+id/textViewNlikes"
             android:textColor="@color/cpb_white"
             android:autoText="true"
             android:background="@drawable/circle"
-            android:layout_marginBottom="8dp"
             android:gravity="center"
+            android:textSize="13dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginRight="8dp"
-            android:layout_marginEnd="8dp"
-            android:textSize="13dp" />
+            android:layout_marginStart="33dp"
+            android:layout_marginTop="32dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="3dp"
+            android:layout_marginRight="3dp" />
     </RelativeLayout>
 
     <ImageButton
