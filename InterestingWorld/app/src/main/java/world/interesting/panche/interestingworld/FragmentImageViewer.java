@@ -66,6 +66,14 @@ public class FragmentImageViewer extends DialogFragment {
     String result;
     String id_image;
 
+    private onRateImage callback;
+
+    public interface onRateImage {
+        public void onRateImage(String State);
+    }
+
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -97,7 +105,7 @@ public class FragmentImageViewer extends DialogFragment {
             url=((MainActivity) getActivity()).GetImageUrlFull();
             loc=((MainActivity)getActivity()).GetLocationSelected();
             ((MainActivity) getActivity()).getmPicasso()
-                    .load("http://"+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
+                    .load(Links.getUrl_images()+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
                     .error(R.drawable.not_found)
                     .into(mImageView,imageLoadedCallback);
         }else {
@@ -106,7 +114,7 @@ public class FragmentImageViewer extends DialogFragment {
             url=info_image.get(0);
             id_image=info_image.get(1);
             ((MainActivityUser) getActivity()).getmPicasso()
-                    .load("http://"+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
+                    .load(Links.getUrl_images()+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
                     .error(R.drawable.not_found)
                     .into(mImageView,imageLoadedCallback);
         }
@@ -138,6 +146,11 @@ public class FragmentImageViewer extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try {
+            callback = (onRateImage) getTargetFragment();
+        } catch (Exception e) {
+            throw new ClassCastException("Calling Fragment must implement OnAddFriendListener");
+        }
         setStyle(DialogFragment.STYLE_NORMAL, R.style.MY_DIALOG);
     }
     @Override
@@ -258,7 +271,7 @@ public class FragmentImageViewer extends DialogFragment {
         AsyncHttpClient client = new AsyncHttpClient();
 
 
-        String url = "http://interestingworld.webcindario.com/insert_rating_image.php";
+        String url = Links.getUrl_add_rating_image();
         RequestParams params = new RequestParams();
         params.put("id_user", datos[0]);
         params.put("id_image", id_image);
@@ -279,9 +292,15 @@ public class FragmentImageViewer extends DialogFragment {
                         System.out.println(getResult());
                         if (getResult().equals("borrado")) {
                             SweetAlertInfo("Ya no te gusta esta imagen",false);
+                            updateImages();
+                            callback.onRateImage("ok");
+                            getDialog().dismiss();
                         } else {
                             if (getResult().equals("insertado")) {
                                 SweetAlertInfo("Te gusta esta imagen",true);
+                                updateImages();
+                                callback.onRateImage("ok");
+                                getDialog().dismiss();
                             }else {
                                 SweetAlertInfo("Ups.. se ha producido un error",false);
                             }
@@ -336,6 +355,31 @@ public class FragmentImageViewer extends DialogFragment {
                     }
                 })
                 .show();
+    }
+    public void updateImages()
+    {
+        AsyncHttpClient client = new AsyncHttpClient();
+        client = new AsyncHttpClient();
+        String url = Links.getUrl_update_image_location();
+        RequestParams params = new RequestParams();
+        params.put("id_location", loc.getId());
+
+
+        client.post(url, params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onStart() {
+
+            }
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+            }
+        });
     }
 
 }

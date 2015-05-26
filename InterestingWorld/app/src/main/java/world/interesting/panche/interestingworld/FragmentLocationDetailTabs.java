@@ -11,7 +11,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -42,6 +44,16 @@ public class FragmentLocationDetailTabs extends Fragment implements MaterialTabL
         tabHost.setAccentColor(getResources().getColor(R.color.white));
         pager = (ViewPager) view.findViewById(R.id.pager );
         pager.setOffscreenPageLimit(2);
+
+        //Cambiamos el icono del menu por el de volver atras
+        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        if(this.getActivity().getLocalClassName().equals("MainActivity"))
+        {
+            actionBar.setHomeAsUpIndicator(((MainActivity) this.getActivity()).getV7DrawerToggleDelegate().getThemeUpIndicator());
+        }else{
+            actionBar.setHomeAsUpIndicator(((MainActivityUser) this.getActivity()).getV7DrawerToggleDelegate().getThemeUpIndicator());
+        }
 
         // init view pager
         adapter = new ViewPagerAdapter(this.getFragmentManager());
@@ -98,16 +110,16 @@ public class FragmentLocationDetailTabs extends Fragment implements MaterialTabL
             switch(num)
             {
                 case 0:
-                    frag=new FragmentLocationDetail();
+                    frag=getFragment(0);
                 break;
                 case 1:
-                    frag= new FragmentPhotosDetail();
+                    frag=getFragment(1);
                 break;
                 case 2:
-                    frag=new FragmentComments();
+                    frag=getFragment(2);
                 break;
                 default:
-                    frag=new FragmentPhotosDetail();
+                    frag=getFragment(3);
                 break;
             }
             return frag;
@@ -139,6 +151,17 @@ public class FragmentLocationDetailTabs extends Fragment implements MaterialTabL
             }
             return option;
         }
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            // TODO Auto-generated method stub
+
+            FragmentManager manager = ((Fragment) object).getFragmentManager();
+            FragmentTransaction trans = manager.beginTransaction();
+            trans.remove((Fragment) object);
+            trans.commit();
+
+            super.destroyItem(container, position, object);
+        }
 
     }
     @Override
@@ -155,12 +178,59 @@ public class FragmentLocationDetailTabs extends Fragment implements MaterialTabL
     }
     @Override
     public void onDestroyView() {
+        System.out.println("OnDestroyView");
         super.onDestroyView();
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         System.out.println("OnDestroy");
+        if(this.getActivity().getLocalClassName().equals("MainActivity")) {
+            ((MainActivity) this.getActivity()).setFragcomments();
+            ((MainActivity) this.getActivity()).setFragdetails();
+            ((MainActivity) this.getActivity()).setFragphotosdetail();
+        }else
+        {
+            ((MainActivityUser) this.getActivity()).setFragcomments();
+            ((MainActivityUser) this.getActivity()).setFragdetails();
+            ((MainActivityUser) this.getActivity()).setFragphotosdetail();
+        }
+        super.onDestroy();
+    }
+    public Fragment getFragment(int num)
+    {
+        Fragment frag;
+        switch(num)
+        {
+            case 0:
+                if(this.getActivity().getLocalClassName().equals("MainActivity")) {
+                    frag = ((MainActivity) getActivity()).getFragdetails();
+                }else{
+                    frag = ((MainActivityUser) getActivity()).getFragdetails();
+                }
+                break;
+            case 1:
+                if(this.getActivity().getLocalClassName().equals("MainActivity")) {
+                    frag = ((MainActivity) getActivity()).getFragphotosdetail();
+                }else{
+                    frag = ((MainActivityUser) getActivity()).getFragphotosdetail();
+                }
+                break;
+            case 2:
+                if(this.getActivity().getLocalClassName().equals("MainActivity")) {
+                    frag = ((MainActivity) getActivity()).getFragcomments();
+                }else{
+                    frag = ((MainActivityUser) getActivity()).getFragcomments();
+                }
+                break;
+            default:
+                if(this.getActivity().getLocalClassName().equals("MainActivity")) {
+                    frag = ((MainActivity) getActivity()).getFragdetails();
+                }else{
+                    frag = ((MainActivityUser) getActivity()).getFragdetails();
+                }
+                break;
+        }
+        return frag;
     }
 }

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bootstrap="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Categoria"
+        android:id="@+id/textView12"
+        android:layout_alignParentStart="true"
+        android:gravity="center"
+        android:paddingLeft="10dp" />
+
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinnerCategory"
+        android:layout_column="11"
+        android:layout_alignParentTop="false"
+        android:layout_alignStart="@+id/dialogButtonCancel"
+        android:layout_alignParentLeft="false"
+        android:layout_below="@+id/textView12"
+        android:layout_marginTop="15dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Introduce una ciudad o pais donde centrar tu busqueda, o selecciona la opción de busqueda por cercanía."
+        android:id="@+id/textView13"
+        android:layout_alignStart="@+id/textView12"
+        android:layout_below="@+id/spinnerCategory"
+        android:layout_marginTop="15dp"
+        android:gravity="center" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Buscar por cercanías"
+        android:id="@+id/checkBoxNear"
+        android:layout_below="@+id/textView13"
+        android:layout_marginTop="15dp"
+        android:layout_alignParentEnd="false"
+        android:singleLine="false"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textMultiLine"
+        android:ems="10"
+        android:id="@+id/editTextAdvanced"
+        android:layout_alignParentTop="false"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:layout_below="@+id/checkBoxNear"
+        android:layout_marginTop="15dp" />
+
+    <com.beardedhen.androidbootstrap.BootstrapButton
+        android:id="@+id/dialogButtonCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cancel"
+        bootstrap:bb_icon_right="fa-close"
+        bootstrap:bb_roundedCorners="true"
+        bootstrap:bb_type="danger"
+        android:layout_alignStart="@+id/editTextAdvanced"
+        android:layout_alignParentBottom="false"
+        android:layout_below="@+id/editTextAdvanced"
+        android:layout_marginTop="20dp"
+        android:paddingBottom="20dp" />
+
+    <com.beardedhen.androidbootstrap.BootstrapButton
+        android:id="@+id/dialogButtonOk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/accept"
+        bootstrap:bb_icon_right="fa-check-circle"
+        bootstrap:bb_type="success"
+        bootstrap:bb_roundedCorners="true"
+        android:layout_alignEnd="@+id/editTextAdvanced"
+        android:layout_alignParentBottom="false"
+        android:layout_below="@+id/editTextAdvanced"
+        android:layout_marginTop="20dp"
+        android:paddingBottom="20dp" />
+
+
+</RelativeLayout>

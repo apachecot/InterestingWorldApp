@@ -24,8 +24,6 @@ import org.apache.http.Header;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.FileNotFoundException;
-
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
 /**
@@ -38,6 +36,12 @@ public class FragmentDialogComment extends DialogFragment {
     private SweetAlertDialog pDialog;
     String result;
 
+    private onSubmitComment callback;
+
+    public interface onSubmitComment {
+        public void onSubmitComment(String State);
+    }
+
     public FragmentDialogComment() {
         fragment = new SupportMapFragment();
     }
@@ -48,7 +52,7 @@ public class FragmentDialogComment extends DialogFragment {
         getDialog().requestWindowFeature(STYLE_NORMAL);
         getDialog().setTitle("Escribe tu comentario");
 
-        comment=(EditText)view.findViewById(R.id.editTextComment);
+        comment=(EditText)view.findViewById(R.id.editTextAdvanced);
         Location location=((MainActivityUser) getActivity()).GetLocationSelected();
         bAccept = (BootstrapButton)view.findViewById(R.id.dialogButtonOk);
         bAccept.setOnClickListener(new View.OnClickListener() {
@@ -67,6 +71,17 @@ public class FragmentDialogComment extends DialogFragment {
 
         return view;
     }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        try {
+            callback = (onSubmitComment) getTargetFragment();
+        } catch (Exception e) {
+            throw new ClassCastException("Calling Fragment must implement OnAddFriendListener");
+        }
+        super.onCreate(savedInstanceState);
+    }
+
     public void buttonAccept(){
         //Inicializamos dialog
         pDialog = new SweetAlertDialog(this.getActivity(), SweetAlertDialog.PROGRESS_TYPE);
@@ -80,11 +95,11 @@ public class FragmentDialogComment extends DialogFragment {
 
         if(isValidName(comment.getText().toString())) {
 
-            String url = "http://interestingworld.webcindario.com/insert_comment.php";
+            String url = Links.getUrl_add_comment();
             RequestParams params = new RequestParams();
             params.put("id_user", user.getId());
             params.put("id_location", location.getId());
-            params.put("comment", comment.getText().toString());
+            params.put("comment", comment.getText());
 
 
             client.post(url, params, new AsyncHttpResponseHandler() {
@@ -105,6 +120,7 @@ public class FragmentDialogComment extends DialogFragment {
                             if (getResult().equals("bien")) {
                                 AppMsg.makeText(getActivity(), "Comentario añadido correctamente", AppMsg.STYLE_INFO).setLayoutGravity(Gravity.BOTTOM).show();
                                 pDialog.hide();
+                                callback.onSubmitComment("ok");
                                 getDialog().dismiss();
                             } else {
                                 AppMsg.makeText(getDialog().getOwnerActivity(), "Error al intentar subir los datos, comprueba que todo este correcto", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();

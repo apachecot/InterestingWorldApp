@@ -2,10 +2,13 @@ package world.interesting.panche.interestingworld;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -23,6 +26,10 @@ public class MainActivity extends MaterialNavigationDrawer{
     Location locationSelected;
     String url_full="";
     private Picasso mPicasso;
+    Fragment fraglastlocations, fragexplore, fragphotos,fragdetailstab,fragdetails,fragphotosdetail,fragcomments;
+    Boolean doubleBackToExitPressedOnce=false;
+    String advanced="";
+    int category=0;
 
 
 
@@ -32,12 +39,23 @@ public class MainActivity extends MaterialNavigationDrawer{
         mPicasso = new Picasso.Builder(this).executor(Executors.newSingleThreadExecutor()).build();
         //mPicasso.setIndicatorsEnabled(true);
 
-        // night section with section color
-        lastLocations = this.newSection(this.getResources().getString(R.string.lastlocations),this.getResources().getDrawable(R.drawable.map), new FragmentIndex()).setSectionColor(Color.parseColor("#03a9f4"));
+        fragdetailstab=new FragmentLocationDetailTabs();
+        fragdetails=new FragmentLocationDetail();
+        fragphotosdetail=new FragmentPhotosDetail();
+        fragcomments=new FragmentComments();
 
-        explore = this.newSection(this.getResources().getString(R.string.explore), this.getResources().getDrawable(R.drawable.location), new FragmentMap()).setSectionColor(Color.parseColor("#03a9f4"));
-                // recorder section with icon and 10 notifications
-        photos = this.newSection(this.getResources().getString(R.string.photos), this.getResources().getDrawable(R.drawable.photo), new FragmentPhotos()).setSectionColor(Color.parseColor("#03a9f4"));
+        fraglastlocations=new FragmentIndex();
+
+        //Últimos puntos de interés
+        lastLocations = this.newSection(this.getResources().getString(R.string.lastlocations),this.getResources().getDrawable(R.drawable.map),fraglastlocations).setSectionColor(Color.parseColor("#03a9f4"));
+
+        fragexplore=new FragmentMap();
+        //Explorar el mapa cercano
+        explore = this.newSection(this.getResources().getString(R.string.explore), this.getResources().getDrawable(R.drawable.location), fragexplore).setSectionColor(Color.parseColor("#03a9f4"));
+
+        fragphotos=new FragmentPhotos();
+        // Últimas fotografías
+        photos = this.newSection(this.getResources().getString(R.string.photos), this.getResources().getDrawable(R.drawable.photo), fragphotos).setSectionColor(Color.parseColor("#03a9f4"));
 
 
         // add your sections to the drawer
@@ -48,7 +66,7 @@ public class MainActivity extends MaterialNavigationDrawer{
         //this.addSubheader("Opciones");
         //this.addDivisor();
 
-
+        this.setBackPattern(MaterialNavigationDrawer.BACKPATTERN_CUSTOM);
         //this.closeOptionsMenu();
         this.addMultiPaneSupport();
         this.allowArrowAnimation();
@@ -77,6 +95,20 @@ public class MainActivity extends MaterialNavigationDrawer{
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+    @Override
+    protected MaterialSection backToSection(MaterialSection currentSection) {
+
+        if(currentSection == lastLocations) {
+
+            return lastLocations;
+        }
+        else{
+
+            return lastLocations;
+        }
+
+
     }
 
     /**
@@ -107,6 +139,66 @@ public class MainActivity extends MaterialNavigationDrawer{
 
     public Picasso getmPicasso() {
         return mPicasso;
+    }
+
+    public Fragment getFragphotosdetail() {
+        return fragphotosdetail;
+    }
+
+    public Fragment getFragdetails() {
+        return fragdetails;
+    }
+
+    public Fragment getFragdetailstab() {
+        return fragdetailstab;
+    }
+
+    public Fragment getFragcomments() {
+        return fragcomments;
+    }
+
+    public void setFragcomments() {
+        FragmentManager fm =this.getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
+        ft.remove(fragcomments).commit();
+        this.fragcomments =  new FragmentComments();
+    }
+
+    public void setFragphotosdetail() {
+        FragmentManager fm =this.getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
+        ft.remove(fragphotosdetail).commit();
+        this.fragphotosdetail =  new FragmentPhotosDetail();
+    }
+
+    public void setFragdetails() {
+        FragmentManager fm =this.getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
+        ft.remove(fragdetails).commit();
+        this.fragdetails = new FragmentLocationDetail();
+    }
+
+    public void setFragdetailstab() {
+        FragmentManager fm =this.getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
+        ft.remove(fragdetailstab).commit();
+        this.fragdetailstab = new FragmentLocationDetailTabs();
+    }
+    public void setAdvancedSearch(String advn)
+    {
+        this.advanced=advn;
+    }
+    public String getAdvancedSearch()
+    {
+        System.out.println(this.advanced);
+        return this.advanced;
+    }
+    public int getCategory() {
+        return category;
+    }
+
+    public void setCategory(int category) {
+        this.category = category;
     }
 }
 

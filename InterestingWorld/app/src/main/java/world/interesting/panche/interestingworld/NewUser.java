@@ -4,9 +4,7 @@ package world.interesting.panche.interestingworld;
  * Created by Alex on 15/01/2015.
  */
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -41,6 +39,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
@@ -52,7 +52,7 @@ public class NewUser extends Fragment {
 
     EditText name,lastname,email,password;
     private ProgressDialog pDialog;
-    private BD bd = new BD();
+    private Links bd = new Links();
     String result;
     String[] datos= new String[5];
     Uri selectedImage;
@@ -106,6 +106,11 @@ public class NewUser extends Fragment {
         client.cancelAllRequests(true);
         super.onDestroy();
     }
+    @Override
+    public void onDestroyView() {
+        client.cancelRequests(this.getActivity(),true);
+        super.onDestroyView();
+    }
     public void buttonAccept(View view) throws JSONException, FileNotFoundException {
         //Inicializamos dialog
         pDialog = new ProgressDialog(NewUser.this.getActivity());
@@ -121,42 +126,53 @@ public class NewUser extends Fragment {
         result="";
 
         if(!name.getText().toString().equals("") && !lastname.getText().toString().equals("") && !email.getText().toString().equals("") && !password.getText().toString().equals("")) {
-            client = new AsyncHttpClient();
 
-            String url = "http://interestingworld.webcindario.com/insert_user.php";
-            RequestParams params = new RequestParams();
-            params.put("name", name.getText());
-            params.put("lastname", lastname.getText());
-            params.put("email", email.getText());
-            params.put("password", password.getText());
-            //Cargar la imagen
-            int numero1 = (int) (Math.random() * 99999999) + 1;
-            int numero2 = (int) (Math.random() * 99999999) + 1;
-            params.put("photo_url", is, numero1+""+numero2 + "_user.jpg");
+            if(is!=null) {
+                client = new AsyncHttpClient();
+
+                String url = Links.getUrl_add_user();
+                RequestParams params = new RequestParams();
+                params.put("name", name.getText());
+                params.put("lastname", lastname.getText());
+                params.put("email", email.getText());
+                params.put("password", MD5(password.getText().toString()));
+                //Cargar la imagen
+                int numero1 = (int) (Math.random() * 99999999) + 1;
+                int numero2 = (int) (Math.random() * 99999999) + 1;
+                params.put("photo_url", is, numero1 + "" + numero2 + "_user.jpg");
 
 
+                client.post(url, params, new AsyncHttpResponseHandler() {
+                    @Override
+                    public void onStart() {
+                        circularProgressButton.setProgress(50);
+                        circularProgressButton.setIndeterminateProgressMode(true);
+                    }
 
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                        if (statusCode == 200) {
 
-            client.post(url, params, new AsyncHttpResponseHandler() {
-                @Override
-                public void onStart() {
-                    circularProgressButton.setProgress(50);
-                    circularProgressButton.setIndeterminateProgressMode(true);
-                }
+                            try {
+                                System.out.println(new String(responseBody));
+                                setResult(new String(responseBody));
+                                System.out.println(getResult());
+                                if (getResult().equals("bien")) {
+                                    AppMsg.makeText(NewUser.this.getActivity(), "Registro correcto", AppMsg.STYLE_INFO).setLayoutGravity(Gravity.BOTTOM).show();
+                                    circularProgressButton.setProgress(100);
+                                    entrar();
+                                } else {
+                                    AppMsg.makeText(NewUser.this.getActivity(), "Error en el registro, compruebe los campos", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                                    circularProgressButton.setProgress(-1);
+                                    handler.postDelayed(new Runnable() {
+                                        public void run() {
+                                            circularProgressButton.setProgress(0);
+                                        }
+                                    }, 1000);
+                                }
 
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                    if (statusCode == 200) {
-
-                        try {
-                            System.out.println(new String(responseBody));
-                            setResult(new String(responseBody));
-                            System.out.println(getResult());
-                            if (getResult().equals("bien")) {
-                                AppMsg.makeText(NewUser.this.getActivity(), "Registro correcto", AppMsg.STYLE_INFO).setLayoutGravity(Gravity.BOTTOM).show();
-                                circularProgressButton.setProgress(100);
-                                entrar();
-                            } else {
+                            } catch (JSONException e) {
+                                System.out.println("Falla:" + e);
                                 AppMsg.makeText(NewUser.this.getActivity(), "Error en el registro, compruebe los campos", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
                                 circularProgressButton.setProgress(-1);
                                 handler.postDelayed(new Runnable() {
@@ -165,33 +181,32 @@ public class NewUser extends Fragment {
                                     }
                                 }, 1000);
                             }
-
-                        } catch (JSONException e) {
-                            System.out.println("Falla:" + e);
-                            AppMsg.makeText(NewUser.this.getActivity(), "Error en el registro, compruebe los campos", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
-                            circularProgressButton.setProgress(-1);
-                            handler.postDelayed(new Runnable() {
-                                public void run() {
-                                    circularProgressButton.setProgress(0);
-                                }
-                            }, 1000);
                         }
+                        pDialog.hide();
                     }
-                    pDialog.hide();
-                }
 
-                @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    AppMsg.makeText(NewUser.this.getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
-                    circularProgressButton.setProgress(-1);
-                    handler.postDelayed(new Runnable() {
-                        public void run() {
-                            circularProgressButton.setProgress(0);
-                        }
-                    }, 1000);
-                    pDialog.hide();
-                }
-            });
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        AppMsg.makeText(NewUser.this.getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
+                        circularProgressButton.setProgress(-1);
+                        handler.postDelayed(new Runnable() {
+                            public void run() {
+                                circularProgressButton.setProgress(0);
+                            }
+                        }, 1000);
+                        pDialog.hide();
+                    }
+                });
+            }else
+            {
+                AppMsg.makeText(NewUser.this.getActivity(), "Es necesaria una fotografía de usuario", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                circularProgressButton.setProgress(-1);
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        circularProgressButton.setProgress(0);
+                    }
+                }, 1000);
+            }
         }else{
             AppMsg.makeText(NewUser.this.getActivity(), "Los campos no pueden estar vacios", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
             circularProgressButton.setProgress(-1);
@@ -310,6 +325,26 @@ public class NewUser extends Fragment {
         return inSampleSize;
     }
 
+    //Convertidor a MD5
+    public static String MD5(String string) {
 
+        try {
+            //.s. Create MD5 Hash
+            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+            digest.update(string.getBytes());
+            byte messageDigest[] = digest.digest();
+
+            //.s. Create Hex String
+            StringBuffer hexString = new StringBuffer();
+            for (int i=0; i<messageDigest.length; i++)
+                hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        return string.replaceAll("[.:/,%?#&=]","");
+    }
 
 }

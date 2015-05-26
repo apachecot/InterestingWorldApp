@@ -1,7 +1,9 @@
 package world.interesting.panche.interestingworld;
 
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,9 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.NetworkPolicy;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -52,7 +51,7 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
         if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
 
             ((MainActivity) context).getmPicasso() //
-                    .load("http://"+loc.getUrl())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
+                    .load(Links.getUrl_images()+loc.getUrl())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
                     .placeholder(R.drawable.back1) //
                     .error(R.drawable.not_found) //
                     .fit().centerCrop()//
@@ -63,7 +62,7 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
         }else {
 
             ((MainActivityUser) context).getmPicasso() //
-                    .load("http://"+loc.getUrl())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
+                    .load(Links.getUrl_images()+loc.getUrl())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
                     .placeholder(R.drawable.back1) //
                     .error(R.drawable.not_found) //
                     .fit().centerCrop()//
@@ -102,15 +101,26 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
         public void onClick(View view) {
 
             Location loc= (Location) view.getTag();
-            Fragment fragment = new FragmentLocationDetailTabs();
+
+            Fragment fragment;
+
+
+
             Class cl=view.getContext().getClass();
 
             if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
                 ((MainActivity) view.getContext()).SetLocationSelected(loc);
+                ((MainActivity) view.getContext()).setFragdetailstab();
+                fragment =((MainActivity) view.getContext()).getFragdetailstab();
             }else {
                 ((MainActivityUser) view.getContext()).SetLocationSelected(loc);
+                ((MainActivityUser) view.getContext()).setFragdetailstab();
+                fragment =((MainActivityUser) view.getContext()).getFragdetailstab();
             }
-            ((MaterialNavigationDrawer)view.getContext()).setFragmentChild(fragment,loc.getName());
+            ((MaterialNavigationDrawer)view.getContext()).setFragmentChild(fragment, loc.getName());
+            //((MaterialNavigationDrawer)view.getContext()).onAttachFragment(fragment);
+            System.out.println(((MaterialNavigationDrawer)view.getContext()).getSupportFragmentManager().getFragments());
+
 
         }
 

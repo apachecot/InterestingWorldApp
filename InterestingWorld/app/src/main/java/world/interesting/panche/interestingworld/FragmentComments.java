@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cuneytayyildiz.widget.PullRefreshLayout;
@@ -44,7 +45,7 @@ import java.util.ArrayList;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
 
-public class FragmentComments extends Fragment {
+public class FragmentComments extends Fragment implements FragmentDialogComment.onSubmitComment{
 
 
 
@@ -58,53 +59,76 @@ public class FragmentComments extends Fragment {
     PullRefreshLayout layout;
     MenuItem selected;
     FloatingActionButton fab;
-    TextView emptyView;
+    View emptyView;
     AsyncHttpClient client=new AsyncHttpClient();
+    Boolean cancel;
+    ImageButton reload;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        inflatedView = inflater.inflate(R.layout.fragment_comments, container, false);
-        TextView text = new TextView(this.getActivity());
-        text.setText(this.getResources().getString(R.string.profile));
-        text.setGravity(Gravity.CENTER);
-        setHasOptionsMenu(true);
-        fm= this.getActivity().getSupportFragmentManager();
-        fab= (FloatingActionButton) inflatedView.findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if(getActivity().getLocalClassName().equals("MainActivityUser")) {
-                    dialogComment();
-                }else{
-                    AppMsg.makeText(getActivity(), "Debes estar loggeado para poder introducir un comentario", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+        if(cancel==false) {
+            inflatedView = inflater.inflate(R.layout.fragment_comments, container, false);
+            TextView text = new TextView(this.getActivity());
+            text.setText(this.getResources().getString(R.string.profile));
+            text.setGravity(Gravity.CENTER);
+            setHasOptionsMenu(true);
+            fm = this.getActivity().getSupportFragmentManager();
+            fab = (FloatingActionButton) inflatedView.findViewById(R.id.fab);
+            fab.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    if (getActivity().getLocalClassName().equals("MainActivityUser")) {
+                        dialogComment();
+                    } else {
+                        AppMsg.makeText(getActivity(), "Debes estar loggeado para poder introducir un comentario", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                    }
                 }
-            }
-        });
+            });
+            reload = (ImageButton) inflatedView.findViewById(R.id.ic1);
+            reload.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    loadData();
+                }
+            });
+            layout = (PullRefreshLayout) inflatedView.findViewById(R.id.swipeRefreshLayout);
 
-        layout = (PullRefreshLayout) inflatedView.findViewById(R.id.swipeRefreshLayout);
-
-        // listen refresh event
-        layout.setOnRefreshListener(new PullRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                loadData();
-            }
-        });
+            // listen refresh event
+            layout.setOnRefreshListener(new PullRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    loadData();
+                }
+            });
 
 
+        }
         return inflatedView;
+
 
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        materialCardLoad();
-        loadData();
+    public void onDestroyView() {
+        client.cancelRequests(this.getActivity(),true);
+        super.onDestroyView();
     }
     @Override
     public void onDestroy() {
+        cancel=true;
         client.cancelAllRequests(true);
         super.onDestroy();
+    }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        cancel=false;
+        super.onCreate(savedInstanceState);
+    }
+    @Override
+    public void onStart() {
+        materialCardLoad();
+        loadData();
+        super.onStart();
     }
 
     public void loadData()
@@ -126,7 +150,7 @@ public class FragmentComments extends Fragment {
         RequestParams params = new RequestParams();
         params.put("id", loc.getId());
 
-        String url="http://interestingworld.webcindario.com/consulta_comments.php";
+        String url=Links.getUrl_get_comments();
 
 
 
@@ -147,21 +171,26 @@ public class FragmentComments extends Fragment {
                         setResult(new String(responseBody));
                     }catch(JSONException e)
                     {
-                        System.out.println("Falla:"+e );
-                        layout.setRefreshing(false);
-                        list.clear();
-                        materialCardLoad();
+                        if(cancel==false) {
+                            System.out.println("Falla:" + e);
+                            layout.setRefreshing(false);
+                            list.clear();
+                            materialCardLoad();
+                        }
+                        AppMsg.makeText(getActivity(), "No se han encontrado comentarios", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
                     }
                 }
                 pDialog.hide();
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                AppMsg.makeText(getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
-                pDialog.hide();
-                list.clear();
-                materialCardLoad();
-                layout.setRefreshing(false);
+                if(cancel==false) {
+                    AppMsg.makeText(getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
+                    pDialog.hide();
+                    list.clear();
+                    materialCardLoad();
+                    layout.setRefreshing(false);
+                }
             }
         });
     }
@@ -189,28 +218,29 @@ public class FragmentComments extends Fragment {
     }
     public void materialCardLoad ()
     {
+        if(cancel==false) {
+            RecyclerView recyclerView = (RecyclerView) inflatedView.findViewById(R.id.my_recycler_view);
+            recyclerView.setHasFixedSize(true);
+            CommentsAdapter dataset = new CommentsAdapter(list, R.layout.comment, this.getActivity());
+            recyclerView.setAdapter(dataset);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
+            emptyView = (View) inflatedView.findViewById(R.id.empty_view2);
+            if (dataset.getItemCount() == 0) {
 
-        RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.my_recycler_view);
-        recyclerView.setHasFixedSize(true);
-        CommentsAdapter dataset=new CommentsAdapter(list, R.layout.comment,this.getActivity());
-        recyclerView.setAdapter(dataset);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        emptyView = (TextView) getActivity().findViewById(R.id.empty_view_comments);
-        if (dataset.getItemCount()==0) {
+                recyclerView.setVisibility(View.INVISIBLE);
+                emptyView.setVisibility(View.VISIBLE);
 
-            recyclerView.setVisibility(View.INVISIBLE);
-            emptyView.setVisibility(View.VISIBLE);
 
+            } else {
+                recyclerView.setVisibility(View.VISIBLE);
+                emptyView.setVisibility(View.INVISIBLE);
+            }
+            fab.attachToRecyclerView(recyclerView);
+
+            // refresh complete
+            layout.setRefreshing(false);
         }
-        else {
-            recyclerView.setVisibility(View.VISIBLE);
-            emptyView.setVisibility(View.INVISIBLE);
-        }
-        fab.attachToRecyclerView(recyclerView);
-
-        // refresh complete
-        layout.setRefreshing(false);
 
     }
 
@@ -221,7 +251,18 @@ public class FragmentComments extends Fragment {
     private void dialogComment() {
         // custom dialog
         FragmentDialogComment dFragment = new FragmentDialogComment();
-        // Show DialogFragment
+        dFragment.setTargetFragment(this, 0);
         dFragment.show(fm, "Dialog Fragment");
     }
+
+    @Override
+    public void onSubmitComment(String State) {
+        loadData();
+    }
+
+
+    public void onDeleteComment() {
+        loadData();
+    }
+
 }

@@ -1,5 +1,6 @@
 package world.interesting.panche.interestingworld;
 
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,6 +11,8 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -24,6 +27,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.concurrent.Executors;
 
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
@@ -37,6 +41,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
 
     MaterialAccount account;
     MaterialSection lastLocations, explore, photos, addlocation, visitlocation,likedlocations, settingsSection;
+    Fragment fraglastlocations, fragexplore, fragphotos, fragaddlocation, fragvisitlocation, fraglikedlocations,fragdetailstab,fragdetails,fragphotosdetail,fragcomments;
     User user;
     String[] datos= new String[5];
     File file_image= new File("");
@@ -52,10 +57,13 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     String id_image_selected="";
     private Picasso mPicasso;
     Intent i;
+    String advanced="";
+    int category=0;
+
+
 
     @Override
     public void init(Bundle savedInstanceState) {
-
 
         mPicasso = new Picasso.Builder(this).executor(Executors.newSingleThreadExecutor()).build();
         //mPicasso.setIndicatorsEnabled(true);
@@ -65,10 +73,38 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         user=new User(datos[0],datos[1],datos[2],datos[4],datos[3]);
         photo_url=datos[4];
         //Llamamos a cargar la imagen
-        loadImage("http://"+photo_url);
+        loadImage(Links.getUrl_images()+photo_url);
+
 
         //Creamos la cuenta, con la imagen por defecto, si existe una imagen en el servidor se cambiará
-        account = new MaterialAccount(this.getResources(),datos[1]+" "+datos[2],datos[3],R.drawable.defaultuser,R.drawable.back3);
+        Random r = new Random();
+        int num = r.nextInt(6);
+        switch (num)
+        {
+            case 0:
+                account = new MaterialAccount(this.getResources(),datos[1]+" "+datos[2],datos[3],R.drawable.defaultuser,R.drawable.back3);
+                break;
+            case 1:
+                account = new MaterialAccount(this.getResources(),datos[1]+" "+datos[2],datos[3],R.drawable.defaultuser,R.drawable.back4);
+                break;
+            case 2:
+                account = new MaterialAccount(this.getResources(),datos[1]+" "+datos[2],datos[3],R.drawable.defaultuser,R.drawable.back5);
+                break;
+            case 3:
+                account = new MaterialAccount(this.getResources(),datos[1]+" "+datos[2],datos[3],R.drawable.defaultuser,R.drawable.back6);
+                break;
+            case 4:
+                account = new MaterialAccount(this.getResources(),datos[1]+" "+datos[2],datos[3],R.drawable.defaultuser,R.drawable.back7);
+                break;
+            case 5:
+                account = new MaterialAccount(this.getResources(),datos[1]+" "+datos[2],datos[3],R.drawable.defaultuser,R.drawable.back8);
+                break;
+            default:
+                account = new MaterialAccount(this.getResources(),datos[1]+" "+datos[2],datos[3],R.drawable.defaultuser,R.drawable.back3);
+                break;
+        }
+
+
 
         //Añadimos la cuenta al menú
         this.addAccount(account);
@@ -76,24 +112,37 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         // Seteamos la opción de pulsar a la cuenta
         this.setAccountListener(this);
 
+        fragdetailstab=new FragmentLocationDetailTabs();
+        fragdetails=new FragmentLocationDetail();
+        fragphotosdetail=new FragmentPhotosDetail();
+        fragcomments=new FragmentComments();
+
+
+        fraglastlocations=new FragmentIndex();
         // Ultimas localizaciones
-        lastLocations = this.newSection(this.getResources().getString(R.string.lastlocations),this.getResources().getDrawable(R.drawable.map), new FragmentIndex()).setSectionColor(Color.parseColor("#03a9f4"));
+        lastLocations = this.newSection(this.getResources().getString(R.string.lastlocations),this.getResources().getDrawable(R.drawable.map),fraglastlocations ).setSectionColor(Color.parseColor("#03a9f4"));
 
+        fragexplore=new FragmentMap();
         //Explorar el mapa cercano
-        explore = this.newSection(this.getResources().getString(R.string.explore), this.getResources().getDrawable(R.drawable.location), new FragmentMap()).setSectionColor(Color.parseColor("#03a9f4"));
+        explore = this.newSection(this.getResources().getString(R.string.explore), this.getResources().getDrawable(R.drawable.location), fragexplore).setSectionColor(Color.parseColor("#03a9f4"));
 
+        fragphotos=new FragmentPhotos();
         // Explorar fotografías
-        photos = this.newSection(this.getResources().getString(R.string.photos), this.getResources().getDrawable(R.drawable.photo), new FragmentPhotos()).setSectionColor(Color.parseColor("#03a9f4"));
+        photos = this.newSection(this.getResources().getString(R.string.photos), this.getResources().getDrawable(R.drawable.photo), fragphotos).setSectionColor(Color.parseColor("#03a9f4"));
 
+        fragaddlocation=new FragmentAddLocation();
         // Añadir una localización
-        addlocation = this.newSection(this.getResources().getString(R.string.addlocation), this.getResources().getDrawable(R.drawable.addlocation), new FragmentAddLocation())
+        addlocation = this.newSection(this.getResources().getString(R.string.addlocation), this.getResources().getDrawable(R.drawable.addlocation), fragaddlocation)
                 .setSectionColor(Color.parseColor("#2196f3"),Color.parseColor("#1565c0"));
 
+        fragvisitlocation= new FragmentLocationsVisited();
         //Puntos visitados
-        visitlocation = this.newSection(this.getResources().getString(R.string.visitlocation), this.getResources().getDrawable(R.drawable.visit), new FragmentLocationsVisited())
+        visitlocation = this.newSection(this.getResources().getString(R.string.visitlocation), this.getResources().getDrawable(R.drawable.visit), fragvisitlocation)
                 .setSectionColor(Color.parseColor("#2196f3"),Color.parseColor("#1565c0"));
+
+        fraglikedlocations= new FragmentLocationsLiked();
         //Puntos que te gustan
-        likedlocations = this.newSection(this.getResources().getString(R.string.likedlocations), this.getResources().getDrawable(R.drawable.like), new FragmentLocationsLiked())
+        likedlocations = this.newSection(this.getResources().getString(R.string.likedlocations), this.getResources().getDrawable(R.drawable.like), fraglikedlocations)
                 .setSectionColor(Color.parseColor("#2196f3"),Color.parseColor("#1565c0"));
 
         //Para cargar la configuración
@@ -118,7 +167,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
 
 
 
-        this.setBackPattern(MaterialNavigationDrawer.BACKPATTERN_BACK_TO_FIRST);
+        this.setBackPattern(MaterialNavigationDrawer.BACKPATTERN_CUSTOM);
         //this.closeOptionsMenu();
         this.addMultiPaneSupport();
         this.allowArrowAnimation();
@@ -141,6 +190,20 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     @Override
     protected void onStart() {
         super.onStart();
+    }
+
+    @Override
+    protected MaterialSection backToSection(MaterialSection currentSection) {
+
+        if(currentSection == lastLocations) {
+            System.out.println("Back");
+        }
+        else{
+
+            return lastLocations;
+        }
+
+        return currentSection;
     }
 
 
@@ -176,7 +239,10 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     }
     public void setPosition(double vlat, double vlng)
     {
-        TextView latlng=(TextView)this.findViewById(R.id.textViewLatLng);
+        EditText editAdress =(EditText)this.findViewById(R.id.editTextAdress);
+        EditText editCity =(EditText)this.findViewById(R.id.editTextCity);
+        EditText editCountry =(EditText)this.findViewById(R.id.editTextCountry);
+
         locality="";
         country="";
         address="";
@@ -211,7 +277,9 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
             }
             System.out.println(address + " " + locality + " " + country);
         }
-        latlng.setText(address+" "+locality+" "+country);
+        editAdress.setText(address);
+        editCity.setText(locality);
+        editCountry.setText(country);
         lat=vlat;
         lng=vlng;
 
@@ -227,7 +295,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
 
     public void intentProfile() {
         Fragment fragment = new FragmentProfile();
-        ((MaterialNavigationDrawer) this).setFragmentChild(fragment, "Profile");
+        ((MaterialNavigationDrawer) this).setFragmentChild(fragment, "Perfil");
 
     }
 
@@ -288,7 +356,65 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         startActivity(i);
         finish();
     }
+    public Fragment getFragphotosdetail() {
+        return fragphotosdetail;
+    }
 
+    public Fragment getFragdetails() {
+        return fragdetails;
+    }
 
+    public Fragment getFragdetailstab() {
+        return fragdetailstab;
+    }
+
+    public Fragment getFragcomments() {
+        return fragcomments;
+    }
+
+    public void setFragcomments() {
+        FragmentManager fm =this.getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
+        ft.remove(fragcomments).commit();
+        this.fragcomments =  new FragmentComments();
+    }
+
+    public void setFragphotosdetail() {
+        FragmentManager fm =this.getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
+        ft.remove(fragphotosdetail).commit();
+        this.fragphotosdetail =  new FragmentPhotosDetail();
+    }
+
+    public void setFragdetails() {
+        FragmentManager fm =this.getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
+        ft.remove(fragdetails).commit();
+        this.fragdetails = new FragmentLocationDetail();
+    }
+
+    public void setFragdetailstab() {
+        FragmentManager fm =this.getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
+        ft.remove(fragdetailstab).commit();
+        this.fragdetailstab = new FragmentLocationDetailTabs();
+    }
+    public void setAdvancedSearch(String advn)
+    {
+        this.advanced=advn;
+    }
+    public String getAdvancedSearch()
+    {
+        System.out.println(this.advanced);
+        return this.advanced;
+    }
+
+    public int getCategory() {
+        return category;
+    }
+
+    public void setCategory(int category) {
+        this.category = category;
+    }
 }
 

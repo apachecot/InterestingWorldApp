@@ -40,11 +40,5 @@
             android:listSelector="@null"
             />
     </com.cuneytayyildiz.widget.PullRefreshLayout>
-    <TextView
-        android:id="@+id/empty_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:visibility="invisible"
-        android:text="@string/no_data_available" />
+    <include layout="@layout/empty_layout" android:id="@+id/empty_view"/>
 </FrameLayout>

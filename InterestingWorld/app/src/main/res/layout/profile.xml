@@ -45,8 +45,9 @@ android:layout_height="match_parent">
                     android:background="@android:color/white"
                     android:layout_alignParentTop="true"
                     android:layout_toRightOf="@+id/textView7"
-                    android:layout_toEndOf="@+id/textView7"
-                    android:maxLines="1" />
+                    android:maxLines="1"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
 
                 <TextView
                     android:layout_width="wrap_content"

@@ -69,7 +69,6 @@ public class FragmentProfile extends Fragment implements MaterialTabListener {
             );
 
         }
-
         tabHost.setSelectedNavigationItem(0);
 
         return view;

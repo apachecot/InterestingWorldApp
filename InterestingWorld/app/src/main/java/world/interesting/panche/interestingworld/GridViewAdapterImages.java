@@ -41,7 +41,7 @@ final class GridViewAdapterImages extends BaseAdapter {
         if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
 
             ((MainActivity) context).getmPicasso() //
-                    .load("http://"+url)//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
+                    .load(Links.getUrl_images()+url)//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
                     .placeholder(R.drawable.back1) //
                     .error(R.drawable.not_found) //
                     .fit().centerCrop()//
@@ -52,7 +52,7 @@ final class GridViewAdapterImages extends BaseAdapter {
         }else {
 
             ((MainActivityUser) context).getmPicasso() //
-                    .load("http://"+url)//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
+                    .load(Links.getUrl_images()+url)//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
                     .placeholder(R.drawable.back1) //
                     .error(R.drawable.not_found) //
                     .fit().centerCrop()//

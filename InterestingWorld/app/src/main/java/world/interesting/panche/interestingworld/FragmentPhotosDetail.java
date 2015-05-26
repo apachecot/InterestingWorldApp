@@ -4,8 +4,11 @@ package world.interesting.panche.interestingworld;
  * Created by Alex on 15/01/2015.
  */
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -13,8 +16,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -25,7 +30,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cuneytayyildiz.widget.PullRefreshLayout;
@@ -43,16 +50,19 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
-public class FragmentPhotosDetail extends Fragment {
+public class FragmentPhotosDetail extends Fragment implements FragmentImageViewer.onRateImage {
     View inflatedView;
     GridViewAdapterImages gridAdapter;
     private SweetAlertDialog pDialog;
@@ -68,9 +78,10 @@ public class FragmentPhotosDetail extends Fragment {
     String[] datos= new String[5];
     Uri selectedImage;
     InputStream is;
-    TextView emptyView;
+    File image;
+    View emptyView;
     AsyncHttpClient client=new AsyncHttpClient();
-
+    ImageButton reload;
 
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -82,13 +93,23 @@ public class FragmentPhotosDetail extends Fragment {
         setHasOptionsMenu(true);
         fm= this.getActivity().getSupportFragmentManager();
 
-        emptyView = (TextView) inflatedView.findViewById(R.id.empty_view);
+        emptyView = (View) inflatedView.findViewById(R.id.empty_view);
         gridAdapter=new GridViewAdapterImages(this.getActivity());
+
 
         gv = (GridView) inflatedView.findViewById(R.id.grid_view);
         gv.setAdapter(gridAdapter);
         gv.setOnScrollListener(new SampleScrollListener(this.getActivity()));
         gv.setEmptyView(emptyView);
+        reload = (ImageButton) inflatedView.findViewById(R.id.ic1);
+
+        // listen refresh event
+        reload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadData();
+            }
+        });
 
         fab= (FloatingActionButton) inflatedView.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -139,6 +160,11 @@ public class FragmentPhotosDetail extends Fragment {
         client.cancelAllRequests(true);
         super.onDestroy();
     }
+    @Override
+    public void onDestroyView() {
+        client.cancelRequests(this.getActivity(),true);
+        super.onDestroyView();
+    }
 
     public void loadData()
     {
@@ -155,7 +181,7 @@ public class FragmentPhotosDetail extends Fragment {
         }
         params.put("id", loc.getId());
 
-        String url="http://interestingworld.webcindario.com/consulta_photos_detail.php";
+        String url=Links.getUrl_get_images_location();
 
         client.post(url,params,new AsyncHttpResponseHandler() {
             @Override
@@ -222,7 +248,7 @@ public class FragmentPhotosDetail extends Fragment {
     {
 
         FragmentImageViewer dFragment = new FragmentImageViewer();
-        // Supply num input as an argument.
+        dFragment.setTargetFragment(this, 0);
         // Show DialogFragment
         Class cl=this.getActivity().getClass();
         if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
@@ -237,52 +263,181 @@ public class FragmentPhotosDetail extends Fragment {
 
     public void selectImage (View view)
     {
-        Intent intent =  new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+
+        final String[] option = new String[] { "Hacer una fotografía", "Buscar una fotografía"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.select_dialog_item, option);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+        builder.setTitle("Elige una opción");
+        builder.setAdapter(adapter, new DialogInterface.OnClickListener()
+        {
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which)
+                {
+                    case 0:
+                        take_photo();
+                        break;
+                    case 1:
+                        image_path();
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+        });
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
+    //Seleccionar una imagen por la ruta
+    public void image_path()
+    {
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
         int  code = 2;
         startActivityForResult(intent, code);
     }
+    //Realizar una fotografía nueva
+    public void take_photo()
+    {
+        Intent imageIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+
+        //folder stuff
+        File imagesFolder = new File(Environment.getExternalStorageDirectory(), "Interesting");
+        imagesFolder.mkdirs();
+
+        image = new File(imagesFolder, "QR_" + timeStamp + ".png");
+        selectedImage = Uri.fromFile(image);
+
+        imageIntent.putExtra(MediaStore.EXTRA_OUTPUT, selectedImage);
+        startActivityForResult(imageIntent, 1);
+    }
 
     @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == 1) {
+                try {
 
-        try {
-            if(data!=null) {
-                selectedImage = data.getData();
-                is = this.getActivity().getContentResolver().openInputStream(selectedImage);
-                InputStream is2 = this.getActivity().getContentResolver().openInputStream(selectedImage);
-                BufferedInputStream bis = new BufferedInputStream(is);
-                BufferedInputStream bis2 = new BufferedInputStream(is2);
+                    is = this.getActivity().getContentResolver().openInputStream(selectedImage);
+                    InputStream is2 = this.getActivity().getContentResolver().openInputStream(selectedImage);
+                    BufferedInputStream bis = new BufferedInputStream(is);
+                    BufferedInputStream bis2 = new BufferedInputStream(is2);
 
 
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inJustDecodeBounds = true;
-                BitmapFactory.decodeStream(bis,null, options);
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    BitmapFactory.decodeStream(bis, null, options);
+                    //Comprimimos la imagen
+                    options.inSampleSize = calculateInSampleSize(options, 480, 480);
+                    options.inJustDecodeBounds = false;
+                    Bitmap bitmap = BitmapFactory.decodeStream(bis2, null, options);
 
-                options.inSampleSize = calculateInSampleSize(options,480,480);
-                options.inJustDecodeBounds = false;
-                Bitmap bitmap = BitmapFactory.decodeStream(bis2,null,options);
+                    //Rotar la imagen
+                    String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
+                    Cursor cur = this.getActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
+                    Matrix matrix = new Matrix();
+                    int orientation = -1;
+                    if (cur != null && cur.moveToFirst()) {
+                        orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
 
-                //Rotar la imagen
-                String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
-                Cursor cur = this.getActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
-                int orientation = -1;
-                if (cur != null && cur.moveToFirst()) {
-                    orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
+                        matrix.postRotate(orientation);
+                    }
+                    else
+                    {
+                        try {
+                            ExifInterface exif = new ExifInterface(
+                                    image.getAbsolutePath());    //Since API Level 5
+                            String exifOrientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
+                            orientation = exif.getAttributeInt(
+                                    ExifInterface.TAG_ORIENTATION,
+                                    ExifInterface.ORIENTATION_NORMAL);
+                            int rotate = 0;
+                            switch (orientation) {
+                                case ExifInterface.ORIENTATION_ROTATE_270:
+                                    rotate = 270;
+                                    break;
+                                case ExifInterface.ORIENTATION_ROTATE_180:
+                                    rotate = 180;
+                                    break;
+                                case ExifInterface.ORIENTATION_ROTATE_90:
+                                    rotate = 90;
+                                    break;
+
+                            }
+                            matrix.postRotate(rotate);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
+
+                    is = new ByteArrayInputStream(stream.toByteArray());
+                    System.out.println(bitmap.getHeight() + " " + bitmap.getWidth());
+                    SweetAlert();
+
+                } catch (FileNotFoundException e) {
+                    System.out.println("Error: " + e);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                Matrix matrix = new Matrix();
-                matrix.postRotate(orientation);
-                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            }
+            if (requestCode == 2) {
 
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
-                is = new ByteArrayInputStream(stream.toByteArray());
-                SweetAlert();
+                try {
+                    if (data != null) {
+
+                        selectedImage = data.getData();
+                        is = this.getActivity().getContentResolver().openInputStream(selectedImage);
+                        InputStream is2 = this.getActivity().getContentResolver().openInputStream(selectedImage);
+                        BufferedInputStream bis = new BufferedInputStream(is);
+                        BufferedInputStream bis2 = new BufferedInputStream(is2);
+
+
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inJustDecodeBounds = true;
+                        BitmapFactory.decodeStream(bis, null, options);
+                        //Comprimimos la imagen
+                        options.inSampleSize = calculateInSampleSize(options, 480, 480);
+                        options.inJustDecodeBounds = false;
+                        Bitmap bitmap = BitmapFactory.decodeStream(bis2, null, options);
+
+                        //Rotar la imagen
+                        String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
+                        Cursor cur = this.getActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
+                        int orientation = -1;
+                        if (cur != null && cur.moveToFirst()) {
+                            orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
+                        }
+                        Matrix matrix = new Matrix();
+                        matrix.postRotate(orientation);
+                        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
+
+                        is = new ByteArrayInputStream(stream.toByteArray());
+                        System.out.println(bitmap.getHeight() + " " + bitmap.getWidth());
+                        SweetAlert();
+
+                    }
+                }catch (FileNotFoundException e) {
+                    new SweetAlertDialog(this.getActivity(), SweetAlertDialog.ERROR_TYPE)
+                            .setTitleText("Oops...")
+                            .setContentText("Parece que algo ha fallado!")
+                            .show();
+                } catch (IOException e) {
+                    new SweetAlertDialog(this.getActivity(), SweetAlertDialog.ERROR_TYPE)
+                            .setTitleText("Oops...")
+                            .setContentText("Parece que algo ha fallado!")
+                            .show();
+                }
 
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("Error: "+e);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
     public static int calculateInSampleSize(
@@ -351,7 +506,7 @@ public class FragmentPhotosDetail extends Fragment {
         client = new AsyncHttpClient();
 
 
-        String url = "http://interestingworld.webcindario.com/insert_photo_location.php";
+        String url = Links.getUrl_add_image_location();
         RequestParams params = new RequestParams();
         params.put("id_user", datos[0]);
         params.put("id_location", id);
@@ -359,15 +514,14 @@ public class FragmentPhotosDetail extends Fragment {
         //Cargar la imagen
         int numero1 = (int) (Math.random() * 99999999) + 1;
         int numero2 = (int) (Math.random() * 99999999) + 1;
-        params.put("photo_url", is, numero1+""+numero2 + "_location.jpg");
-
+        int numero3 = (int) (Math.random() * 99999999) + 1;
+        params.put("photo_url", is, numero1+""+numero2+""+numero3 + "_location.jpg");
 
         client.post(url, params, new AsyncHttpResponseHandler() {
             @Override
             public void onStart() {
 
             }
-
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 if (statusCode == 200) {
@@ -378,6 +532,9 @@ public class FragmentPhotosDetail extends Fragment {
                         System.out.println(getResult());
                         if (getResult().equals("bien")) {
                             AppMsg.makeText(FragmentPhotosDetail.this.getActivity(), "Imagen subida correctamente", AppMsg.STYLE_INFO).setLayoutGravity(Gravity.BOTTOM).show();
+
+                            urls.clear();
+                            loadData();
                         } else {
                             AppMsg.makeText(FragmentPhotosDetail.this.getActivity(), "Error al intentar subir la imágen", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
                         }
@@ -415,5 +572,13 @@ public class FragmentPhotosDetail extends Fragment {
 
         //A través de los nombres de cada dato obtenemos su contenido
         return  this.result=jsonObject.getString("Estado").toLowerCase();
+    }
+
+
+
+    @Override
+    public void onRateImage(String State) {
+        urls.clear();
+        loadData();
     }
 }

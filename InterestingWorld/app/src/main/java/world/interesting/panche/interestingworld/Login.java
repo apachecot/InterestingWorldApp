@@ -5,9 +5,7 @@ package world.interesting.panche.interestingworld;
  */
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -31,6 +29,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 /**
@@ -40,7 +41,7 @@ public class Login extends Fragment {
 
     EditText email,password;
     private ProgressDialog pDialog;
-    private BD bd = new BD();
+    private Links bd = new Links();
     String result;
     Handler handler = new Handler();
     CircularProgressButton circularProgressButtonAccept,circularProgressButtonNew;
@@ -103,10 +104,10 @@ public class Login extends Fragment {
 
         client = new AsyncHttpClient();
 
-        String url="http://interestingworld.webcindario.com/search_user.php";
+        String url=Links.getUrl_search_user();
         RequestParams params = new RequestParams();
         params.put("email", email.getText());
-        params.put("password",  password.getText());
+        params.put("password",  MD5(password.getText().toString()));
 
         client.post(url,params,new AsyncHttpResponseHandler() {
             @Override
@@ -124,7 +125,13 @@ public class Login extends Fragment {
                         System.out.println(getResult());
                         if(!getResult().equals("bien") && !getResult().equals("mal"))
                         {
-
+                            AppMsg.makeText(Login.this.getActivity(), "El usuario o contraseña, no son correctos", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                            circularProgressButtonAccept.setProgress(-1);
+                            handler.postDelayed(new Runnable() {
+                                public void run() {
+                                    circularProgressButtonAccept.setProgress(0);
+                                }
+                            }, 1000);
                         }
                         else
                         {
@@ -228,5 +235,27 @@ public class Login extends Fragment {
         Intent intent = new Intent(this.getActivity(), MainActivityUser.class);
         startActivity(intent);
         this.getActivity().finish();
+    }
+
+    //Convertidor a MD5
+    public static String MD5(String string) {
+
+        try {
+            //.s. Create MD5 Hash
+            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+            digest.update(string.getBytes());
+            byte messageDigest[] = digest.digest();
+
+            //.s. Create Hex String
+            StringBuffer hexString = new StringBuffer();
+            for (int i=0; i<messageDigest.length; i++)
+                hexString.append(Integer.toHexString(0xFF & messageDigest[i]));
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        return string.replaceAll("[.:/,%?#&=]","");
     }
 }

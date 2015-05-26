@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:inputType="textMultiLine"
         android:ems="10"
-        android:id="@+id/editTextComment"
+        android:id="@+id/editTextAdvanced"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="25dp"
@@ -24,9 +24,9 @@
         bootstrap:bb_icon_right="fa-close"
         bootstrap:bb_roundedCorners="true"
         bootstrap:bb_type="danger"
-        android:layout_alignStart="@+id/editTextComment"
+        android:layout_alignStart="@+id/editTextAdvanced"
         android:layout_alignParentBottom="false"
-        android:layout_below="@+id/editTextComment"
+        android:layout_below="@+id/editTextAdvanced"
         android:layout_marginTop="20dp"
         android:paddingBottom="20dp" />
 
@@ -38,9 +38,9 @@
         bootstrap:bb_icon_right="fa-check-circle"
         bootstrap:bb_type="success"
         bootstrap:bb_roundedCorners="true"
-        android:layout_alignEnd="@+id/editTextComment"
+        android:layout_alignEnd="@+id/editTextAdvanced"
         android:layout_alignParentBottom="false"
-        android:layout_below="@+id/editTextComment"
+        android:layout_below="@+id/editTextAdvanced"
         android:layout_marginTop="20dp"
         android:paddingBottom="20dp" />
 

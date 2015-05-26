@@ -12,6 +12,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -62,12 +63,15 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     private LocationManager locationManager;
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 1000;
-    double lat_old=0.0,lng_old=0.0,zoom_old=3.0;
+    double lat_old=50.654458,lng_old=2.383097,zoom_old=3.0;
     int category=0;
     MenuItem selected;
+    AsyncHttpClient client = new AsyncHttpClient();
+    Boolean cancel=false;
+    Double distance;
+    int option=0;
 
     ArrayList<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
-    Bitmap bmImg;
     boolean not_first_time_showing_info_window=false;
 
 
@@ -94,16 +98,13 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
 
                     @Override
                     public void onCameraChange(CameraPosition cameraPosition) {
-                        System.out.println(cameraPosition.target.latitude+" "+cameraPosition.target.longitude);
-                        System.out.println("Zoom: "+cameraPosition.zoom);
                         getDistance();
                     }
                 };
         mMap.setOnCameraChangeListener(mOnCameraChangeListener);
+        cancel=false;
         return inflatedView;
     }
-
-
     @Override
     public void onStart() {
         super.onStart();
@@ -140,7 +141,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         super.onResume();
         mMapView.onResume();
         System.out.println("onresume");
-        setUpMap();
+
     }
 
     @Override
@@ -150,21 +151,20 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     }
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
+        client.cancelRequests(this.getActivity(),true);
         mMap=null;
+        cancel=true;
+        super.onDestroyView();
     }
 
     @Override
     public void onDestroy() {
         super.onPause();
         mMapView.onPause();
-        System.out.println("OnDestroy");
     }
     public void centerCity()
     {
         CameraPosition camPos;
-            lat_old=50.654458;
-            lng_old=2.383097;
             LatLng center = new LatLng(lat_old, lng_old);
             camPos = new CameraPosition.Builder()
                     .target(center)
@@ -189,23 +189,24 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         pDialog.setMessage("Procesando...");
         pDialog.setCancelable(true);
         pDialog.setMax(100);
-        AsyncHttpClient client = new AsyncHttpClient();
+
         RequestParams params = new RequestParams();
-        params.put("category", category);
+        if(getActivity() instanceof MainActivityUser) {
+            params.put("category", ((MainActivityUser) getActivity()).getCategory());
+        }else{
+            params.put("category", ((MainActivity) getActivity()).getCategory());
+        }
         params.put("distance",distance);
         params.put("lat",mMap.getCameraPosition().target.latitude);
         params.put("lng",mMap.getCameraPosition().target.longitude);
 
-        String url="http://interestingworld.webcindario.com/consulta_map_precise.php";
-
-
+        String url=Links.getUrl_get_map();
 
         client.post(url,params,new AsyncHttpResponseHandler() {
             @Override
             public void onStart()
             {
-                pDialog.setProgress(0);
-                pDialog.show();
+
             }
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -213,21 +214,21 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                 {
 
                     try {
-                        System.out.println(new String(responseBody));
-                        setResult(new String(responseBody));
 
-
+                        if(cancel==false) {
+                            setResult(new String(responseBody));
+                        }
                     }catch(JSONException e)
                     {
                         System.out.println("Falla:"+e );
                     }
                 }
-                pDialog.hide();
+
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 Toast.makeText(getActivity(), "Parece que hay algún problema con la red", Toast.LENGTH_SHORT).show();
-                pDialog.hide();
+
             }
         });
     }
@@ -263,7 +264,9 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
             datos.add(jsonChildNode.getString("rating"));
 
             list.add(datos);
-            addLocation(jsonChildNode.getString("lat"),jsonChildNode.getString("lng"),jsonChildNode.getString("name"),jsonChildNode.getString("photo_url"),jsonChildNode.getString("id_category"));
+            if (cancel == false) {
+                addLocation(jsonChildNode.getString("lat"), jsonChildNode.getString("lng"), jsonChildNode.getString("name"), jsonChildNode.getString("photo_url"), jsonChildNode.getString("id_category"));
+            }
         }
         return  list;
     }
@@ -362,7 +365,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                         //Si es la primera vez que llamamos a la función de cargar imagen debemos utilizar el callback para saber cuando ha finalizado la carga y recargar debidamente
                         if (not_first_time_showing_info_window) {
                             Picasso.with(getActivity())
-                                    .load("http://" + url_photo)
+                                    .load(Links.getUrl_images() + url_photo)
                                     .error(R.drawable.not_found).resize(128, 128).centerCrop()
                                     .into((ImageView) myContentsView.findViewById(R.id.badge));
 
@@ -372,7 +375,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                         {
                             not_first_time_showing_info_window=true;
                             Picasso.with(getActivity())
-                                    .load("http://" + url_photo)
+                                    .load(Links.getUrl_images() + url_photo)
                                     .error(R.drawable.not_found).resize(128,128).centerCrop()
                                     .into((ImageView) myContentsView.findViewById(R.id.badge), new InfoWindowRefresher(marker));
 
@@ -422,6 +425,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                     ((MainActivityUser) getActivity()).SetLocationSelected(loc);
                 }
                 ((MaterialNavigationDrawer)this.getActivity()).setFragmentChild(fragment,list.get(i).get(1));
+                ((MaterialNavigationDrawer)this.getActivity()).onAttachFragment(fragment);
             }
             i++;
         }
@@ -449,6 +453,44 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_search, menu);
         selected= menu.findItem(R.id.list);
+        switch (option) {
+            //All
+            case 0:
+                selected.setIcon(R.drawable.location_white);
+                break;
+            //Monuments
+            case 1:
+                selected.setIcon(R.drawable.museum_bar);
+                break;
+            //Museums
+            case 2:
+                selected.setIcon(R.drawable.art_bar);
+                break;
+            //Beachs
+            case 3:
+                selected.setIcon(R.drawable.beach_bar);
+                break;
+            //Bar
+            case 4:
+                selected.setIcon(R.drawable.beer_bar);
+                break;
+            //Restaurant
+            case 5:
+                selected.setIcon(R.drawable.restaurant_bar);
+                break;
+            //Fotografias
+            case 6:
+                selected.setIcon(R.drawable.photograph_white);
+                break;
+            //Ocio
+            case 7:
+                selected.setIcon(R.drawable.leisure_white);
+                break;
+            default:
+                selected.setIcon(R.drawable.location_white);
+                break;
+
+        }
         super.onCreateOptionsMenu(menu, inflater);
     }
     @Override
@@ -458,50 +500,108 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
         switch (item.getItemId()) {
             //All
             case R.id.category0:
-                category = 0;
-                loadData(getDistance());
+                option=0;
+                if(getActivity() instanceof MainActivityUser) {
+                    ((MainActivityUser) getActivity()).setCategory(0);
+                }else{
+                    ((MainActivity) getActivity()).setCategory(0);
+                }
+                list.clear();
+                loadData(distance);
                 selected.setIcon(R.drawable.location_white);
                 return true;
             //Monuments
             case R.id.category1:
-                category = 1;
-                loadData(getDistance());
+                option=1;
+                if(getActivity() instanceof MainActivityUser) {
+                    ((MainActivityUser) getActivity()).setCategory(1);
+                }else{
+                    ((MainActivity) getActivity()).setCategory(1);
+                }
+                list.clear();
+                loadData(distance);
                 selected.setIcon(R.drawable.museum_bar);
                 return true;
             //Museums
             case R.id.category2:
-                category = 2;
-                loadData(getDistance());
+                option=2;
+                if(getActivity() instanceof MainActivityUser) {
+                    ((MainActivityUser) getActivity()).setCategory(2);
+                }else{
+                    ((MainActivity) getActivity()).setCategory(2);
+                }
+                list.clear();
+                loadData(distance);
                 selected.setIcon(R.drawable.art_bar);
                 return true;
             //Beachs
             case R.id.category3:
-                category = 3;
-                loadData(getDistance());
+                option=3;
+                if(getActivity() instanceof MainActivityUser) {
+                    ((MainActivityUser) getActivity()).setCategory(3);
+                }else{
+                    ((MainActivity) getActivity()).setCategory(3);
+                }
+                list.clear();
+                loadData(distance);
                 selected.setIcon(R.drawable.beach_bar);
                 return true;
             //Bar
             case R.id.category4:
-                category = 4;
-                loadData(getDistance());
+                option=4;
+                if(getActivity() instanceof MainActivityUser) {
+                    ((MainActivityUser) getActivity()).setCategory(4);
+                }else{
+                    ((MainActivity) getActivity()).setCategory(4);
+                }
+                list.clear();
+                loadData(distance);
                 selected.setIcon(R.drawable.beer_bar);
                 return true;
             //Restaurant
             case R.id.category5:
-                category = 5;
-                loadData(getDistance());
+                option=5;
+                if(getActivity() instanceof MainActivityUser) {
+                    ((MainActivityUser) getActivity()).setCategory(5);
+                }else{
+                    ((MainActivity) getActivity()).setCategory(5);
+                }
+                list.clear();
+                loadData(distance);
                 selected.setIcon(R.drawable.restaurant_bar);
+                return true;
+            //Fotografias
+            case R.id.category6:
+                option=6;
+                if(getActivity() instanceof MainActivityUser) {
+                    ((MainActivityUser) getActivity()).setCategory(6);
+                }else{
+                    ((MainActivity) getActivity()).setCategory(6);
+                }
+                list.clear();
+                loadData(distance);
+                selected.setIcon(R.drawable.photograph_white);
+                return true;
+            //Ocio
+            case R.id.category7:
+                option=7;
+                if(getActivity() instanceof MainActivityUser) {
+                    ((MainActivityUser) getActivity()).setCategory(7);
+                }else{
+                    ((MainActivity) getActivity()).setCategory(7);
+                }
+                list.clear();
+                loadData(distance);
+                selected.setIcon(R.drawable.leisure_white);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-
-
     }
     public Double getDistance()
     {
         double[] zooms = {21282,16355,10064,5540,2909,1485,752,378,190,95,48,24,12,6,3,1.48,0.74,0.37,0.19};
-        Double distance=(zooms[Math.round(mMap.getCameraPosition().zoom)]*(mMapView.getWidth()))/1000;
+        distance=(zooms[Math.round(mMap.getCameraPosition().zoom)]*(mMapView.getWidth()))/1000;
         if(zoom_old+1<mMap.getCameraPosition().zoom || zoom_old-1 > mMap.getCameraPosition().zoom) {
             loadData(distance);
         }

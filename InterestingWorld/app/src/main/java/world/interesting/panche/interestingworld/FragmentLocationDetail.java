@@ -4,8 +4,11 @@ package world.interesting.panche.interestingworld;
  * Created by Alex on 15/01/2015.
  */
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -14,6 +17,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,6 +31,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -53,13 +58,16 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
+import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
 public class FragmentLocationDetail extends Fragment {
     String title_txt,description_txt,lat,lng,url_photo,user_location,id,address,locality,country;
     View inflatedView;
-    ImageButton bNavigate,bShare,bPhoto,bVisited,bLike;
+    ImageButton bNavigate,bShare,bPhoto,bVisited,bLike,bDelete;
     Uri selectedImage;
     InputStream is;
     private ProgressDialog pDialog;
@@ -69,24 +77,14 @@ public class FragmentLocationDetail extends Fragment {
     AsyncHttpClient client=new AsyncHttpClient();
     TextView nLikes;
     Location loc;
+    File image;
+    User userActual;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         //Seteamos la estructura del fragment
         inflatedView = inflater.inflate(R.layout.location_detail, container, false);
          fm = this.getActivity().getSupportFragmentManager();
-
-        //Cambiamos el icono del menu por el de volver atras
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        if(this.getActivity().getLocalClassName().equals("MainActivity"))
-        {
-            actionBar.setHomeAsUpIndicator(((MainActivity) this.getActivity()).getV7DrawerToggleDelegate().getThemeUpIndicator());
-        }else{
-            actionBar.setHomeAsUpIndicator(((MainActivityUser) this.getActivity()).getV7DrawerToggleDelegate().getThemeUpIndicator());
-        }
-
-
 
         //TextView title = (TextView) inflatedView.findViewById(R.id.TextViewTitle);
         TextView description = (TextView) inflatedView.findViewById(R.id.TextViewDescription);
@@ -99,9 +97,25 @@ public class FragmentLocationDetail extends Fragment {
 
 
         if(this.getActivity().getLocalClassName().equals("MainActivity")) {
+
             loc = ((MainActivity) getActivity()).GetLocationSelected();
         }else{
             loc = ((MainActivityUser) getActivity()).GetLocationSelected();
+            datos = Preferences.loadPreferences(getActivity());
+            bDelete = (ImageButton)inflatedView.findViewById(R.id.imageButtonDelete);
+            if(datos[0].equals(loc.getId_user())) {
+                bDelete.setVisibility(View.VISIBLE);
+                bDelete.setOnClickListener(new View.OnClickListener() {
+                    // Start new list activity
+                    public void onClick(View v) {
+                        SweetAlertDeleted();
+                    }
+                });
+            }
+            else
+            {
+                bDelete.setVisibility(View.INVISIBLE);
+            }
         }
         title_txt = loc.getName();
         description_txt = loc.getDescription();
@@ -126,12 +140,12 @@ public class FragmentLocationDetail extends Fragment {
         Class cl=this.getActivity().getClass();
         if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
             ((MainActivity) getActivity()).getmPicasso()
-                    .load("http://"+url_photo)//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
+                    .load(Links.getUrl_images()+url_photo)//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
                     .error(R.drawable.not_found)
                     .fit().centerCrop()
                     .into(photoDetail);
             ((MainActivity) getActivity()).getmPicasso()
-                    .load("http://"+loc.getPhoto_user())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
+                    .load(Links.getUrl_images()+loc.getPhoto_user())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
                     .error(R.drawable.not_found)
                     .fit().centerCrop().transform(new RoundedTransformationPicasso())//
                     .into(photoUser);
@@ -147,12 +161,12 @@ public class FragmentLocationDetail extends Fragment {
                     "&markers=color:blue%7Clabel:"+title_txt.charAt(0)+"%7C"+lat+","+lng);
         }else {
             ((MainActivityUser) getActivity()).getmPicasso()
-                    .load("http://"+url_photo)//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
+                    .load(Links.getUrl_images()+url_photo)//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
                     .error(R.drawable.not_found)
                     .fit().centerCrop()
                     .into(photoDetail);
             ((MainActivityUser) getActivity()).getmPicasso()
-                    .load("http://"+loc.getPhoto_user())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
+                    .load(Links.getUrl_images()+loc.getPhoto_user())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
                     .error(R.drawable.not_found)
                     .fit().centerCrop().transform(new RoundedTransformationPicasso())//
                     .into(photoUser);
@@ -167,6 +181,7 @@ public class FragmentLocationDetail extends Fragment {
             ((MainActivityUser) getActivity()).getmPicasso() .invalidate("http://maps.googleapis.com/maps/api/staticmap?center="+lat+","+lng+"&zoom=16&size=400x400&" +
                     "&markers=color:blue%7Clabel:"+title_txt.charAt(0)+"%7C"+lat+","+lng);
         }
+
 
         //Botton compartir
         bShare = (ImageButton)inflatedView.findViewById(R.id.ic3);
@@ -235,6 +250,11 @@ public class FragmentLocationDetail extends Fragment {
         return inflatedView;
     }
     @Override
+    public void onDestroyView() {
+        client.cancelRequests(this.getActivity(),true);
+        super.onDestroyView();
+    }
+    @Override
     public void onDestroy() {
         client.cancelAllRequests(true);
         super.onDestroy();
@@ -290,58 +310,181 @@ public class FragmentLocationDetail extends Fragment {
 
     public void selectImage (View view)
     {
-        Intent intent =  new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+
+        final String[] option = new String[] { "Hacer una fotografía", "Buscar una fotografía"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.select_dialog_item, option);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+        builder.setTitle("Elige una opción");
+        builder.setAdapter(adapter, new DialogInterface.OnClickListener()
+        {
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which)
+                {
+                    case 0:
+                        take_photo();
+                        break;
+                    case 1:
+                        image_path();
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+        });
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
+    //Seleccionar una imagen por la ruta
+    public void image_path()
+    {
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
         int  code = 2;
         startActivityForResult(intent, code);
     }
+    //Realizar una fotografía nueva
+    public void take_photo()
+    {
+        Intent imageIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+
+        //folder stuff
+        File imagesFolder = new File(Environment.getExternalStorageDirectory(), "Interesting");
+        imagesFolder.mkdirs();
+
+        image = new File(imagesFolder, "QR_" + timeStamp + ".png");
+        selectedImage = Uri.fromFile(image);
+
+        imageIntent.putExtra(MediaStore.EXTRA_OUTPUT, selectedImage);
+        startActivityForResult(imageIntent, 1);
+    }
 
     @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == 1) {
+                try {
 
-        try {
-            if(data!=null) {
-                selectedImage = data.getData();
-                is = this.getActivity().getContentResolver().openInputStream(selectedImage);
-                InputStream is2 = this.getActivity().getContentResolver().openInputStream(selectedImage);
-                BufferedInputStream bis = new BufferedInputStream(is);
-                BufferedInputStream bis2 = new BufferedInputStream(is2);
+                    is = this.getActivity().getContentResolver().openInputStream(selectedImage);
+                    InputStream is2 = this.getActivity().getContentResolver().openInputStream(selectedImage);
+                    BufferedInputStream bis = new BufferedInputStream(is);
+                    BufferedInputStream bis2 = new BufferedInputStream(is2);
 
 
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inJustDecodeBounds = true;
-                BitmapFactory.decodeStream(bis,null, options);
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    BitmapFactory.decodeStream(bis, null, options);
+                    //Comprimimos la imagen
+                    options.inSampleSize = calculateInSampleSize(options, 480, 480);
+                    options.inJustDecodeBounds = false;
+                    Bitmap bitmap = BitmapFactory.decodeStream(bis2, null, options);
 
-                options.inSampleSize = calculateInSampleSize(options,480,480);
-                options.inJustDecodeBounds = false;
-                Bitmap bitmap = BitmapFactory.decodeStream(bis2,null,options);
+                    //Rotar la imagen
+                    String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
+                    Cursor cur = this.getActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
+                    Matrix matrix = new Matrix();
+                    int orientation = -1;
+                    if (cur != null && cur.moveToFirst()) {
+                        orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
 
-                //Rotar la imagen
-                String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
-                Cursor cur = this.getActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
-                int orientation = -1;
-                if (cur != null && cur.moveToFirst()) {
-                    orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
+                        matrix.postRotate(orientation);
+                    }
+                    else
+                    {
+                        try {
+                            ExifInterface exif = new ExifInterface(
+                                    image.getAbsolutePath());    //Since API Level 5
+                            String exifOrientation = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
+                            orientation = exif.getAttributeInt(
+                                    ExifInterface.TAG_ORIENTATION,
+                                    ExifInterface.ORIENTATION_NORMAL);
+                            int rotate = 0;
+                            switch (orientation) {
+                                case ExifInterface.ORIENTATION_ROTATE_270:
+                                    rotate = 270;
+                                    break;
+                                case ExifInterface.ORIENTATION_ROTATE_180:
+                                    rotate = 180;
+                                    break;
+                                case ExifInterface.ORIENTATION_ROTATE_90:
+                                    rotate = 90;
+                                    break;
+
+                            }
+                            matrix.postRotate(rotate);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
+
+                    is = new ByteArrayInputStream(stream.toByteArray());
+                    System.out.println(bitmap.getHeight() + " " + bitmap.getWidth());
+                    SweetAlertImage();
+
+                } catch (FileNotFoundException e) {
+                    System.out.println("Error: " + e);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                Matrix matrix = new Matrix();
-                matrix.postRotate(orientation);
-                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            }
+            if (requestCode == 2) {
 
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
-                is = new ByteArrayInputStream(stream.toByteArray());
-                SweetAlertImage();
+                try {
+                    if (data != null) {
+
+                        selectedImage = data.getData();
+                        is = this.getActivity().getContentResolver().openInputStream(selectedImage);
+                        InputStream is2 = this.getActivity().getContentResolver().openInputStream(selectedImage);
+                        BufferedInputStream bis = new BufferedInputStream(is);
+                        BufferedInputStream bis2 = new BufferedInputStream(is2);
+
+
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inJustDecodeBounds = true;
+                        BitmapFactory.decodeStream(bis, null, options);
+                        //Comprimimos la imagen
+                        options.inSampleSize = calculateInSampleSize(options, 480, 480);
+                        options.inJustDecodeBounds = false;
+                        Bitmap bitmap = BitmapFactory.decodeStream(bis2, null, options);
+
+                        //Rotar la imagen
+                        String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
+                        Cursor cur = this.getActivity().getContentResolver().query(selectedImage, orientationColumn, null, null, null);
+                        int orientation = -1;
+                        if (cur != null && cur.moveToFirst()) {
+                            orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
+                        }
+                        Matrix matrix = new Matrix();
+                        matrix.postRotate(orientation);
+                        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 75, stream);
+
+                        is = new ByteArrayInputStream(stream.toByteArray());
+                        System.out.println(bitmap.getHeight() + " " + bitmap.getWidth());
+                        SweetAlertImage();
+
+                    }
+                }catch (FileNotFoundException e) {
+                    new SweetAlertDialog(this.getActivity(), SweetAlertDialog.ERROR_TYPE)
+                            .setTitleText("Oops...")
+                            .setContentText("Parece que algo ha fallado!")
+                            .show();
+                } catch (IOException e) {
+                    new SweetAlertDialog(this.getActivity(), SweetAlertDialog.ERROR_TYPE)
+                            .setTitleText("Oops...")
+                            .setContentText("Parece que algo ha fallado!")
+                            .show();
+                }
 
             }
-        } catch (FileNotFoundException e) {
-            new SweetAlertDialog(this.getActivity(), SweetAlertDialog.ERROR_TYPE)
-                    .setTitleText("Oops...")
-                    .setContentText("Parece que algo ha fallado!")
-                    .show();
-        } catch (IOException e) {
-            new SweetAlertDialog(this.getActivity(), SweetAlertDialog.ERROR_TYPE)
-                    .setTitleText("Oops...")
-                    .setContentText("Parece que algo ha fallado!")
-                    .show();
         }
     }
     public static int calculateInSampleSize(
@@ -412,7 +555,7 @@ public class FragmentLocationDetail extends Fragment {
         client = new AsyncHttpClient();
 
 
-        String url = "http://interestingworld.webcindario.com/insert_photo_location.php";
+        String url = Links.getUrl_add_image_location();
         RequestParams params = new RequestParams();
         params.put("id_user", datos[0]);
         params.put("id_location", id);
@@ -420,7 +563,8 @@ public class FragmentLocationDetail extends Fragment {
         //Cargar la imagen
         int numero = (int) (Math.random() * 99999999) + 1;
         int numero2 = (int) (Math.random() * 99999999) + 1;
-        params.put("photo_url", is, numero+""+numero2 + "_location.jpg");
+        int numero3 = (int) (Math.random() * 99999999) + 1;
+        params.put("photo_url", is, numero+""+numero2+""+numero3 + "_location.jpg");
 
 
         client.post(url, params, new AsyncHttpResponseHandler() {
@@ -523,7 +667,7 @@ public class FragmentLocationDetail extends Fragment {
         client = new AsyncHttpClient();
 
 
-        String url = "http://interestingworld.webcindario.com/insert_location_visited.php";
+        String url = Links.getUrl_add_location_visited();
         RequestParams params = new RequestParams();
         params.put("id_user", datos[0]);
         params.put("id_location", id);
@@ -613,7 +757,7 @@ public class FragmentLocationDetail extends Fragment {
         client = new AsyncHttpClient();
 
 
-        String url = "http://interestingworld.webcindario.com/insert_rating_location.php";
+        String url = Links.getUrl_add_rating_location();
         RequestParams params = new RequestParams();
         params.put("id_user", datos[0]);
         params.put("id_location", id);
@@ -747,5 +891,94 @@ public class FragmentLocationDetail extends Fragment {
                     }
                 })
                 .show();
+    }
+
+    //----------------------------Funcion Borrar punto de interés------------------------------
+    public void SweetAlertDeleted()
+    {
+        new SweetAlertDialog(this.getActivity(), SweetAlertDialog.WARNING_TYPE)
+                .setTitleText(title_txt)
+                .setContentText("¿Deseas eliminar el punto de interés?")
+                .setCancelText("No")
+                .setConfirmText("Sí")
+                .showCancelButton(true)
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                    }
+                })
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                        try {
+                            deleted();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .show();
+    }
+
+
+    public void deleted() throws JSONException, FileNotFoundException {
+        //Inicializamos dialog
+        pDialog = new ProgressDialog(this.getActivity());
+        pDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        pDialog.setMessage("Procesando...");
+        pDialog.setCancelable(true);
+        pDialog.setMax(100);
+
+        datos=Preferences.loadPreferences(this.getActivity());
+
+        result="";
+
+        client = new AsyncHttpClient();
+
+
+        String url = Links.getUrl_delete_location();
+        RequestParams params = new RequestParams();
+        params.put("id", id);
+
+        client.post(url, params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                if (statusCode == 200) {
+
+                    try {
+                        System.out.println(new String(responseBody));
+                        setResult(new String(responseBody));
+                        System.out.println(getResult());
+                        if (getResult().equals("bien")) {
+                            SweetAlertInfo("Punto de interés eliminado",false);
+                            ((MaterialNavigationDrawer)getActivity()).onBackPressed();
+                        } else {
+                            AppMsg.makeText(FragmentLocationDetail.this.getActivity(), "Ups.. algo ha fallado, vuelve a intentarlo", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                        }
+
+                    } catch (JSONException e) {
+                        System.out.println("Falla:" + e);
+                        AppMsg.makeText(FragmentLocationDetail.this.getActivity(), "Error al intentar subir la imágen", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+
+                    }
+                }
+                pDialog.hide();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                AppMsg.makeText(FragmentLocationDetail.this.getActivity(), "Parece que hay algún problema con la red", AppMsg.STYLE_CONFIRM).setLayoutGravity(Gravity.BOTTOM).show();
+                pDialog.hide();
+            }
+        });
     }
 }

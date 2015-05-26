@@ -64,7 +64,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
         if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
 
             ((MainActivity) context).getmPicasso() //
-                    .load("http://" + com.getUrl())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
+                    .load(Links.getUrl_images() + com.getUrl())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
                     .placeholder(R.drawable.back1) //
                     .error(R.drawable.not_found) //
                     .fit().centerCrop().transform(new RoundedTransformationPicasso())//
@@ -75,7 +75,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
         }else {
 
             ((MainActivityUser) context).getmPicasso() //
-                    .load("http://" + com.getUrl())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
+                    .load(Links.getUrl_images() + com.getUrl())//.memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE).skipMemoryCache()
                     .placeholder(R.drawable.back1) //
                     .error(R.drawable.not_found) //
                     .fit().centerCrop().transform(new RoundedTransformationPicasso())//
@@ -164,7 +164,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
         AsyncHttpClient client = new AsyncHttpClient();
 
 
-        String url = "http://interestingworld.webcindario.com/delete_comment.php";
+        String url = Links.getUrl_delete_comments();
         RequestParams params = new RequestParams();
         params.put("id", id);
 
@@ -184,6 +184,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.ViewHo
 
                         if (result.equals("bien")) {
                             SweetAlertInfo("Comentario eliminado",true);
+                            Fragment fr=((MainActivityUser) context).getFragcomments();
+                            fr.onStart();
                         } else {
 
                             SweetAlertInfo("Ups.. algo ha fallado, vuelve a intentarlo",false);

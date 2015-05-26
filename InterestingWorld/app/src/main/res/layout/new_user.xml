@@ -29,13 +29,23 @@
         android:padding="10dp"
             android:layout_marginTop="25dp" />
 
-    <EditText
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/pulse"
+            android:id="@+id/textView14"
+            android:layout_column="16"
+            android:gravity="center" />
+
+        <EditText
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:id="@+id/editTextName"
         android:layout_gravity="center_horizontal"
         android:hint="@string/name"
-        android:layout_marginTop="25dp" />
+        android:layout_marginTop="25dp"
+            android:inputType="textEmailAddress" />
 
     <EditText
         android:layout_width="300dp"
@@ -43,7 +53,8 @@
         android:id="@+id/editTextLastname"
         android:layout_gravity="center_horizontal"
         android:hint="@string/lastname"
-        android:layout_marginTop="25dp" />
+        android:layout_marginTop="25dp"
+        android:inputType="textEmailAddress" />
 
     <EditText
         android:layout_width="300dp"
@@ -58,7 +69,7 @@
     <EditText
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:inputType="textPassword"
+        android:inputType="textEmailAddress|textPassword"
         android:ems="10"
         android:id="@+id/editTextLng"
         android:layout_gravity="center_horizontal"

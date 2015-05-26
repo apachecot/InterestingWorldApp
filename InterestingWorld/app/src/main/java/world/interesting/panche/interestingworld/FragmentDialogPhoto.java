@@ -52,6 +52,13 @@ public class FragmentDialogPhoto extends DialogFragment {
     String result;
     Location loc;
 
+
+    private onRateImage callback;
+
+    public interface onRateImage {
+        public void onRateImage(String State);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.custom_dialog_photo, container, false);
@@ -118,6 +125,11 @@ public class FragmentDialogPhoto extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try {
+            callback = (onRateImage) getTargetFragment();
+        } catch (Exception e) {
+            throw new ClassCastException("Calling Fragment must implement OnAddFriendListener");
+        }
     }
 
     @Override
@@ -149,7 +161,7 @@ public class FragmentDialogPhoto extends DialogFragment {
         if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
 
             ((MainActivity) getActivity()).getmPicasso() //
-                    .load("http://"+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
+                    .load(Links.getUrl_images()+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
                     .error(R.drawable.not_found) //
                     .into(photoDetail);
             ((MainActivity) getActivity()).getmPicasso() .invalidate("http://"+url);
@@ -157,7 +169,7 @@ public class FragmentDialogPhoto extends DialogFragment {
         }else {
 
             ((MainActivityUser) getActivity()).getmPicasso() //
-                    .load("http://"+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
+                    .load(Links.getUrl_images()+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
                     .error(R.drawable.not_found) //
                     .into(photoDetail);
             ((MainActivityUser) getActivity()).getmPicasso() .invalidate("http://"+url);
@@ -168,6 +180,7 @@ public class FragmentDialogPhoto extends DialogFragment {
     {
         Fragment fragment = new FragmentLocationDetailTabs();
         ((MaterialNavigationDrawer)this.getActivity()).setFragmentChild(fragment,name);
+        ((MaterialNavigationDrawer)this.getActivity()).onAttachFragment(fragment);
         FragmentDialogPhoto.this.dismiss();
     }
     public void onShareItem(View v) {
@@ -258,10 +271,10 @@ public class FragmentDialogPhoto extends DialogFragment {
         AsyncHttpClient client = new AsyncHttpClient();
 
 
-        String url = "http://interestingworld.webcindario.com/insert_rating_location.php";
+        String url = Links.getUrl_add_rating_image();
         RequestParams params = new RequestParams();
         params.put("id_user", datos[0]);
-        params.put("id_location", loc.getLocality());
+        params.put("id_image", id_image);
 
         client.post(url, params, new AsyncHttpResponseHandler() {
             @Override
@@ -278,10 +291,14 @@ public class FragmentDialogPhoto extends DialogFragment {
                         setResult(new String(responseBody));
                         System.out.println(getResult());
                         if (getResult().equals("borrado")) {
-                            SweetAlertInfo("Ya no te gusta este punto de interés",false);
+                            SweetAlertInfo("Ya no te gusta esta imagen",false);
+                            updateImages();
+                            callback.onRateImage("ok");
                         } else {
                             if (getResult().equals("insertado")) {
-                                SweetAlertInfo("Te gusta este punto de interés",true);
+                                SweetAlertInfo("Te gusta esta imagen",true);
+                                updateImages();
+                                callback.onRateImage("ok");
                             }else {
                                 SweetAlertInfo("Ups.. se ha producido un error",false);
                             }
@@ -336,6 +353,32 @@ public class FragmentDialogPhoto extends DialogFragment {
                     }
                 })
                 .show();
+    }
+
+    public void updateImages()
+    {
+        AsyncHttpClient client = new AsyncHttpClient();
+        client = new AsyncHttpClient();
+        String url = Links.getUrl_update_image_location();
+        RequestParams params = new RequestParams();
+        params.put("id_location", id);
+
+
+        client.post(url, params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onStart() {
+
+            }
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+            }
+        });
     }
 
 }

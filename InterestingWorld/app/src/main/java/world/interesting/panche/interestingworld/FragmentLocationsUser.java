@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,8 +49,10 @@ public class FragmentLocationsUser extends Fragment {
     ArrayList<Location> list = new ArrayList<Location>();
     String[] datos=new String[5];
     PullRefreshLayout layout;
-    TextView emptyView;
+    View emptyView;
     AsyncHttpClient client=new AsyncHttpClient();
+    Boolean cancel;
+    ImageButton reload;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -59,9 +62,33 @@ public class FragmentLocationsUser extends Fragment {
         text.setGravity(Gravity.CENTER);
 
         layout = (PullRefreshLayout) inflatedView.findViewById(R.id.swipeRefreshLayout);
+        layout.setOnRefreshListener(new PullRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadData();
+            }
+        });
+        reload = (ImageButton) inflatedView.findViewById(R.id.ic1);
+        reload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadData();
+            }
+        });
 
         return inflatedView;
 
+    }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        cancel=false;
+        super.onCreate(savedInstanceState);
+    }
+    @Override
+    public void onDestroyView() {
+
+        client.cancelRequests(this.getActivity(),true);
+        super.onDestroyView();
     }
 
     @Override
@@ -72,6 +99,7 @@ public class FragmentLocationsUser extends Fragment {
     }
     @Override
     public void onDestroy() {
+        cancel=true;
         client.cancelAllRequests(true);
         super.onDestroy();
     }
@@ -88,7 +116,7 @@ public class FragmentLocationsUser extends Fragment {
         RequestParams params = new RequestParams();
         datos=Preferences.loadPreferences(this.getActivity());
         params.put("id_user", datos[0]);
-        String url="http://interestingworld.webcindario.com/consulta_locations_user.php";
+        String url= Links.getUrl_get_locations_user();
 
 
 
@@ -111,18 +139,24 @@ public class FragmentLocationsUser extends Fragment {
 
                     }catch(JSONException e)
                     {
-                        System.out.println("Falla:"+e );
-                        Toast.makeText(getActivity(), "No se han encontrado datos", Toast.LENGTH_SHORT).show();
-                        list.clear();
-                        materialCardLoad();
+                        if(cancel==false) {
+                            System.out.println("Falla:" + e);
+                            Toast.makeText(getActivity(), "No se han encontrado datos", Toast.LENGTH_SHORT).show();
+                            list.clear();
+                            materialCardLoad();
+                        }
                     }
                 }
                 pDialog.hide();
+                layout.setRefreshing(false);
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Toast.makeText(getActivity(), "Parece que hay algún problema con la red", Toast.LENGTH_SHORT).show();
-                pDialog.hide();
+                if(cancel==false) {
+                    Toast.makeText(getActivity(), "Parece que hay algún problema con la red", Toast.LENGTH_SHORT).show();
+                    pDialog.hide();
+                    layout.setRefreshing(false);
+                }
             }
         });
     }
@@ -151,25 +185,25 @@ public class FragmentLocationsUser extends Fragment {
     }
     public void materialCardLoad ()
     {
+        if(cancel==false) {
+            RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.my_recycler_view);
+            recyclerView.setHasFixedSize(true);
+            LocationsAdapter dataset = new LocationsAdapter(list, R.layout.card, this.getActivity());
+            recyclerView.setAdapter(dataset);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
+            emptyView = (View) getActivity().findViewById(R.id.empty_view);
+            if (dataset.getItemCount() == 0) {
 
-        RecyclerView recyclerView = (RecyclerView) getActivity().findViewById(R.id.my_recycler_view);
-        recyclerView.setHasFixedSize(true);
-        LocationsAdapter dataset=new LocationsAdapter(list, R.layout.card,this.getActivity());
-        recyclerView.setAdapter(dataset);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        emptyView = (TextView) getActivity().findViewById(R.id.empty_view);
-        if (dataset.getItemCount()==0) {
-
-            recyclerView.setVisibility(View.INVISIBLE);
-            emptyView.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.INVISIBLE);
+                emptyView.setVisibility(View.VISIBLE);
+            } else {
+                recyclerView.setVisibility(View.VISIBLE);
+                emptyView.setVisibility(View.INVISIBLE);
+            }
+            // refresh complete
+            layout.setRefreshing(false);
         }
-        else {
-            recyclerView.setVisibility(View.VISIBLE);
-            emptyView.setVisibility(View.INVISIBLE);
-        }
-        // refresh complete
-        layout.setRefreshing(false);
 
     }
 }

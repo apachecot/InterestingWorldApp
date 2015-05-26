@@ -55,7 +55,16 @@ public class FragmentImageViewerProfile extends DialogFragment {
     String[] datos= new String[5];
     String result;
     String id_image;
+    ImageButton delete;
+    String url="";
+    Boolean state=false;
 
+
+    private onDelateImage callback;
+
+    public interface onDelateImage {
+        public void onDelateImage(String State);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -80,12 +89,11 @@ public class FragmentImageViewerProfile extends DialogFragment {
 
             }
         };
-        String url="";
         Class cl=this.getActivity().getClass();
         if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
             url=((MainActivity) getActivity()).GetImageUrlFull();
             ((MainActivity) getActivity()).getmPicasso()
-                    .load("http://"+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
+                    .load(Links.getUrl_images()+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
                     .error(R.drawable.not_found)
                     .into(mImageView,imageLoadedCallback);
         }else {
@@ -93,12 +101,19 @@ public class FragmentImageViewerProfile extends DialogFragment {
             url=info_image.get(0);
             id_image=info_image.get(1);
             ((MainActivityUser) getActivity()).getmPicasso()
-                    .load("http://"+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
+                    .load(Links.getUrl_images()+url).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).networkPolicy(NetworkPolicy.NO_CACHE, NetworkPolicy.NO_STORE)
                     .error(R.drawable.not_found)
                     .into(mImageView,imageLoadedCallback);
         }
 
-
+        //Botton compartir
+        delete = (ImageButton)inflatedView.findViewById(R.id.ic1);
+        delete.setOnClickListener(new View.OnClickListener() {
+            // Start new list activity
+            public void onClick(View v) {
+                SweetAlertImage(id_image);
+            }
+        });
 
         return inflatedView;
     }
@@ -110,6 +125,11 @@ public class FragmentImageViewerProfile extends DialogFragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        try {
+            callback = (onDelateImage) getTargetFragment();
+        } catch (Exception e) {
+            throw new ClassCastException("Calling Fragment must implement OnAddFriendListener");
+        }
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.MY_DIALOG);
     }
@@ -140,4 +160,124 @@ public class FragmentImageViewerProfile extends DialogFragment {
     }
 
 
+    //---------------------- Funciones Visitado ----------------------------------------------
+    public void SweetAlertImage(final String id)
+    {
+        new SweetAlertDialog(getActivity(), SweetAlertDialog.WARNING_TYPE)
+                .setTitleText("Imagen")
+                .setContentText("¿Deseas borrar tú imagen?")
+                .setCancelText("No")
+                .setConfirmText("Sí")
+                .showCancelButton(true)
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                    }
+                })
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                        eliminate(id);
+                    }
+                })
+                .show();
+    }
+    public void eliminate(String id){
+        //Inicializamos dialog
+
+        result="";
+
+        AsyncHttpClient client = new AsyncHttpClient();
+
+        String url_image=url;
+        String url = Links.getUrl_delete_images();
+        RequestParams params = new RequestParams();
+        params.put("id", id);
+        params.put("photo_url",url_image);
+
+        client.post(url, params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                if (statusCode == 200) {
+
+                    try {
+                        System.out.println(new String(responseBody));
+                        setResult(new String(responseBody));
+
+                        if (result.equals("bien")) {
+                            state=true;
+                            SweetAlertInfo("Imagen eliminada",state);
+                            advert();
+
+
+                        } else {
+                            state=false;
+                            SweetAlertInfo("Ups.. algo ha fallado, vuelve a intentarlo",state);
+
+                        }
+
+                    } catch (JSONException e) {
+                        state=false;
+                        SweetAlertInfo("Ups.. algo ha fallado, vuelve a intentarlo",state);
+
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                SweetAlertInfo("Parece que hay algún problema con la red",false);
+            }
+        });
+    }
+    public String setResult (String result) throws JSONException {
+        String cadenaJSON = result.toString();//Le pasamos a la variable cadenaJSON una cadena de tipo JSON (en este caso es la creada anteriormente)
+
+        JSONObject jsonObject = new JSONObject(cadenaJSON); //Creamos un objeto de tipo JSON y le pasamos la cadena JSON
+        String posts = jsonObject.getString("posts");
+
+        //Entramos en el array de posts
+        jsonObject=new JSONObject(posts);
+
+        //A través de los nombres de cada dato obtenemos su contenido
+        return  this.result=jsonObject.getString("Estado").toLowerCase();
+    }
+    //-------------------------------------
+    public void SweetAlertInfo(String message,Boolean format)
+    {
+        int style=1;
+        if(format==true)
+        {
+            style=SweetAlertDialog.SUCCESS_TYPE;
+        }else{ style=SweetAlertDialog.ERROR_TYPE;}
+
+        new SweetAlertDialog(getActivity(), style)
+                .setTitleText(message)
+                .setConfirmText("Ok")
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        advert();
+                        sDialog.dismiss();
+                    }
+                })
+                .show();
+    }
+    public void advert()
+    {
+        if(state==true)
+        {
+            callback.onDelateImage("ok");
+            getDialog().dismiss();
+        }
+    }
 }
+
+

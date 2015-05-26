@@ -52,5 +52,10 @@
     <string name="no_data_available">No hay resultados</string>
     <string name="user">Usuario</string>
     <string name="logout">Cerrar sesión</string>
+    <string name="address">Dirección</string>
+    <string name="city">Ciudad</string>
+    <string name="country">Pais</string>
+    <string name="advanced">Avanzado</string>
+    <string name="pulse">Pulsa en la imagen para subir una fotografía</string>
 
 </resources>

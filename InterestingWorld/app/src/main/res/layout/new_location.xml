@@ -17,19 +17,45 @@
         android:nestedScrollingEnabled="true">
 
 
-        <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/ImageViewLocation"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="0.09"
-        android:maxHeight="300dp"
-        android:maxWidth="300dp"
-        android:src="@drawable/imagelocation"
-        android:adjustViewBounds="true"
-        android:padding="10dp"
-            android:layout_marginTop="25dp"
-            android:onClick="selectImage" />
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ImageViewLocation"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="0.09"
+            android:maxHeight="300dp"
+            android:maxWidth="300dp"
+            android:src="@drawable/imagelocation"
+            android:adjustViewBounds="true"
+                android:onClick="selectImage"
+                android:paddingLeft="10dp"
+                android:paddingTop="10dp"
+                android:paddingRight="10dp" />
+
+        </TableRow>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/pulse"
+            android:id="@+id/textView15"
+            android:layout_column="16"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/category_prompt"
+            android:id="@+id/textView10"
+            android:layout_column="16"
+            android:gravity="left|center"
+            android:layout_marginTop="20dp" />
 
         <Spinner
             android:layout_width="wrap_content"
@@ -45,7 +71,8 @@
         android:id="@+id/editTextName"
         android:layout_gravity="center_horizontal"
         android:hint="@string/name"
-        android:layout_marginTop="25dp" />
+        android:layout_marginTop="25dp"
+            android:inputType="textEmailAddress" />
 
     <EditText
         android:layout_width="300dp"
@@ -54,20 +81,42 @@
         android:layout_gravity="center_horizontal"
         android:hint="@string/description"
         android:layout_marginTop="25dp"
-        android:inputType="textMultiLine" />
+        android:inputType="textEmailAddress|textMultiLine"
+        android:layout_marginBottom="25dp" />
 
         <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
-        android:ems="10"
-        android:id="@+id/textViewLatLng"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="25dp"
-        android:textSize="20dp"
-            android:elegantTextHeight="false"
-            android:lines="3"
-            android:maxLines="3" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Utiliza el mapa para colocar un punto orientativo (icono de la esquina derecha). Los campos se autorellenan, pero puedes editarlos."
+            android:id="@+id/textView11"
+            android:layout_column="16" />
+
+        <EditText
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/editTextAdress"
+            android:layout_gravity="center_horizontal"
+            android:hint="@string/address"
+            android:inputType="textEmailAddress" />
+
+        <EditText
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/editTextCity"
+            android:layout_gravity="center_horizontal"
+            android:hint="@string/city"
+            android:layout_marginTop="25dp"
+            android:inputType="textEmailAddress" />
+
+        <EditText
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/editTextCountry"
+            android:layout_gravity="center_horizontal"
+            android:hint="@string/country"
+            android:layout_marginTop="25dp"
+            android:inputType="textEmailAddress" />
 
         <com.dd.CircularProgressButton
             android:layout_gravity="center_horizontal"

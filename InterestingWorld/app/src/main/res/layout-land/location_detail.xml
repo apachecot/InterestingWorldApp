@@ -23,13 +23,25 @@
 
                 <ImageView
                     android:layout_width="match_parent"
-                    android:layout_height="450dp"
+                    android:layout_height="150dp"
                     android:gravity="center"
                     tools:ignore="HardcodedText"
                     android:id="@+id/ImageDetail"
                     android:background="@color/colorDetail"
                     android:src="@drawable/back1"
                     android:scaleType="centerCrop" />
+
+                <ImageButton
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:id="@+id/imageButtonDelete"
+                    android:src="@drawable/delete"
+                    android:scaleType="centerCrop"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="10dp" />
 
             </RelativeLayout>
 

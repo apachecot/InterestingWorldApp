@@ -27,6 +27,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.andexert.expandablelayout.library.ExpandableLayout;
 import com.dd.CircularProgressButton;
 import com.devspark.appmsg.AppMsg;
 import com.loopj.android.http.AsyncHttpClient;
@@ -62,7 +63,7 @@ public class Profile extends Fragment {
 
         datos=Preferences.loadPreferences(this.getActivity());
         SmartImageView myImage = (SmartImageView) inflatedView.findViewById(R.id.my_image);
-        myImage.setImageUrl("http://"+datos[4]);
+        myImage.setImageUrl(Links.getUrl_images()+datos[4]);
         TextView name = (TextView) inflatedView.findViewById(R.id.textViewName);
         TextView lastname = (TextView) inflatedView.findViewById(R.id.textViewLastname);
         TextView email = (TextView) inflatedView.findViewById(R.id.textViewEmail);
@@ -106,6 +107,11 @@ public class Profile extends Fragment {
         actionBar.setHomeAsUpIndicator(((MainActivityUser) this.getActivity()).getV7DrawerToggleDelegate().getThemeUpIndicator());
         return inflatedView;
     }
+    @Override
+    public void onDestroyView() {
+        client.cancelRequests(this.getActivity(),true);
+        super.onDestroyView();
+    }
     public void buttonAccept(View view) throws JSONException, FileNotFoundException {
         //Inicializamos dialog
         pDialog = new ProgressDialog(this.getActivity());
@@ -120,7 +126,7 @@ public class Profile extends Fragment {
         if(!newname.getText().toString().equals("") && !newlastname.getText().toString().equals("") && !newemail.getText().toString().equals("")) {
             client = new AsyncHttpClient();
 
-            String url = "http://interestingworld.webcindario.com/edit_user.php";
+            String url = Links.getUrl_edit_user();
             RequestParams params = new RequestParams();
             params.put("id",datos[0]);
             params.put("name", newname.getText());
@@ -218,6 +224,9 @@ public class Profile extends Fragment {
         datos2[3]=newemail.getText().toString();
         datos2[4]=datos[4];
         Preferences.savePreferences(datos2,this.getActivity());
+        ExpandableLayout layout= (ExpandableLayout) inflatedView.findViewById(R.id.expandableLayout);
+        layout.hide();
+
     }
 
     //---------------------- Funciones Borrado usuario ----------------------------------------------
@@ -266,7 +275,7 @@ public class Profile extends Fragment {
         client = new AsyncHttpClient();
 
 
-        String url = "http://interestingworld.webcindario.com/delete_user.php";
+        String url = Links.getUrl_delete_user();
         RequestParams params = new RequestParams();
         params.put("id", datos[0]);
 

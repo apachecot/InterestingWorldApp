@@ -36,15 +36,15 @@ public class Category {
         {
             id=2;
         }
-        if(selected.equals("Bar"))
+        if(selected.equals("Playa"))
         {
             id=3;
         }
-        if(selected.equals("Restaurante"))
+        if(selected.equals("Bar"))
         {
             id=4;
         }
-        if(selected.equals("Playa"))
+        if(selected.equals("Restaurante"))
         {
             id=5;
         }
@@ -56,7 +56,6 @@ public class Category {
         {
             id=7;
         }
-        System.out.println("id:"+id);
         return id;
     }
 }

@@ -20,7 +20,7 @@
         android:required="true"/>
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="14"
         android:targetSdkVersion="18" />
 
 
@@ -60,7 +60,7 @@
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyC5NlYeWju4I2IazqjqEPY6ixkupdI3Ud8"/>
+            android:value="AIzaSyD2ryhU6TxD00Lz3p9KLvBmq6hQqfgL49g"/>
         <!--
         AIzaSyC5NlYeWju4I2IazqjqEPY6ixkupdI3Ud8 test
         AIzaSyD2ryhU6TxD00Lz3p9KLvBmq6hQqfgL49g production

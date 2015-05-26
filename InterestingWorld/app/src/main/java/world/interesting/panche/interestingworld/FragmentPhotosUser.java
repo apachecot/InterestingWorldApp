@@ -5,6 +5,7 @@ package world.interesting.panche.interestingworld;
  */
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cuneytayyildiz.widget.PullRefreshLayout;
@@ -34,7 +36,7 @@ import java.util.List;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
-public class FragmentPhotosUser extends Fragment {
+public class FragmentPhotosUser extends Fragment implements FragmentImageViewerProfile.onDelateImage {
     View inflatedView;
     GridViewAdapterImages gridAdapter;
     private SweetAlertDialog pDialog;
@@ -43,9 +45,9 @@ public class FragmentPhotosUser extends Fragment {
     public List<String> select_image = new ArrayList<String>();
     FragmentManager fm;
     MenuItem selected;
-    TextView emptyView;
-    PullRefreshLayout layout;
+    View emptyView;
     AsyncHttpClient client=new AsyncHttpClient();
+    ImageButton reload;
 
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -58,19 +60,18 @@ public class FragmentPhotosUser extends Fragment {
         fm= this.getActivity().getSupportFragmentManager();
 
         gridAdapter=new GridViewAdapterImages(this.getActivity());
-        emptyView = (TextView) inflatedView.findViewById(R.id.empty_view);
+        emptyView = (View) inflatedView.findViewById(R.id.empty_view);
 
         GridView gv = (GridView) inflatedView.findViewById(R.id.grid_view);
         gv.setAdapter(gridAdapter);
         gv.setOnScrollListener(new SampleScrollListener(this.getActivity()));
         gv.setEmptyView(emptyView);
-
-        layout = (PullRefreshLayout) inflatedView.findViewById(R.id.swipeRefreshLayout);
+        reload = (ImageButton) inflatedView.findViewById(R.id.ic1);
 
         // listen refresh event
-        layout.setOnRefreshListener(new PullRefreshLayout.OnRefreshListener() {
+        reload.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onRefresh() {
+            public void onClick(View v) {
                 loadDataPhotosUser();
             }
         });
@@ -95,6 +96,11 @@ public class FragmentPhotosUser extends Fragment {
         client.cancelAllRequests(true);
         super.onDestroy();
     }
+    @Override
+    public void onDestroyView() {
+        client.cancelRequests(this.getActivity(),true);
+        super.onDestroyView();
+    }
     public void loadDataPhotosUser()
     {
         urls.clear();
@@ -108,7 +114,7 @@ public class FragmentPhotosUser extends Fragment {
         String[] datos=Preferences.loadPreferences(this.getActivity());
         params.put("id", datos[0]);
 
-        String url="http://interestingworld.webcindario.com/consulta_photos_user.php";
+        String url=Links.getUrl_get_images_user();
 
         client.post(url,params,new AsyncHttpResponseHandler() {
             @Override
@@ -139,9 +145,10 @@ public class FragmentPhotosUser extends Fragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 pDialog.hide();
+
             }
         });
-        layout.setRefreshing(false);
+
     }
 
     public ArrayList setResult (String result) throws JSONException {
@@ -175,6 +182,7 @@ public class FragmentPhotosUser extends Fragment {
     {
 
         FragmentImageViewerProfile dFragment = new FragmentImageViewerProfile();
+        dFragment.setTargetFragment(this, 0);
         // Supply num input as an argument.
         // Show DialogFragment
         Class cl=this.getActivity().getClass();
@@ -184,6 +192,12 @@ public class FragmentPhotosUser extends Fragment {
             ((MainActivityUser) getActivity()).SetImageUrlFull(select_image.get(0),select_image.get(1));
         }
         dFragment.show(fm, "Dialog Photo");
+
+    }
+
+    @Override
+    public void onDelateImage(String State) {
+        loadDataPhotosUser();
 
     }
 
