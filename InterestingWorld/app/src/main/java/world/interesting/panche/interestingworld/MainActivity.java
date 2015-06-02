@@ -22,11 +22,11 @@ import it.neokree.materialnavigationdrawer.elements.MaterialSection;
 public class MainActivity extends MaterialNavigationDrawer{
 
 
-    MaterialSection login, explore, photos, lastLocations;
+    MaterialSection login, explore, photos, lastLocations,exitSection;
     Location locationSelected;
     String url_full="";
     private Picasso mPicasso;
-    Fragment fraglastlocations, fragexplore, fragphotos,fragdetailstab,fragdetails,fragphotosdetail,fragcomments;
+    Fragment fraglastlocations, fragexplore, fragphotos,fragdetailstab,fragdetails,fragphotosdetail,fragcomments,fragexit;
     Boolean doubleBackToExitPressedOnce=false;
     String advanced="";
     int category=0;
@@ -43,8 +43,10 @@ public class MainActivity extends MaterialNavigationDrawer{
         fragdetails=new FragmentLocationDetail();
         fragphotosdetail=new FragmentPhotosDetail();
         fragcomments=new FragmentComments();
+        fragexit=new FragmentExit();
 
         fraglastlocations=new FragmentIndex();
+
 
         //Últimos puntos de interés
         lastLocations = this.newSection(this.getResources().getString(R.string.lastlocations),this.getResources().getDrawable(R.drawable.map),fraglastlocations).setSectionColor(Color.parseColor("#03a9f4"));
@@ -57,6 +59,7 @@ public class MainActivity extends MaterialNavigationDrawer{
         // Últimas fotografías
         photos = this.newSection(this.getResources().getString(R.string.photos), this.getResources().getDrawable(R.drawable.photo), fragphotos).setSectionColor(Color.parseColor("#03a9f4"));
 
+        exitSection = this.newSection(this.getResources().getString(R.string.exit),this.getResources().getDrawable(R.drawable.map),fragexit ).setSectionColor(Color.parseColor("#03a9f4"));
 
         // add your sections to the drawer
         this.addSection(lastLocations);
@@ -100,15 +103,11 @@ public class MainActivity extends MaterialNavigationDrawer{
     protected MaterialSection backToSection(MaterialSection currentSection) {
 
         if(currentSection == lastLocations) {
-
-            return lastLocations;
+            return exitSection;
         }
         else{
-
             return lastLocations;
         }
-
-
     }
 
     /**
@@ -199,6 +198,26 @@ public class MainActivity extends MaterialNavigationDrawer{
 
     public void setCategory(int category) {
         this.category = category;
+    }
+
+    public MaterialSection getLogin() {
+        return login;
+    }
+
+    public MaterialSection getExplore() {
+        return explore;
+    }
+
+    public MaterialSection getPhotos() {
+        return photos;
+    }
+
+    public MaterialSection getLastLocations() {
+        return lastLocations;
+    }
+
+    public Location getLocationSelected() {
+        return locationSelected;
     }
 }
 

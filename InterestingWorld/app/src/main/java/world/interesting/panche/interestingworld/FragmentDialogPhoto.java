@@ -1,5 +1,6 @@
 package world.interesting.panche.interestingworld;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -87,7 +88,7 @@ public class FragmentDialogPhoto extends DialogFragment {
                 if(getActivity().getLocalClassName().equals("MainActivityUser")) {
                     SweetAlertLike();
                 }else{
-                    AppMsg.makeText(getActivity(), "Debes estar loggeado para poder marcar que te gusta", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                    AppMsg.makeText(getActivity(), "Debes estar logueado para poder marcar que te gusta", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
                 }
             }
         });
@@ -113,10 +114,7 @@ public class FragmentDialogPhoto extends DialogFragment {
         bNavigate.setOnClickListener(new View.OnClickListener() {
             // Start new list activity
             public void onClick(View v) {
-                Uri gmmIntentUri = Uri.parse("google.navigation:q="+lat+","+lng+"&mode=w");
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);
+                SweetAlertPath();
             }
         });
 
@@ -379,6 +377,57 @@ public class FragmentDialogPhoto extends DialogFragment {
 
             }
         });
+    }
+
+    //---------------------------Funciones marcar recorrido------------------------
+    public void PathLocation(String mode)
+    {
+        //Comprobamos que pueda acceder a la app de google maps
+        try {
+            Uri gmmIntentUri = Uri.parse("google.navigation:q=" + lat + "," + lng + "&mode=" + mode);
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
+            startActivity(mapIntent);
+        }catch (ActivityNotFoundException e) {
+            //En caso de no tener redirigir al market
+            try {
+                startActivity(new Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("market://details?id=com.google.android.apps.maps")));
+            } catch (android.content.ActivityNotFoundException anfe) {
+                startActivity(new Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.apps.maps")));
+            }
+            e.printStackTrace();
+        }
+    }
+
+    public void SweetAlertPath()
+    {
+        new SweetAlertDialog(this.getActivity(), SweetAlertDialog.NORMAL_TYPE)
+                .setTitleText("Marcar recorrido desde mi ubicación")
+                .setContentText("Recuerda que debes tener el gps activado para poder utilizar esta función, no te olvides de marcar como visitado el punto de interés una vez lo hayas hecho.\n" +
+                        "Selecciona como deseas desplazarte al lugar.")
+                .setCancelText("Coche")
+                .setConfirmText("Andando")
+                .showCancelButton(true)
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                        PathLocation("c");
+                    }
+                })
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        sDialog.cancel();
+                        PathLocation("w");
+
+                    }
+                })
+                .show();
     }
 
 }

@@ -80,7 +80,7 @@ public class FragmentComments extends Fragment implements FragmentDialogComment.
                     if (getActivity().getLocalClassName().equals("MainActivityUser")) {
                         dialogComment();
                     } else {
-                        AppMsg.makeText(getActivity(), "Debes estar loggeado para poder introducir un comentario", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                        AppMsg.makeText(getActivity(), "Debes estar logueado para poder introducir un comentario", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
                     }
                 }
             });

@@ -262,51 +262,52 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
             datos.add(jsonChildNode.getString("country"));
             datos.add(jsonChildNode.getString("locality"));
             datos.add(jsonChildNode.getString("rating"));
+            datos.add(jsonChildNode.getString("id_category"));
 
             list.add(datos);
             if (cancel == false) {
-                addLocation(jsonChildNode.getString("lat"), jsonChildNode.getString("lng"), jsonChildNode.getString("name"), jsonChildNode.getString("photo_url"), jsonChildNode.getString("id_category"));
+                addLocation(jsonChildNode.getString("lat"), jsonChildNode.getString("lng"), jsonChildNode.getString("name"), jsonChildNode.getString("description"), jsonChildNode.getString("photo_url"), jsonChildNode.getString("id_category"));
             }
         }
         return  list;
     }
-    public void addLocation(String lat,String lng,String name,String url_photo,String category)
+    public void addLocation(String lat,String lng,String name,String description,String url_photo,String category)
     {
         switch(category)
         {
             case "0":
                 mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
-                        Double.parseDouble(lng))).title(name).snippet(name)
+                        Double.parseDouble(lng))).title(name).snippet(description)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                 break;
             case "1":
                 mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
-                        Double.parseDouble(lng))).title(name).snippet(name)
+                        Double.parseDouble(lng))).title(name).snippet(description)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
                 break;
             case "2":
                 mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
-                        Double.parseDouble(lng))).title(name).snippet(name)
+                        Double.parseDouble(lng))).title(name).snippet(description)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
                 break;
             case "3":
                 mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
-                        Double.parseDouble(lng))).title(name).snippet(name)
+                        Double.parseDouble(lng))).title(name).snippet(description)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
                 break;
             case "4":
                 mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
-                        Double.parseDouble(lng))).title(name).snippet(name)
+                        Double.parseDouble(lng))).title(name).snippet(description)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
                 break;
             case "5":
                 mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
-                        Double.parseDouble(lng))).title(name).snippet(name)
+                        Double.parseDouble(lng))).title(name).snippet(description)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
                 break;
             default:
                 mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(lat),
-                        Double.parseDouble(lng))).title(name).snippet(name)
+                        Double.parseDouble(lng))).title(name).snippet(description)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                 break;
         }
@@ -418,7 +419,7 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
                 world.interesting.panche.interestingworld.Location loc= new world.interesting.panche.interestingworld.Location(list.get(i).get(0),
                         list.get(i).get(1),list.get(i).get(2),list.get(i).get(3),list.get(i).get(4),list.get(i).get(5),list.get(i).get(6),
                         list.get(i).get(7),list.get(i).get(8),list.get(i).get(9),list.get(i).get(10)
-                        ,list.get(i).get(11),list.get(i).get(12),list.get(i).get(13));
+                        ,list.get(i).get(11),list.get(i).get(12),list.get(i).get(13),list.get(i).get(14));
                 if(this.getActivity().getLocalClassName().equals("MainActivity")) {
                     ((MainActivity) getActivity()).SetLocationSelected(loc);
                 }else {
@@ -601,20 +602,21 @@ public class FragmentMap extends Fragment implements GoogleMap.OnInfoWindowClick
     public Double getDistance()
     {
         double[] zooms = {21282,16355,10064,5540,2909,1485,752,378,190,95,48,24,12,6,3,1.48,0.74,0.37,0.19};
-        distance=(zooms[Math.round(mMap.getCameraPosition().zoom)]*(mMapView.getWidth()))/1000;
+        if(Math.round(mMap.getCameraPosition().zoom)<19) {
+            distance = (zooms[Math.round(mMap.getCameraPosition().zoom)] * (mMapView.getWidth())) / 1000;
+        }else{
+            distance = (zooms[18] * (mMapView.getWidth())) / 1000;
+        }
         if(zoom_old+1<mMap.getCameraPosition().zoom || zoom_old-1 > mMap.getCameraPosition().zoom) {
             loadData(distance);
         }
         else if(mMap.getCameraPosition().target.latitude>lat_old+((distance/1.5)/100) || mMap.getCameraPosition().target.latitude<lat_old-((distance/1.5)/100))
         {
-            System.out.println("Cargaría de nuevo");
             loadData(distance);
         }else if(mMap.getCameraPosition().target.longitude>lng_old+((distance/1.5)/100) || mMap.getCameraPosition().target.longitude<lng_old-((distance/1.5)/100))
         {
-            System.out.println("Cargaría de nuevo");
             loadData(distance);
         }
-        System.out.println("Distance: "+distance);
         return distance;
     }
 

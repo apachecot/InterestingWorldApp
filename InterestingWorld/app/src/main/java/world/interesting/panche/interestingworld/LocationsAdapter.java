@@ -47,6 +47,45 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
         holder.name.setText(loc.getName());
         holder.nLikes.setText(loc.getRating());
 
+        switch (Integer.parseInt(loc.getCategory())) {
+            //All
+            case 0:
+                holder.category.setImageDrawable(context.getResources().getDrawable(R.drawable.location_white));
+                break;
+            //Monuments
+            case 1:
+                holder.category.setImageDrawable(context.getResources().getDrawable(R.drawable.museum_bar));
+                break;
+            //Museums
+            case 2:
+                holder.category.setImageDrawable(context.getResources().getDrawable(R.drawable.art_bar));
+                break;
+            //Beachs
+            case 3:
+                holder.category.setImageDrawable(context.getResources().getDrawable(R.drawable.beach_bar));
+                break;
+            //Bar
+            case 4:
+                holder.category.setImageDrawable(context.getResources().getDrawable(R.drawable.beer_bar));
+                break;
+            //Restaurant
+            case 5:
+                holder.category.setImageDrawable(context.getResources().getDrawable(R.drawable.restaurant_bar));
+                break;
+            //Fotografias
+            case 6:
+                holder.category.setImageDrawable(context.getResources().getDrawable(R.drawable.photograph_white));
+                break;
+            //Ocio
+            case 7:
+                holder.category.setImageDrawable(context.getResources().getDrawable(R.drawable.leisure_white));
+                break;
+            default:
+                holder.category.setImageDrawable(context.getResources().getDrawable(R.drawable.location_white));
+                break;
+
+        }
+
         Class cl=context.getClass();
         if(cl.getName().equals("world.interesting.panche.interestingworld.MainActivity")) {
 
@@ -82,6 +121,7 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
     public static class ViewHolder extends RecyclerView.ViewHolder implements AdapterView.OnClickListener {
 
         public ImageView image;
+        public ImageView category;
         public TextView name;
         public TextView nLikes;
 
@@ -92,6 +132,7 @@ public class LocationsAdapter extends RecyclerView.Adapter<LocationsAdapter.View
             itemView.setOnClickListener(this);
 
             image = (ImageView) itemView.findViewById(R.id.image);
+            category=(ImageView) itemView.findViewById(R.id.imageViewCategory);
             name = (TextView) itemView.findViewById(R.id.name);
             nLikes=(TextView) itemView.findViewById(R.id.textViewLikes);
 

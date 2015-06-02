@@ -72,9 +72,36 @@
                     android:padding="5dp"
                     android:id="@+id/textViewUser"
                     android:maxLines="1"
-                    android:layout_centerVertical="true"
+                    android:layout_alignBottom="@+id/imageViewUser"
                     android:layout_toRightOf="@+id/imageViewUser"
                     android:layout_toEndOf="@+id/imageViewUser" />
+
+                <TextView
+                    tools:ignore="HardcodedText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/category"
+                    android:id="@+id/textView18"
+                    android:background="@android:color/white"
+                    android:padding="5dp"
+                    android:textSize="25dp"
+                    android:layout_below="@+id/imageViewUser"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
+
+                <TextView
+                    tools:ignore="HardcodedText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:textSize="20dp"
+                    android:background="@android:color/white"
+                    android:id="@+id/textViewCategory"
+                    android:layout_alignParentBottom="true"
+                    android:layout_toEndOf="@+id/textView18"
+                    android:layout_toRightOf="@+id/textView18"
+                    android:gravity="center_vertical"
+                    android:layout_below="@+id/textViewUser"
+                    android:padding="7dp" />
             </RelativeLayout>
 
             <TextView

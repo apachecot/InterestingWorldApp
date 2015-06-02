@@ -51,7 +51,8 @@
             android:layout_marginBottom="5dp"
             android:layout_toLeftOf="@+id/date"
             android:layout_toStartOf="@+id/date"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:ellipsize="end" />
 
         <TextView
             android:layout_width="wrap_content"

@@ -202,6 +202,7 @@ public class FragmentPhotos extends Fragment implements FragmentDialogPhoto.onRa
             datos.add(jsonChildNode.getString("rating"));
             datos.add(jsonChildNode.getString("rating_image"));
             datos.add(jsonChildNode.getString("id_image"));
+            datos.add(jsonChildNode.getString("id_category"));
             list.add(datos);
             urls.add(jsonChildNode.getString("photo_url"));
         }
@@ -224,7 +225,7 @@ public class FragmentPhotos extends Fragment implements FragmentDialogPhoto.onRa
         world.interesting.panche.interestingworld.Location loc= new world.interesting.panche.interestingworld.Location(select_image.get(0),
                 select_image.get(1),select_image.get(2),select_image.get(3),select_image.get(4),select_image.get(5),
                 select_image.get(6),select_image.get(7),select_image.get(8),select_image.get(9),
-                select_image.get(10),select_image.get(11),select_image.get(12),select_image.get(13));
+                select_image.get(10),select_image.get(11),select_image.get(12),select_image.get(13),select_image.get(16));
         if(this.getActivity().getLocalClassName().equals("MainActivity")) {
             ((MainActivity) getActivity()).SetLocationSelected(loc);
         }else {

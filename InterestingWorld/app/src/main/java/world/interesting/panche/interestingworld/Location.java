@@ -22,9 +22,13 @@ public class Location {
     String locality;
     String rating;
 
+
+
+    String category;
+
     public Location(String Nid,String Nname,String Ndescription,String Nurl,
                     String Nuser,String Nlastname,String Nid_user,String Nphoto_user,String Nlat,String Nlng,
-                    String Naddress, String Ncountry, String Nlocality,String Nrating)
+                    String Naddress, String Ncountry, String Nlocality,String Nrating, String Ncategory)
     {
         id=Nid;
         name=Nname;
@@ -40,6 +44,7 @@ public class Location {
         locality=Nlocality;
         rating=Nrating;
         photo_user=Nphoto_user;
+        category=Ncategory;
 
 
     }
@@ -155,5 +160,12 @@ public class Location {
 
     public void setPhoto_user(String photo_user) {
         this.photo_user = photo_user;
+    }
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

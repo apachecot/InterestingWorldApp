@@ -7,10 +7,9 @@ package world.interesting.panche.interestingworld;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -21,12 +20,9 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,17 +30,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.dd.CircularProgressButton;
 import com.devspark.appmsg.AppMsg;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.NetworkPolicy;
-import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
 import org.json.JSONException;
@@ -64,7 +55,7 @@ import java.util.Date;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import it.neokree.materialnavigationdrawer.MaterialNavigationDrawer;
 
-public class FragmentLocationDetail extends Fragment {
+public class FragmentLocationDetail extends Fragment implements FragmentDialogComment.onSubmitComment {
     String title_txt,description_txt,lat,lng,url_photo,user_location,id,address,locality,country;
     View inflatedView;
     ImageButton bNavigate,bShare,bPhoto,bVisited,bLike,bDelete;
@@ -90,10 +81,12 @@ public class FragmentLocationDetail extends Fragment {
         TextView description = (TextView) inflatedView.findViewById(R.id.TextViewDescription);
         TextView street = (TextView) inflatedView.findViewById(R.id.textViewAddress);
         TextView user = (TextView) inflatedView.findViewById(R.id.textViewUser);
+        TextView category = (TextView) inflatedView.findViewById(R.id.textViewCategory);
         ImageView photoDetail = (ImageView) inflatedView.findViewById(R.id.ImageDetail);
         ImageView photoUser = (ImageView) inflatedView.findViewById(R.id.imageViewUser);
         ImageView imageMap = (ImageView) inflatedView.findViewById(R.id.ImageMapStatic);
         nLikes = (TextView) inflatedView.findViewById(R.id.textViewNlikes);
+
 
 
         if(this.getActivity().getLocalClassName().equals("MainActivity")) {
@@ -117,6 +110,7 @@ public class FragmentLocationDetail extends Fragment {
                 bDelete.setVisibility(View.INVISIBLE);
             }
         }
+
         title_txt = loc.getName();
         description_txt = loc.getDescription();
         lat=loc.getLat();
@@ -127,6 +121,40 @@ public class FragmentLocationDetail extends Fragment {
         address=loc.getAddress();
         country=loc.getCountry();
         locality=loc.getLocality();
+        switch (Integer.parseInt(loc.getCategory())) {
+            //Monuments
+            case 1:
+                category.setText(getActivity().getResources().getString(R.string.monument));
+                break;
+            //Museums
+            case 2:
+                category.setText(getActivity().getResources().getString(R.string.art));
+                break;
+            //Beachs
+            case 3:
+                category.setText(getActivity().getResources().getString(R.string.beach));
+                break;
+            //Bar
+            case 4:
+                category.setText(getActivity().getResources().getString(R.string.bar));
+                break;
+            //Restaurant
+            case 5:
+                category.setText(getActivity().getResources().getString(R.string.restaurant));
+                break;
+            //Fotografias
+            case 6:
+                category.setText(getActivity().getResources().getString(R.string.photograph));
+                break;
+            //Ocio
+            case 7:
+                category.setText(getActivity().getResources().getString(R.string.leisure));
+                break;
+            default:
+                category.setText(getActivity().getResources().getString(R.string.monument));
+                break;
+
+        }
         if(!country.equals("")) {
             street.setText(address + " " + locality + "," + country);
         }
@@ -199,7 +227,7 @@ public class FragmentLocationDetail extends Fragment {
                 if(getActivity().getLocalClassName().equals("MainActivityUser")) {
                     SweetAlertVisited();
                 }else{
-                    AppMsg.makeText(getActivity(), "Debes estar loggeado para poder marcar como visitado", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                    AppMsg.makeText(getActivity(), "Debes estar logueado para poder marcar como visitado", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
                 }
             }
         });
@@ -211,7 +239,7 @@ public class FragmentLocationDetail extends Fragment {
                 if(getActivity().getLocalClassName().equals("MainActivityUser")) {
                     SweetAlertLike();
                 }else{
-                    AppMsg.makeText(getActivity(), "Debes estar loggeado para poder marcar que te gusta", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                    AppMsg.makeText(getActivity(), "Debes estar logueado para poder marcar que te gusta", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
                 }
             }
         });
@@ -222,7 +250,7 @@ public class FragmentLocationDetail extends Fragment {
                 if(getActivity().getLocalClassName().equals("MainActivityUser")) {
                     SweetAlertLike();
                 }else{
-                    AppMsg.makeText(getActivity(), "Debes estar loggeado para poder marcar que te gusta", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                    AppMsg.makeText(getActivity(), "Debes estar logueado para poder marcar que te gusta", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
                 }
             }
         });
@@ -234,7 +262,7 @@ public class FragmentLocationDetail extends Fragment {
                 if(getActivity().getLocalClassName().equals("MainActivityUser")) {
                     selectImage(v);
                 }else{
-                    AppMsg.makeText(getActivity(), "Debes estar loggeado para poder introducir una fotografía", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                    AppMsg.makeText(getActivity(), "Debes estar logueado para poder introducir una fotografía", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
                 }
             }
         });
@@ -830,10 +858,10 @@ public class FragmentLocationDetail extends Fragment {
                 })
                 .show();
     }
+    //Fragment del comentario
     private void dialogComment() {
-        // custom dialog
         FragmentDialogComment dFragment = new FragmentDialogComment();
-        // Show DialogFragment
+        dFragment.setTargetFragment(this, 0);
         dFragment.show(fm, "Dialog Fragment");
     }
 
@@ -857,13 +885,28 @@ public class FragmentLocationDetail extends Fragment {
                 })
                 .show();
     }
-
+    //---------------------------Funciones marcar recorrido------------------------
     public void PathLocation(String mode)
     {
-        Uri gmmIntentUri = Uri.parse("google.navigation:q="+lat+","+lng+"&mode="+mode);
-        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-        mapIntent.setPackage("com.google.android.apps.maps");
-        startActivity(mapIntent);
+        //Comprobamos que pueda acceder a la app de google maps
+        try {
+            Uri gmmIntentUri = Uri.parse("google.navigation:q=" + lat + "," + lng + "&mode=" + mode);
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
+            startActivity(mapIntent);
+        }catch (ActivityNotFoundException e) {
+            //En caso de no tener redirigir al market
+            try {
+                startActivity(new Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("market://details?id=com.google.android.apps.maps")));
+            } catch (android.content.ActivityNotFoundException anfe) {
+                startActivity(new Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.apps.maps")));
+            }
+            e.printStackTrace();
+        }
     }
 
     public void SweetAlertPath()
@@ -981,4 +1024,10 @@ public class FragmentLocationDetail extends Fragment {
             }
         });
     }
+
+    @Override
+    public void onSubmitComment(String State) {
+
+    }
+
 }

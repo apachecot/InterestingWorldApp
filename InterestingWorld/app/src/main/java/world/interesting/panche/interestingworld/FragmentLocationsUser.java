@@ -177,7 +177,8 @@ public class FragmentLocationsUser extends Fragment {
             Location loc= new Location(jsonChildNode.getString("id"),jsonChildNode.getString("name"),jsonChildNode.getString("description"),
                     jsonChildNode.getString("photo_url"),jsonChildNode.getString("user_name"),jsonChildNode.getString("lastname"),
                     jsonChildNode.getString("id_user"),jsonChildNode.getString("photo_user"),jsonChildNode.getString("lat"),jsonChildNode.getString("lng"),
-                    jsonChildNode.getString("address"),jsonChildNode.getString("country"),jsonChildNode.getString("locality"),jsonChildNode.getString("rating"));
+                    jsonChildNode.getString("address"),jsonChildNode.getString("country"),jsonChildNode.getString("locality"),jsonChildNode.getString("rating"),
+                    jsonChildNode.getString("id_category"));
             list.add(loc);
         }
         materialCardLoad();

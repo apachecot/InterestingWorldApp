@@ -10,10 +10,12 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.FileAsyncHttpResponseHandler;
@@ -40,8 +42,8 @@ import it.neokree.materialnavigationdrawer.elements.listeners.MaterialSectionLis
 public class MainActivityUser extends MaterialNavigationDrawer implements MaterialAccountListener {
 
     MaterialAccount account;
-    MaterialSection lastLocations, explore, photos, addlocation, visitlocation,likedlocations, settingsSection;
-    Fragment fraglastlocations, fragexplore, fragphotos, fragaddlocation, fragvisitlocation, fraglikedlocations,fragdetailstab,fragdetails,fragphotosdetail,fragcomments;
+    MaterialSection lastLocations, explore, photos, addlocation, visitlocation,likedlocations, settingsSection,exitSection;
+    Fragment fraglastlocations, fragexplore, fragphotos, fragaddlocation, fragvisitlocation, fraglikedlocations,fragdetailstab,fragdetails,fragphotosdetail,fragcomments,fragexit;
     User user;
     String[] datos= new String[5];
     File file_image= new File("");
@@ -59,6 +61,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     Intent i;
     String advanced="";
     int category=0;
+    Boolean doubleBackToExitPressedOnce=false;
 
 
 
@@ -116,6 +119,7 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
         fragdetails=new FragmentLocationDetail();
         fragphotosdetail=new FragmentPhotosDetail();
         fragcomments=new FragmentComments();
+        fragexit=new FragmentExit();
 
 
         fraglastlocations=new FragmentIndex();
@@ -153,6 +157,8 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
                 restoreUser();
             }
         });
+
+        exitSection = this.newSection(this.getResources().getString(R.string.exit),this.getResources().getDrawable(R.drawable.map),fragexit ).setSectionColor(Color.parseColor("#03a9f4"));
 
         // add your sections to the drawer
         this.addSection(lastLocations);
@@ -196,14 +202,11 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
     protected MaterialSection backToSection(MaterialSection currentSection) {
 
         if(currentSection == lastLocations) {
-            System.out.println("Back");
+            return exitSection;
         }
         else{
-
             return lastLocations;
         }
-
-        return currentSection;
     }
 
 
@@ -415,6 +418,38 @@ public class MainActivityUser extends MaterialNavigationDrawer implements Materi
 
     public void setCategory(int category) {
         this.category = category;
+    }
+
+    public MaterialSection getLastLocations() {
+        return lastLocations;
+    }
+
+    public MaterialSection getExplore() {
+        return explore;
+    }
+
+    public MaterialSection getPhotos() {
+        return photos;
+    }
+
+    public MaterialSection getAddlocation() {
+        return addlocation;
+    }
+
+    public MaterialSection getVisitlocation() {
+        return visitlocation;
+    }
+
+    public MaterialSection getLikedlocations() {
+        return likedlocations;
+    }
+
+    public MaterialSection getSettingsSection() {
+        return settingsSection;
+    }
+
+    public MaterialSection getExitSection() {
+        return exitSection;
     }
 }
 

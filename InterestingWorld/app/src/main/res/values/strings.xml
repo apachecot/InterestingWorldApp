@@ -10,7 +10,7 @@
     <string name="photos">Nuevas fotografías</string>
     <string name="addlocation">Añadir punto de interés</string>
     <string name="visitlocation">Puntos de interés visitados</string>
-    <string name="likedlocations">Puntos e imágenes que te gustan</string>
+    <string name="likedlocations">Puntos que te gustan</string>
     <string name="email">Email</string>
     <string name="pass">Password</string>
     <string name="name">Nombre</string>
@@ -23,7 +23,7 @@
     <string name="back">Atras</string>
     <string name="settings">Opciones</string>
     <string name="location">Ubicación</string>
-    <string name="url_share">http://www.pancheprojects.es</string>
+    <string name="url_share">http://interestingworld.webcindario.com/</string>
     <string name="search">Buscar</string>
     <string name="all">Todos</string>
     <string name="art">Museos</string>
@@ -57,5 +57,7 @@
     <string name="country">Pais</string>
     <string name="advanced">Avanzado</string>
     <string name="pulse">Pulsa en la imagen para subir una fotografía</string>
+    <string name="category">Categoría</string>
+    <string name="exit">Salir</string>
 
 </resources>

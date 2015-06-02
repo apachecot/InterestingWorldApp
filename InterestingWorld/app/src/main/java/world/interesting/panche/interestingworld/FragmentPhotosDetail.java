@@ -117,7 +117,7 @@ public class FragmentPhotosDetail extends Fragment implements FragmentImageViewe
                 if(getActivity().getLocalClassName().equals("MainActivityUser")) {
                     selectImage(v);
                 }else{
-                    AppMsg.makeText(getActivity(), "Debes estar loggeado para poder introducir un comentario", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
+                    AppMsg.makeText(getActivity(), "Debes estar logueado para poder introducir un comentario", AppMsg.STYLE_ALERT).setLayoutGravity(Gravity.BOTTOM).show();
                 }
             }
         });

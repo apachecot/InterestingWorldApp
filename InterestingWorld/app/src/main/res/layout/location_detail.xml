@@ -41,7 +41,8 @@
                     android:src="@drawable/delete"
                     android:scaleType="centerCrop"
                     android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp" />
+                    android:layout_marginTop="10dp"
+                    android:visibility="invisible" />
 
             </RelativeLayout>
 
@@ -73,9 +74,41 @@
                     android:padding="5dp"
                     android:id="@+id/textViewUser"
                     android:maxLines="1"
-                    android:layout_centerVertical="true"
+                    android:layout_above="@+id/textView16"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
                     android:layout_toRightOf="@+id/imageViewUser"
-                    android:layout_toEndOf="@+id/imageViewUser" />
+                    android:layout_toEndOf="@+id/imageViewUser"
+                    android:layout_alignTop="@+id/imageViewUser"
+                    android:gravity="center_vertical" />
+
+                <TextView
+                    tools:ignore="HardcodedText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/category"
+                    android:id="@+id/textView16"
+                    android:background="@android:color/white"
+                    android:padding="5dp"
+                    android:textSize="25dp"
+                    android:layout_below="@+id/imageViewUser"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
+
+                <TextView
+                    tools:ignore="HardcodedText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:textSize="20dp"
+                    android:background="@android:color/white"
+                    android:id="@+id/textViewCategory"
+                    android:gravity="center_vertical"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_toEndOf="@+id/textView16"
+                    android:layout_alignParentBottom="true"
+                    android:padding="7dp" />
+
             </RelativeLayout>
 
             <TextView
